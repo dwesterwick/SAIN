@@ -179,6 +179,12 @@ namespace SAIN.SAINComponent.SubComponents.CoverFinder
 
         private void FindFallback()
         {
+            if ((FallBackPoint != null) && ((OriginPoint - FallBackPoint.Position).magnitude > 50))
+            {
+                Logger.LogInfo($"Resetting fallback point for {BotOwner.name}...");
+                FallBackPoint = null;
+            }
+
             if (CoverPoints.Count > 0 && FallBackPoint == null)
             {
                 float highest = 0f;
