@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SAIN.SAINComponent.SubComponents.CoverFinder;
-using SAIN.BotController.Classes;
 
 namespace SAIN.SAINComponent.SubComponents.CoverFinder
 {
@@ -199,9 +198,10 @@ namespace SAIN.SAINComponent.SubComponents.CoverFinder
             }
         }
 
+        static float FallBackPointResetDistance = 35;
         static float FallBackPointNextAllowedResetDelayTime = 3f;
         static float FallBackPointNextAllowedResetTime = 0;
-
+        
         private void CheckResetFallback()
         {
             if (FallBackPoint == null || Time.time < FallBackPointNextAllowedResetTime)
@@ -209,10 +209,10 @@ namespace SAIN.SAINComponent.SubComponents.CoverFinder
                 return;
             }
 
-            if ((BotOwner.Position - FallBackPoint.Position).magnitude > 35)
+            if ((BotOwner.Position - FallBackPoint.Position).magnitude > FallBackPointResetDistance)
             {
-                //if (SAINPlugin.DebugMode)
-                Logger.LogInfo($"Resetting fallback point for {BotOwner.name}...");
+                if (SAINPlugin.DebugMode)
+                    Logger.LogInfo($"Resetting fallback point for {BotOwner.name}...");
 
                 FallBackPoint = null;
                 FallBackPointNextAllowedResetTime = Time.time + FallBackPointNextAllowedResetDelayTime;
