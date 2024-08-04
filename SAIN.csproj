@@ -469,7 +469,6 @@
     <Compile Include="Preset\GearStealthValues\EEquipmentType.cs" />
     <Compile Include="Preset\GearStealthValues\GearStealthValuesClass.cs" />
     <Compile Include="Preset\GearStealthValues\ItemStealthValue.cs" />
-    <Compile Include="Preset\BotSettings\SAINSettings\Categories\BotDifficultySettings.cs" />
     <Compile Include="Preset\GlobalSettings\Categories\General\AILimitSettings.cs" />
     <Compile Include="Preset\GlobalSettings\Categories\CloneSettingsClass.cs" />
     <Compile Include="Preset\GlobalSettings\Categories\General\DoorSettings.cs" />
