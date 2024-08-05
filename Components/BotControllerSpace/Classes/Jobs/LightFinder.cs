@@ -1,8 +1,9 @@
-﻿using EFT;
-using EFT.Visual;
+﻿using Comfort.Common;
+using EFT;
 using SAIN.Components;
 using SAIN.Components.BotControllerSpace.Classes.Raycasts;
 using SAIN.Components.PlayerComponentSpace;
+using SAIN.Helpers;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -27,13 +28,14 @@ namespace SAIN.BotControllerSpace.Classes
 
         public LightFinder(SAINBotController botController) : base(botController)
         {
+            BotLightTracker.GetLights(AllLights);
             botController.StartCoroutine(findLightsLoop());
         }
 
         public void Update()
         {
             if (_gameEnding) return;
-            IBotGame botGame = SAINGameWorld.SAINBotController?.BotGame;
+            IBotGame botGame = Singleton<IBotGame>.Instance;
             if (botGame == null) return;
             switch (botGame.Status) {
                 case GameStatus.Stopping:
@@ -83,8 +85,8 @@ namespace SAIN.BotControllerSpace.Classes
                 for (int i = 0; i < raycastCount; i++) {
                     LightRaycastData data = _lightcasts[i];
                     _commands[i] = new RaycastCommand {
-                        from = data.LightPosition,
-                        direction = data.Direction,
+                        from = data.PlayerPosition,
+                        direction = -data.DirectionToPlayer,
                         distance = data.Distance,
                         layerMask = mask,
                     };
@@ -104,13 +106,22 @@ namespace SAIN.BotControllerSpace.Classes
                     }
 
                     LightRaycastData data = _lightcasts[i];
-                    if (data.Player == null || data.LightComponent == null || data.LightComponent.Light == null) {
+                    if (data.Player == null || data.LightComponent == null) {
                         continue;
                     }
-
+                    //if (!data.LightComponent.LightActive) {
+                    //    continue;
+                    //}
                     Light light = data.LightComponent.Light;
+                    if (light == null) {
+                        continue;
+                    }
                     float range = light.range;
                     float distance = data.Distance;
+                    Vector3 direction = data.DirectionToPlayer;
+                    if (light.type == LightType.Spot && Vector3.Angle(direction, light.transform.forward) > light.spotAngle) {
+                        continue;
+                    }
                     float ratio = 1f - distance / range;
                     float illuminationLevel = Mathf.Lerp(0.1f, 1f, ratio);
                     float intensity = light.intensity / 5f;
@@ -118,6 +129,7 @@ namespace SAIN.BotControllerSpace.Classes
                     illuminationLevel *= intensity;
 
                     data.Player.Illumination.SetIllumination(illuminationLevel, time);
+                    DebugGizmos.Ray(data.LightPosition, data.DirectionToPlayer, Color.red, data.Distance, 0.05f, true, 0.15f, true);
                     illumCount++;
                 }
 
@@ -147,7 +159,7 @@ namespace SAIN.BotControllerSpace.Classes
                 Vector3 playerPos = player != null ? player.Transform.BodyPosition : Vector3.zero;
                 for (int l = 0; l < lightCount; l++) {
                     LightComponent light = lights[l];
-                    float lightRange = light.Light.range;
+                    float lightRange = light != null ? light.Light.range : 0;
                     Vector3 lightPos = light != null ? light.transform.position : Vector3.zero;
                     Vector3 directionToPlayer = directions[count];
                     float distance = distances[count];
@@ -155,11 +167,13 @@ namespace SAIN.BotControllerSpace.Classes
                         LightRaycastData data = new LightRaycastData {
                             LightComponent = light,
                             Player = player,
-                            Direction = directionToPlayer,
+                            DirectionToPlayer = directionToPlayer,
                             Distance = distance,
                             LightPosition = lightPos,
+                            PlayerPosition = playerPos,
                         };
                         result.Add(data);
+                        //Logger.LogDebug($" filterLights addResult");
                     }
                     count++;
                 }
@@ -173,8 +187,9 @@ namespace SAIN.BotControllerSpace.Classes
             public LightComponent LightComponent;
             public PlayerComponent Player;
             public float Distance;
-            public Vector3 Direction;
+            public Vector3 DirectionToPlayer;
             public Vector3 LightPosition;
+            public Vector3 PlayerPosition;
         }
 
         private CalcDistanceJob createJob(List<PlayerComponent> players, List<LightComponent> lights, out int total)

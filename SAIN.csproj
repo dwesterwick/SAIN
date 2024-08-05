@@ -308,6 +308,7 @@
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\PlayerDistancesJob.cs" />
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\BotRaycastJobs.cs" />
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\UnityJobExample%281%29.cs" />
+    <Compile Include="Components\BotControllerSpace\GrenadeController.cs" />
     <Compile Include="Components\GameWorldSpace\Doors\BotDoorTrigger.cs" />
     <Compile Include="Components\GameWorldSpace\Doors\DoorHandler.cs" />
     <Compile Include="Components\GameWorldSpace\GameWorldBase.cs" />
@@ -316,6 +317,7 @@
     <Compile Include="Components\GameWorldSpace\Lights\LightComponent.cs" />
     <Compile Include="Components\GameWorldSpace\Info\LocationClass.cs" />
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\LightFinder.cs" />
+    <Compile Include="Components\GameWorldSpace\Lights\LightTrigger.cs" />
     <Compile Include="Components\PlayerComponentSpace\Classes\BodyPart.cs" />
     <Compile Include="Components\PlayerComponentSpace\Classes\BodyPartsClass.cs" />
     <Compile Include="Components\PlayerComponentSpace\Classes\PartDictionary.cs" />

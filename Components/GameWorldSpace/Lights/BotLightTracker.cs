@@ -15,24 +15,34 @@ namespace SAIN.Components
         public static void AddLight(Light light, LampController lampController = null)
         {
             if (_trackedLights.ContainsKey(light)) {
+                if (lampController != null)
+                    _trackedLights[light].Init(lampController);
                 return;
             }
-            if (light.range < 0.1f || light.intensity < 0.6f) {
-                return;
+            if (light.range < 0.01f || light.intensity < 0.1f) {
+                //return;
             }
 
-            var gameObject = new GameObject($"LightComp_{_count++}");
-            gameObject.layer = LayerMaskClass.TriggersLayer;
+            //var gameObject = new GameObject($"LightComp_{_count++}");
+            //gameObject.layer = LayerMaskClass.TriggersLayer;
 
-            var component = gameObject.AddComponent<LightComponent>();
-            component.Init(light);
+            var component = light.gameObject.AddComponent<LightComponent>();
             if (lampController != null) {
                 component.Init(lampController);
             }
 
-            SAINBotController.Instance.LightFinder.AddLight(component);
+            SAINBotController.Instance?.LightFinder?.AddLight(component);
 
-            _trackedLights.Add(light, gameObject);
+            _trackedLights.Add(light, component);
+        }
+
+        public static void GetLights(List<LightComponent> result)
+        {
+            foreach (var light in _trackedLights.Values) {
+                if (light != null) {
+                    result.Add(light);
+                }
+            }
         }
 
         private static void dispose()
@@ -48,13 +58,12 @@ namespace SAIN.Components
             if (_nextlogTime > Time.time) {
                 return;
             }
-            _nextlogTime = Time.time + 10f;
-            //Logger.LogDebug($"[{_trackedLights.Count}] lights being tracked currently.");
+            _nextlogTime = Time.time + 30f;
+            Logger.LogDebug($"[{_trackedLights.Count}] lights being tracked currently.");
         }
 
         private static float _nextlogTime;
-        private static int _count;
 
-        private static readonly Dictionary<Light, GameObject> _trackedLights = new Dictionary<Light, GameObject>();
+        private static readonly Dictionary<Light, LightComponent> _trackedLights = new Dictionary<Light, LightComponent>();
     }
 }
