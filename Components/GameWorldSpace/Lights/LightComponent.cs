@@ -188,13 +188,13 @@ namespace SAIN.Components
         public LampController LampController { get; private set; }
         public VolumetricLight VolumetricLight { get; private set; }
         public Light Light { get; private set; }
-        public LightTrigger LightTrigger { get; private set; }
+        //public LightTrigger LightTrigger { get; private set; }
 
         public void Init(Light light)
         {
             Light = light;
             VolumetricLight = light.GetComponent<VolumetricLight>();
-            LightTrigger = this.gameObject.AddComponent<LightTrigger>();
+            //LightTrigger = this.gameObject.AddComponent<LightTrigger>();
         }
 
         public void Init(LampController lampController)

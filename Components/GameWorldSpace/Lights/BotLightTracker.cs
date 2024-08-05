@@ -30,6 +30,8 @@ namespace SAIN.Components
                 component.Init(lampController);
             }
 
+            SAINBotController.Instance.LightFinder.AddLight(component);
+
             _trackedLights.Add(light, gameObject);
         }
 

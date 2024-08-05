@@ -30,50 +30,10 @@ namespace SAIN.Components.PlayerComponentSpace
 
         public void Update()
         {
-            checkUpdateIllum();
         }
 
         public void Dispose()
         {
-        }
-
-        private void checkUpdateIllum()
-        {
-            if (_nextCheckRaycastTime < Time.time) {
-                _nextCheckRaycastTime = Time.time + (GlobalSettingsClass.Instance.General.Performance.PerformanceMode ? RAYCAST_FREQ_PERF_MODE : RAYCAST_FREQ);
-
-                bool illuminated = checkIfLightsInRange(out float illumLevel);
-                bool lineOfSight = false;
-                if (illuminated) {
-                    Vector3 bodyPos = Player.MainParts[BodyPartType.body].Position;
-                    foreach (var light in _lightsInRange) {
-                        LightTrigger trigger = light.Key;
-                        if (trigger == null || !trigger.LightActive) continue;
-
-                        Vector3 lightPos = trigger.transform.position;
-                        Vector3 direction = bodyPos - lightPos;
-                        if (!Physics.Raycast(lightPos, direction, direction.magnitude, LayerMaskClass.HighPolyWithTerrainMask)) {
-                            lineOfSight = true;
-                            DebugGizmos.Ray(lightPos, direction, Color.red, direction.magnitude, 0.05f, true, 1f);
-                            if (light.Value >= illumLevel * 0.75f) {
-                                break;
-                            }
-                        }
-                        DebugGizmos.Ray(lightPos, direction, Color.white, direction.magnitude, 0.05f, true, 1f);
-                    }
-                }
-
-                bool wasIlluminated = Illuminated;
-                Level = illumLevel;
-                if (illuminated && lineOfSight) {
-                    _timeLastIlluminated = Time.time;
-                    Logger.LogDebug("illuminated!");
-                }
-
-                if (wasIlluminated != Illuminated) {
-                    OnPlayerIlluminationChanged?.Invoke(illuminated);
-                }
-            }
         }
 
         public void SetIllumination(bool value, float level, LightTrigger trigger, float sqrMagnitude)
@@ -81,6 +41,19 @@ namespace SAIN.Components.PlayerComponentSpace
             updateLightsDictionary(value, level, trigger);
         }
 
+        public void SetIllumination(float level, float time)
+        {
+            if (_resetLevelTime < time) {
+                _resetLevelTime = time + 0.05f;
+                Level = 0;
+            }
+            if (level > Level) {
+                Level = level;
+            }
+            _timeLastIlluminated = time;
+        }
+
+        private float _resetLevelTime;
         private float _nextCheckRaycastTime;
         private const float RAYCAST_FREQ = 0.25f;
         private const float RAYCAST_FREQ_PERF_MODE = 0.5f;

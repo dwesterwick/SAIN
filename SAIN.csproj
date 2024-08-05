@@ -315,6 +315,7 @@
     <Compile Include="Components\GameWorldSpace\Lights\BotLightTracker.cs" />
     <Compile Include="Components\GameWorldSpace\Lights\LightComponent.cs" />
     <Compile Include="Components\GameWorldSpace\Info\LocationClass.cs" />
+    <Compile Include="Components\BotControllerSpace\Classes\Jobs\LightFinder.cs" />
     <Compile Include="Components\PlayerComponentSpace\Classes\BodyPart.cs" />
     <Compile Include="Components\PlayerComponentSpace\Classes\BodyPartsClass.cs" />
     <Compile Include="Components\PlayerComponentSpace\Classes\PartDictionary.cs" />

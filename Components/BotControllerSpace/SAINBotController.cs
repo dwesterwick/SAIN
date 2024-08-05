@@ -2,6 +2,7 @@ using Comfort.Common;
 using EFT;
 using EFT.EnvironmentEffect;
 using SAIN.BotController.Classes;
+using SAIN.BotControllerSpace.Classes;
 using SAIN.Components.BotComponentSpace.Classes.EnemyClasses;
 using SAIN.Components.BotController;
 using SAIN.Components.BotController.PeacefulActions;
@@ -176,6 +177,7 @@ namespace SAIN.Components
         }
 
         private BotSpawner _spawner;
+        public LightFinder LightFinder { get; private set; }
         public GrenadeController GrenadeController { get; private set; }
         public BotJobsClass BotJobs { get; private set; }
         public BotExtractManager BotExtractManager { get; private set; }
@@ -186,12 +188,8 @@ namespace SAIN.Components
         public BotHearingClass BotHearing { get; private set; }
         public BotPeacefulActionController PeacefulActions { get; private set; }
 
-        public Action<string, IFirearmHandsController> OnBotWeaponChange { get; set; }
-
         public void BotChangedWeapon(BotOwner botOwner, IFirearmHandsController firearmController)
         {
-            // if (botOwner != null)
-            //     OnBotWeaponChange?.Invoke(botOwner.name, firearmController);
         }
 
         public void PlayerEnviromentChanged(string profileID, IndoorTrigger trigger)
@@ -212,6 +210,7 @@ namespace SAIN.Components
             PeacefulActions = new BotPeacefulActionController(this);
             BotJobs = new BotJobsClass(this);
             GrenadeController = new GrenadeController(this);
+            LightFinder = new LightFinder(this);
             GameWorld.OnDispose += Dispose;
         }
 
@@ -222,6 +221,8 @@ namespace SAIN.Components
 
         private void Update()
         {
+            LightFinder.Update();
+
             if (BotGame == null ||
                 BotGame.Status == GameStatus.Stopping) {
                 return;
@@ -253,8 +254,6 @@ namespace SAIN.Components
             }
         }
 
-        private readonly Dictionary<BotComponent, GUIObject> _debugObjects = new Dictionary<BotComponent, GUIObject>();
-
         public void BotDeath(BotOwner bot)
         {
             if (bot?.GetPlayer != null && bot.IsDead) {
@@ -262,11 +261,11 @@ namespace SAIN.Components
             }
         }
 
+        private readonly Dictionary<BotComponent, GUIObject> _debugObjects = new Dictionary<BotComponent, GUIObject>();
         public List<Player> DeadBots { get; private set; } = new List<Player>();
-
         public List<BotDeathObject> DeathObstacles { get; private set; } = new List<BotDeathObject>();
-
         private readonly List<int> IndexToRemove = new List<int>();
+        public readonly List<string> Groups = new List<string>();
 
         public void AddNavObstacles()
         {
@@ -327,8 +326,6 @@ namespace SAIN.Components
             }
         }
 
-        public List<string> Groups = new List<string>();
-
         private void OnDestroy()
         {
         }
@@ -338,24 +335,29 @@ namespace SAIN.Components
             try {
                 GameWorld.OnDispose -= Dispose;
                 StopAllCoroutines();
-                BotJobs.Dispose();
-                BotSpawnController.UnSubscribe();
-                PeacefulActions.Dispose();
+                BotJobs?.Dispose();
+                BotSpawnController?.UnSubscribe();
+                PeacefulActions?.Dispose();
+                LightFinder?.Dispose();
 
                 if (BotEventHandler != null) {
-                    GrenadeController.UnSubscribe(BotEventHandler);
+                    GrenadeController?.UnSubscribe(BotEventHandler);
                 }
+            }
+            catch (Exception ex) {
+                Logger.LogError($"Dispose SAIN BotController Error: {ex}");
+            }
 
+            try {
                 if (Bots != null && Bots.Count > 0) {
                     foreach (var bot in Bots.Values) {
                         bot?.Dispose();
                     }
                 }
-
                 Bots?.Clear();
             }
             catch (Exception ex) {
-                Logger.LogError($"Dispose SAIN BotController Error: {ex}");
+                Logger.LogError($"Dispose All Bots Error: {ex}");
             }
 
             Destroy(this);
