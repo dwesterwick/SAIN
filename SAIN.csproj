@@ -143,6 +143,10 @@
     <Reference Include="DrakiaXYZ-BigBrain">
       <HintPath>..\..\BepInEx\DrakiaXYZ-BigBrain.dll</HintPath>
     </Reference>
+    <Reference Include="ItemComponent.Types, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\EscapeFromTarkov_Data\Managed\ItemComponent.Types.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Data.Sqlite, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\EscapeFromTarkov_Data\Managed\Mono.Data.Sqlite.dll</HintPath>
@@ -279,6 +283,7 @@
     <Compile Include="Components\BotComponentSpace\Classes\Info\BotDifficultyClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Medical\AimHitEffectClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Medical\BotHitByEnemyClass.cs" />
+    <Compile Include="Components\BotComponentSpace\Classes\Medical\BotBandageClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Mover\ObstacleAgent.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\BotWeightManagement.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\TrackedEnemyClass.cs" />
@@ -395,7 +400,6 @@
     <Compile Include="Layers\Combat\Solo\MeleeAttackAction.cs" />
     <Compile Include="Layers\Combat\Squad\FollowSearchParty - Copy.cs" />
     <Compile Include="Layers\Debug\CrawlAction.cs" />
-    <Compile Include="Layers\Debug\GrenadeThrowTestAction.cs" />
     <Compile Include="Layers\Flashbanged\ExtractAction.cs" />
     <Compile Include="Layers\Flashbanged\PeacefulLayer.cs" />
     <Compile Include="Layers\ISAINAction.cs" />

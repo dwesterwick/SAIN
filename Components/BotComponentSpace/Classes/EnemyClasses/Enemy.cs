@@ -420,8 +420,9 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         public float NextCheckFlashLightTime;
 
-        private float _updateCoef = 1f;
+        //private float _updateCoef = 1f;
         private float _nextUpdateCoefTime;
+
         private bool _hasBeenActive;
         private Vector3? _centerMass;
         private float _nextGetCenterTime;
@@ -430,8 +431,10 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         private const float _checkHidingRayDist = 3f;
         private const float _checkHidingFreq = 1f;
         private float _nextCheckHidingTime;
-        private float _lastUpdateDistanceTime;
+
+        //private float _lastUpdateDistanceTime;
         private float _nextReportSightTime;
+
         private const float _reportSightFreq = 0.5f;
         private float _timeLastActive;
     }

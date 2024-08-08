@@ -23,6 +23,35 @@ namespace SAIN.Patches.Generic
         }
     }
 
+    public class ChangeUsingMedsPatch : ModulePatch
+    {
+        protected override MethodBase GetTargetMethod()
+        {
+            return AccessTools.Method(typeof(BotFirstAidClass), "TryApplyToCurrentPart");
+        }
+
+        [PatchPrefix]
+        public static void Patch(BotOwner ___botOwner_0, BotFirstAidClass __instance)
+        {
+            if (!SAINEnableClass.GetSAIN(___botOwner_0, out BotComponent bot)) {
+                return;
+            }
+            if (___botOwner_0.WeaponManager.Reload.Reloading) {
+                return;
+            }
+            var bandageClass = bot.Medical.Bandage;
+            if (bandageClass.WantToOnlyBandage() == false ||
+                bandageClass.IsAlreadyBandage(__instance.CurUsingMeds) == true) {
+                return;
+            }
+            MedsClass bandage = bandageClass.GetBandage();
+            if (bandage == null) {
+                return;
+            }
+            __instance.CurUsingMeds = bandage;
+        }
+    }
+
     public class StopRefillMagsPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
@@ -89,14 +118,12 @@ namespace SAIN.Patches.Generic
         [PatchPostfix]
         public static void PatchPostfix(ref bool __result, EnemyInfo __instance)
         {
-            if (__result == true)
-            {
+            if (__result == true) {
                 return;
             }
             if (SAINEnableClass.GetSAIN(__instance.Owner, out var sain)
                 //&& sain.Info.Profile.IsPMC
-                && sain.EnemyController.CheckAddEnemy(__instance.Person)?.Heard == true)
-            {
+                && sain.EnemyController.CheckAddEnemy(__instance.Person)?.Heard == true) {
                 __result = true;
             }
         }
@@ -127,8 +154,7 @@ namespace SAIN.Patches.Generic
         [PatchPostfix]
         public static void PatchPostfix(EnemyInfo __instance, ref bool __result)
         {
-            if (!SAINEnableClass.GetSAIN(__instance.Owner, out var botComponent))
-            {
+            if (!SAINEnableClass.GetSAIN(__instance.Owner, out var botComponent)) {
                 return;
             }
             var enemy = botComponent.EnemyController.CheckAddEnemy(__instance.Person);
@@ -138,11 +164,9 @@ namespace SAIN.Patches.Generic
         public static bool BotsGroupSenseRecently(EnemyInfo enemyInfo)
         {
             BotsGroup group = enemyInfo.GroupOwner;
-            for (int i = 0; i < group.MembersCount; i++)
-            {
+            for (int i = 0; i < group.MembersCount; i++) {
                 if (SAINEnableClass.GetSAIN(group.Member(i), out BotComponent sain)
-                    && EnemySenseRecently(sain, enemyInfo))
-                {
+                    && EnemySenseRecently(sain, enemyInfo)) {
                     return true;
                 }
             }
@@ -176,8 +200,7 @@ namespace SAIN.Patches.Generic
         [PatchPostfix]
         public static void PatchPostfix(EnemyInfo __instance, ref bool __result)
         {
-            if (!SAINEnableClass.GetSAIN(__instance.Owner, out var botComponent))
-            {
+            if (!SAINEnableClass.GetSAIN(__instance.Owner, out var botComponent)) {
                 return;
             }
             var enemy = botComponent.EnemyController.CheckAddEnemy(__instance.Person);
@@ -196,10 +219,8 @@ namespace SAIN.Patches.Generic
         public static bool PatchPrefix(BotsController __instance, Grenade grenade, Vector3 position, Vector3 force, float mass)
         {
             Vector3 danger = Vector.DangerPoint(position, force, mass);
-            foreach (BotOwner bot in __instance.Bots.BotOwners)
-            {
-                if (SAINPlugin.IsBotExluded(bot))
-                {
+            foreach (BotOwner bot in __instance.Bots.BotOwners) {
+                if (SAINPlugin.IsBotExluded(bot)) {
                     bot.BewareGrenade.AddGrenadeDanger(danger, grenade);
                 }
             }
@@ -220,5 +241,4 @@ namespace SAIN.Patches.Generic
             return false;
         }
     }
-
 }

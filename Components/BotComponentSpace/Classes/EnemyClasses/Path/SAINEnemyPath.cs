@@ -333,9 +333,10 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             return new EnemyCorner(enemyPosition, 0f, index);
         }
 
-        private GUIObject blindcornerGUIObject;
-        private GameObject blindcornerGameObject;
+        //private GUIObject blindcornerGUIObject;
+        //private GameObject blindcornerGameObject;
         private bool _canSeeLast;
+
         private float _nextCheckLast;
         private Vector3? _enemyLastPosChecked;
         private Vector3 _botLastPosChecked;

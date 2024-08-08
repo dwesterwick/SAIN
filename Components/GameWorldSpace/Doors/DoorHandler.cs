@@ -57,19 +57,9 @@ namespace SAIN.Components
 
         public void CheckAddDoorTrigger(NavMeshDoorLink link)
         {
-            return;
-            if (_doorsWithTriggers.ContainsKey(link.Id)) {
-                return;
-            }
-
-            var gameObject = new GameObject("doorTrigger_" + _triggerCount.ToString());
-            var trigger = gameObject.AddComponent<BotDoorTrigger>();
-            trigger.initDoor(link.Door);
-            _triggerCount++;
-            _doorsWithTriggers.Add(link.Id, gameObject);
         }
 
-        private int _triggerCount;
+        //private int _triggerCount;
 
         private void checkDoors()
         {

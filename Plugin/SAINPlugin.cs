@@ -5,6 +5,7 @@ using EFT;
 using HarmonyLib;
 using SAIN.Editor;
 using SAIN.Helpers;
+using SAIN.Patches;
 using SAIN.Patches.Movement;
 using SAIN.Patches.Shoot.Aim;
 using SAIN.Plugin;
@@ -73,6 +74,7 @@ namespace SAIN
         public static ConfigEntry<KeyboardShortcut> OpenEditorConfigEntry { get; private set; }
 
         private List<Type> patches => new List<Type>() {
+                //typeof(Patches.Generic.ChangeUsingMedsPatch),
                 typeof(Patches.Generic.StopRefillMagsPatch),
                 typeof(Patches.Generic.SetEnvironmentPatch),
                 typeof(Patches.Generic.SetPanicPointPatch),

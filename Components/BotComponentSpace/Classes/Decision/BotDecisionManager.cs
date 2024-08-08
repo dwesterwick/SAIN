@@ -123,9 +123,9 @@ namespace SAIN.SAINComponent.Classes.Decision
             SetDecisions(ECombatDecision.None, ESquadDecision.None, ESelfDecision.None);
         }
 
-        private BotDecision<ESelfDecision>? _self;
-        private BotDecision<ECombatDecision>? _combat;
-        private BotDecision<ESquadDecision>? _squad;
+        //private BotDecision<ESelfDecision>? _self;
+        //private BotDecision<ECombatDecision>? _combat;
+        //private BotDecision<ESquadDecision>? _squad;
 
         private void setSelf(BotDecision<ESelfDecision>? decision)
         {

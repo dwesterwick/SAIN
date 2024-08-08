@@ -255,13 +255,6 @@ namespace SAIN.SAINComponent.Classes.Search
 
         private readonly List<Vector3> newCorners = new List<Vector3>();
 
-        private struct peekPositions
-        {
-            public Vector3 Start;
-            public Vector3 End;
-            public Vector3 DangerPoint;
-        }
-
         private Vector3 GetPeekStartAndEnd(Vector3 blindCorner, Vector3 dangerPoint, Vector3 dirToBlindCorner, Vector3 dirToBlindDest, out Vector3 peekEnd)
         {
             const float maxMagnitude = 4f;
@@ -319,10 +312,6 @@ namespace SAIN.SAINComponent.Classes.Search
             result = rayHit.position;
         }
 
-        private float _nextCheckFinishTime;
         private const float ComeToRandomDist = 1f;
-        private bool _canStartSearch;
-        private float _nextCheckSearchTime;
-        private float _nextCheckPosTime;
     }
 }

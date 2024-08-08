@@ -126,30 +126,13 @@ namespace SAIN.Components
 
         private void resetLine()
         {
-            _lineRenderer.material.color = Color.white;
-            _lineRenderer.SetPosition(1, _light.transform.position + (this.transform.forward * _lightRange));
+            //_lineRenderer.material.color = Color.white;
+            //_lineRenderer.SetPosition(1, _light.transform.position + (this.transform.forward * _lightRange));
         }
 
         private void Update()
         {
-            return;
-            if (_nextCheckActiveTime < Time.time) {
-                _nextCheckActiveTime = Time.time + CHECK_ACTIVE_FREQ;
-
-                bool lightOn = _lightComponent.Active;
-                if (lightOn && !_collider.enabled) {
-                    LightActive = true;
-                    _collider.enabled = true;
-                }
-                if (!lightOn && _collider.enabled) {
-                    LightActive = false;
-                    _collider.enabled = false;
-                }
-            }
         }
-
-        private const float CHECK_ACTIVE_FREQ = 0.2f;
-        private float _nextCheckActiveTime;
 
         private void OnEnable()
         {
@@ -161,13 +144,15 @@ namespace SAIN.Components
 
         private void OnDestroy()
         {
-            Destroy(_debugSphere);
+            //Destroy(_debugSphere);
         }
 
         private SphereCollider _collider;
-        private GameObject _debugSphere;
-        private LineRenderer _lineRenderer;
+
+        // private GameObject _debugSphere;
+        //private LineRenderer _lineRenderer;
         private LightType _lightType;
+
         private float _lightAngle;
         private float _lightRange;
         private float _lightRange_SQR;

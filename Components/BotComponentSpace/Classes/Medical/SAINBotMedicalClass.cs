@@ -10,16 +10,17 @@ namespace SAIN.SAINComponent.Classes
             Surgery = new BotSurgery(this);
             HitReaction = new SAINBotHitReaction(this);
             HitByEnemy = new BotHitByEnemyClass(this);
+            Bandage = new BotBandageClass(sain);
         }
 
+        public BotBandageClass Bandage { get; private set; }
         public BotSurgery Surgery { get; private set; }
         public SAINBotHitReaction HitReaction { get; private set; }
-        public BotHitByEnemyClass HitByEnemy {  get; private set; }
+        public BotHitByEnemyClass HitByEnemy { get; private set; }
 
         public void TryCancelHeal()
         {
-            if (_nextCancelTime < Time.time)
-            {
+            if (_nextCancelTime < Time.time) {
                 _nextCancelTime = Time.time + _cancelFreq;
                 BotOwner.Medecine?.FirstAid?.CancelCurrent();
             }
@@ -34,6 +35,7 @@ namespace SAIN.SAINComponent.Classes
             Surgery.Init();
             HitReaction.Init();
             HitByEnemy.Init();
+            Bandage.Init();
         }
 
         public void Update()
@@ -41,6 +43,7 @@ namespace SAIN.SAINComponent.Classes
             Surgery.Update();
             HitReaction.Update();
             HitByEnemy.Update();
+            Bandage.Update();
         }
 
         public void Dispose()
@@ -50,6 +53,7 @@ namespace SAIN.SAINComponent.Classes
             Surgery?.Dispose();
             HitReaction?.Dispose();
             HitByEnemy?.Dispose();
+            Bandage?.Dispose();
         }
 
         public void GetHit(DamageInfo damageInfo, EBodyPart bodyPart, float floatVal)

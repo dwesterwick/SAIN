@@ -10,7 +10,6 @@ namespace SAIN.Layers.Combat.Solo
     internal class SearchAction : CombatAction, ISAINAction
     {
         private Enemy _searchTarget => Search.TargetEnemy;
-        private bool _subscribed;
         private float _nextCheckWeaponTime;
         private float _nextUpdateSearchTime;
         private bool _haveTalked = false;

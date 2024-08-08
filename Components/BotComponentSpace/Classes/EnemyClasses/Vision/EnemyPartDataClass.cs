@@ -20,9 +20,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public readonly EBodyPart BodyPart;
         public readonly List<BodyPartCollider> Colliders;
         public readonly BifacialTransform Transform;
-        private static int _debugCount = 0;
-        private GameObject _debugLine;
-        private LineRenderer _debugLineRenderer;
+
+        //private static int _debugCount = 0;
+        //private GameObject _debugLine;
+        //private LineRenderer _debugLineRenderer;
+
         private int _index;
         private readonly int _indexMax;
         private BodyPartCollider _lastSuccessPart;
@@ -74,14 +76,14 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         public void UpdateDebugGizmos(Vector3 eyePosition)
         {
-            _debugLineRenderer.SetPosition(0, eyePosition);
-            if (!LineOfSight) {
-                _debugLineRenderer.material.color = Color.white;
+            //_debugLineRenderer.SetPosition(0, eyePosition);
+            //if (!LineOfSight) {
+            //    _debugLineRenderer.material.color = Color.white;
+            //
+            //    return;
+            //}
 
-                return;
-            }
-
-            _debugLineRenderer.material.color = Color.red;
+            //_debugLineRenderer.material.color = Color.red;
             //if (LastSuccessPoint != null) {
             //    _debugLine.transform.position = LastSuccessPoint.Value;
             //    _debugLineRenderer.SetPosition(1, LastSuccessPoint.Value);
@@ -90,7 +92,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         public void SetLineOfSight(Vector3 castPoint, EBodyPartColliderType colliderType, RaycastHit raycastHit, ERaycastCheck type, float time)
         {
-            RaycastResults[type].Update(castPoint, _colliderDictionary[colliderType], raycastHit, time);
+            BodyPartCollider collider = _colliderDictionary[colliderType];
+            RaycastResults[type].Update(castPoint, collider, raycastHit, time);
+            if (raycastHit.collider == null) {
+                _lastSuccessPart = collider;
+            }
         }
 
         public BodyPartRaycast GetRaycast(Vector3 origin, float maxRange)
@@ -107,8 +113,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         private BodyPartCollider getCollider()
         {
-            if (_lastSuccessPart != null) {
+            if (LineOfSight && _lastSuccessPart != null) {
                 return _lastSuccessPart;
+            }
+            else {
+                _lastSuccessPart = null;
             }
 
             BodyPartCollider collider = Colliders[_index];

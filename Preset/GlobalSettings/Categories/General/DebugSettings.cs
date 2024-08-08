@@ -26,7 +26,7 @@ namespace SAIN.Preset.GlobalSettings
 
         [Name("Draw Transform Gizmos")]
         public bool DrawTransformGizmos;
-        
+
         [Name("Draw Line of Sight Checks")]
         public bool DrawLineOfSightGizmos;
 
@@ -78,9 +78,6 @@ namespace SAIN.Preset.GlobalSettings
         [Name("Test Bot Crawling")]
         public bool ForceBotsToTryCrawl;
 
-        [Name("Test Grenade Throw")]
-        public bool TestGrenadeThrow;
-
         [Name("Draw Debug Labels")]
         public bool DrawDebugLabels;
 
@@ -95,7 +92,7 @@ namespace SAIN.Preset.GlobalSettings
 
         [Name("Debug Hearing Calc Results")]
         public bool DebugHearing = false;
-        
+
         [Name("Debug Extracts")]
         public bool DebugExtract = false;
 
