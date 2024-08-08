@@ -96,6 +96,7 @@ namespace SAIN.SAINComponent.Classes.Mover
             // Credit to Fontaine, these checks are taken from realism mod's code.
             var firearmController = Bot.Transform.WeaponData.FirearmController;
             if (firearmController != null &&
+                firearmController.FirearmsAnimator != null &&
                 !firearmController.IsAiming &&
                 !firearmController.IsInReloadOperation() &&
                 !firearmController.IsInventoryOpen() &&

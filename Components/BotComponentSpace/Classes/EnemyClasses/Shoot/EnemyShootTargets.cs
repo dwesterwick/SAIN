@@ -1,4 +1,5 @@
 ﻿using SAIN.Helpers;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SAIN.SAINComponent.Classes.EnemyClasses
@@ -20,7 +21,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Enemy.Bot.Shoot.OnShootEnemy += checkChangePart;
             Enemy.Bot.Shoot.OnEndShoot += executePartChange;
             addEnemyParts();
-            SubscribeToDispose(Dispose);
         }
 
         public void Update()
@@ -73,10 +73,10 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             var enemyParts = Enemy.Vision.VisionChecker.EnemyParts.Parts;
 
             for (int i = 0; i < CHANGE_PART_ITERATION_ATTEMPTS; i++) {
-                EBodyPart randomPart = _selector.GetRandomOption();
+                EBodyPart randomPart = _normalSelector.GetRandomOption();
                 if (enemyParts.TryGetValue(randomPart, out EnemyPartDataClass enemyPartData) &&
                     enemyPartData?.CanShoot == true &&
-                    enemyPartData.LastSuccessShootPoint != null) {
+                    enemyPartData.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint != null) {
                     if (SelectedPart != null &&
                         SelectedPart.BodyPart != randomPart) {
                         LastPart = SelectedPart;
@@ -105,30 +105,57 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             var partToShoot = SelectedPart ?? changeSelectedPart();
 
             if (partToShoot == null) {
+                Vector3? point = null;
                 foreach (var part in Enemy.Vision.VisionChecker.EnemyParts.Parts.Values) {
-                    if (part?.CanShoot == true && part.LastSuccessShootPoint != null) {
-                        partToShoot = part;
-                        break;
+                    if (part?.CanShoot == true) {
+                        point = part.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint;
+                        if (point != null) {
+                            break;
+                        }
+                    }
+                }
+                return point;
+            }
+            else {
+                return partToShoot.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint;
+            }
+        }
+
+        public Vector3? GetCenterMass()
+        {
+            Vector3? point = null;
+            Dictionary<EBodyPart, EnemyPartDataClass> parts = Enemy.Vision.VisionChecker.EnemyParts.Parts;
+            if (parts.TryGetValue(EBodyPart.Chest, out EnemyPartDataClass chest)) {
+                if (chest?.CanShoot == true) {
+                    point = chest.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint;
+                    if (point != null) {
+                        return point;
                     }
                 }
             }
-
-            return partToShoot?.LastSuccessShootPoint;
+            if (parts.TryGetValue(EBodyPart.Stomach, out EnemyPartDataClass stomach)) {
+                if (stomach?.CanShoot == true) {
+                    point = stomach.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint;
+                    if (point != null) {
+                        return point;
+                    }
+                }
+            }
+            return point;
         }
 
         private void addEnemyParts()
         {
-            CanShootHead = _headWeight > 0;
+            CanShootHead = _normalWeights._headWeight > 0;
             if (CanShootHead) {
-                _selector.AddOption(EBodyPart.Head, _headWeight);
+                _normalSelector.AddOption(EBodyPart.Head, _normalWeights._headWeight);
             }
-            _selector.AddOption(EBodyPart.Chest, _chestWeight);
-            _selector.AddOption(EBodyPart.Stomach, _stomachWeight);
-            _selector.AddOption(EBodyPart.LeftArm, _leftArmWeight);
-            _selector.AddOption(EBodyPart.RightArm, _rightArmWeight);
-            _selector.AddOption(EBodyPart.LeftLeg, _leftLegWeight);
-            _selector.AddOption(EBodyPart.RightLeg, _rightLegWeight);
-
+            _normalSelector.AddOption(EBodyPart.Chest, _normalWeights._chestWeight);
+            _normalSelector.AddOption(EBodyPart.Stomach, _normalWeights._stomachWeight);
+            _normalSelector.AddOption(EBodyPart.LeftArm, _normalWeights._leftArmWeight);
+            _normalSelector.AddOption(EBodyPart.RightArm, _normalWeights._rightArmWeight);
+            _normalSelector.AddOption(EBodyPart.LeftLeg, _normalWeights._leftLegWeight);
+            _normalSelector.AddOption(EBodyPart.RightLeg, _normalWeights._rightLegWeight);
             //_selector.Test();
         }
 
@@ -140,8 +167,29 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         private int _leftLegWeight = 4;
         private int _rightLegWeight = 4;
 
+        private PartWeights _normalWeights = new PartWeights {
+            _headWeight = 0,
+            _chestWeight = 10,
+            _stomachWeight = 6,
+            _leftArmWeight = 3,
+            _rightArmWeight = 3,
+            _leftLegWeight = 4,
+            _rightLegWeight = 4,
+        };
+
         private float _lastChangePartTime;
 
-        private readonly WeightedRandomSelector<EBodyPart> _selector = new WeightedRandomSelector<EBodyPart>();
+        private readonly WeightedRandomSelector<EBodyPart> _normalSelector = new WeightedRandomSelector<EBodyPart>();
+
+        private struct PartWeights
+        {
+            public int _headWeight;
+            public int _chestWeight;
+            public int _stomachWeight;
+            public int _leftArmWeight;
+            public int _rightArmWeight;
+            public int _leftLegWeight;
+            public int _rightLegWeight;
+        }
     }
 }

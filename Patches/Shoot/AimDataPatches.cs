@@ -443,15 +443,9 @@ namespace SAIN.Patches.Shoot.Aim
         [PatchPrefix]
         public static void PatchPrefix(ref bool withLegs, ref bool canBehead, EnemyInfo __instance)
         {
-            if (!__instance.Person.IsAI) {
-                var aim = GlobalSettingsClass.Instance.Aiming;
-                canBehead = EFTMath.RandomBool(aim.PMCAimForHeadChance) && aim.PMCSAimForHead && isPMC(__instance);
-                withLegs = true;
-            }
-            else {
-                canBehead = true;
-                withLegs = true;
-            }
+            var aim = GlobalSettingsClass.Instance.Aiming;
+            canBehead = aim.PMCSAimForHead && isPMC(__instance) && EFTMath.RandomBool(aim.PMCAimForHeadChance);
+            withLegs = true;
         }
 
         private static bool isPMC(EnemyInfo __instance)

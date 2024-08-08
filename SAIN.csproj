@@ -281,6 +281,7 @@
     <Compile Include="Components\BotComponentSpace\Classes\Medical\BotHitByEnemyClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Mover\ObstacleAgent.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\BotWeightManagement.cs" />
+    <Compile Include="Components\BotComponentSpace\Classes\TrackedEnemyClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Sense\Hearing\HearingAnalysisClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Sense\Hearing\HearingBulletAnalysisClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Sense\Hearing\HearingDispersionClass.cs" />
@@ -332,10 +333,10 @@
     <Compile Include="Components\PlayerComponentSpace\PersonClasses\PersonSubClass.cs" />
     <Compile Include="Components\PlayerComponentSpace\PersonClasses\ProfileData.cs" />
     <Compile Include="Components\PlayerComponentSpace\PersonClasses\PlayerData.cs" />
-    <Compile Include="Components\PlayerComponentSpace\PlayerData.cs" />
-    <Compile Include="Components\PlayerComponentSpace\PlayerDistanceData.cs" />
-    <Compile Include="Components\PlayerComponentSpace\PlayerIlluminationClass.cs" />
-    <Compile Include="Components\PlayerComponentSpace\OtherPlayersData.cs" />
+    <Compile Include="Components\PlayerComponentSpace\Classes\OtherPlayer\OtherPlayerData.cs" />
+    <Compile Include="Components\PlayerComponentSpace\Classes\OtherPlayer\OtherPlayerDistanceData.cs" />
+    <Compile Include="Components\PlayerComponentSpace\Classes\PlayerIlluminationClass.cs" />
+    <Compile Include="Components\PlayerComponentSpace\Classes\OtherPlayer\OtherPlayerDatasClass.cs" />
     <Compile Include="Helpers\Events\ToggleEvent.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyControllers\EnemyChooserClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Path\CornerHelpers.cs" />

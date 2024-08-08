@@ -12,7 +12,7 @@ namespace SAIN.Components.PlayerComponentSpace.PersonClasses
 
         public void Update()
         {
-            checkOnNavMesh();
+            //checkOnNavMesh();
         }
 
         public bool IsOnNavMesh(out NavMeshHit hit, float range = 0.5f)
@@ -22,12 +22,10 @@ namespace SAIN.Components.PlayerComponentSpace.PersonClasses
 
         private void checkOnNavMesh()
         {
-            if (_nextCheckNavmeshTime < Time.time)
-            {
+            if (_nextCheckNavmeshTime < Time.time) {
                 float delay = Person.AIInfo.IsAI ? NAVMESH_CHECK_FREQUENCY_AI : NAVMESH_CHECK_FREQUENCY;
                 _nextCheckNavmeshTime = Time.time + delay;
-                if (IsOnNavMesh(out var hit))
-                {
+                if (IsOnNavMesh(out var hit)) {
                     LastNavmeshPosition = hit.position;
                 }
             }

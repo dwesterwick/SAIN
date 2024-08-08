@@ -55,6 +55,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public EnemyAim Aim { get; }
         public EnemyHearing Hearing { get; }
         public EnemyShootClass Shoot { get; }
+        public EnemyPartsClass EnemyParts { get; }
 
         private EnemyKnownChecker _knownChecker { get; }
         private EnemyActiveThreatChecker _activeThreatChecker { get; }
@@ -86,6 +87,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Aim = new EnemyAim(this);
             Hearing = new EnemyHearing(this);
             Shoot = new EnemyShootClass(this);
+            EnemyParts = new EnemyPartsClass(this);
 
             updateDistAndDirection(true);
         }
@@ -121,6 +123,8 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Path.Update();
             Status.Update();
             Shoot.Update();
+            Hearing.Update();
+            EnemyParts.Update();
         }
 
         public void Dispose()

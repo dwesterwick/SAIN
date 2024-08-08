@@ -136,7 +136,7 @@ namespace SAIN.Components
             if (_nextCheckActiveTime < Time.time) {
                 _nextCheckActiveTime = Time.time + CHECK_ACTIVE_FREQ;
 
-                bool lightOn = _lightComponent.LightActive;
+                bool lightOn = _lightComponent.Active;
                 if (lightOn && !_collider.enabled) {
                     LightActive = true;
                     _collider.enabled = true;

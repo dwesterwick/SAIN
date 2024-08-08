@@ -1,4 +1,5 @@
 ﻿using EFT;
+using SAIN.Layers.Combat.Solo;
 using SAIN.Preset.Personalities;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using UnityEngine;
@@ -8,6 +9,8 @@ namespace SAIN.SAINComponent.Classes.Search
 {
     public class SAINSearchClass : BotBase, IBotClass
     {
+        public TrackedEnemyClass SearchTarget { get; }
+        public Enemy TargetEnemy => SearchTarget.Enemy;
         public bool SearchActive { get; private set; }
 
         public ESearchMove NextState { get; private set; }
@@ -24,18 +27,50 @@ namespace SAIN.SAINComponent.Classes.Search
         {
             SearchDecider = new SearchDeciderClass(this);
             PathFinder = new SearchPathFinder(this);
+            SearchTarget = new TrackedEnemyClass(sain);
         }
 
         public void Init()
         {
+            SearchTarget.Init();
+            SearchTarget.OnNewEnemySet += targetChanged;
         }
 
         public void Update()
         {
+            SearchTarget.Update();
+            if (!SearchActive && TargetEnemy != null) {
+                SearchTarget.Clear();
+            }
         }
 
         public void Dispose()
         {
+            SearchTarget.Dispose();
+            SearchTarget.OnNewEnemySet -= targetChanged;
+        }
+
+        public void Start()
+        {
+            SearchActive = true;
+            SearchTarget.Start();
+        }
+
+        public void Stop()
+        {
+            SearchActive = false;
+            SearchTarget.Stop();
+        }
+
+        private void targetChanged(Enemy newEnemy, Enemy oldEnemy)
+        {
+            Reset();
+            if (oldEnemy != null) {
+                oldEnemy.Events.OnSearch.CheckToggle(false);
+            }
+            if (newEnemy != null) {
+                newEnemy.Events.OnSearch.CheckToggle(true);
+            }
         }
 
         public void ToggleSearch(bool value, Enemy target)

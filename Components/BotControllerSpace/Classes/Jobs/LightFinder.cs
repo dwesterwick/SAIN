@@ -28,8 +28,8 @@ namespace SAIN.BotControllerSpace.Classes
 
         public LightFinder(SAINBotController botController) : base(botController)
         {
-            BotLightTracker.GetLights(AllLights);
-            botController.StartCoroutine(findLightsLoop());
+            //BotLightTracker.GetLights(AllLights);
+            //botController.StartCoroutine(findLightsLoop());
         }
 
         public void Update()
@@ -66,7 +66,7 @@ namespace SAIN.BotControllerSpace.Classes
                 int lightCount = _activeLights.Count;
                 if (lightCount == 0) continue;
 
-                Logger.LogDebug($"Found {playerCount} players and {lightCount} lights. Checking Distances...");
+                //Logger.LogDebug($"Found {playerCount} players and {lightCount} lights. Checking Distances...");
 
                 _lightDistanceJob = createJob(_localPlayerList, _activeLights, out int total);
                 _handle = _lightDistanceJob.Schedule(total, new JobHandle());
@@ -80,15 +80,16 @@ namespace SAIN.BotControllerSpace.Classes
 
                 Logger.LogDebug($"Found {raycastCount} lights in range. Checking LOS with raycasts...");
 
-                LayerMask mask = LayerMaskClass.HighPolyWithTerrainMaskAI;
+                LayerMask mask = LayerMaskClass.HighPolyWithTerrainMask;
                 _commands = new NativeArray<RaycastCommand>(raycastCount, Allocator.TempJob);
                 for (int i = 0; i < raycastCount; i++) {
                     LightRaycastData data = _lightcasts[i];
                     _commands[i] = new RaycastCommand {
                         from = data.PlayerPosition,
-                        direction = -data.DirectionToPlayer,
+                        direction = data.LightPosition - data.PlayerPosition,
                         distance = data.Distance,
                         layerMask = mask,
+                        maxHits = 1,
                     };
                 }
                 _hits = new NativeArray<RaycastHit>(raycastCount, Allocator.TempJob);
@@ -112,24 +113,23 @@ namespace SAIN.BotControllerSpace.Classes
                     //if (!data.LightComponent.LightActive) {
                     //    continue;
                     //}
-                    Light light = data.LightComponent.Light;
+                    LightComponent light = data.LightComponent;
                     if (light == null) {
                         continue;
                     }
-                    float range = light.range;
-                    float distance = data.Distance;
-                    Vector3 direction = data.DirectionToPlayer;
-                    if (light.type == LightType.Spot && Vector3.Angle(direction, light.transform.forward) > light.spotAngle) {
+
+                    Vector3 direction = data.PlayerPosition - data.LightPosition;
+                    if (light.Type == LightType.Spot &&
+                        Vector3.Angle(direction, light.LightPointDirection) > light.Angle) {
                         continue;
                     }
-                    float ratio = 1f - distance / range;
-                    float illuminationLevel = Mathf.Lerp(0.1f, 1f, ratio);
-                    float intensity = light.intensity / 5f;
-                    intensity = Mathf.Clamp(intensity, 0.1f, 1f);
-                    illuminationLevel *= intensity;
 
+                    float illuminationLevel = calcIllumLevel(light, data.Distance);
+                    if (illuminationLevel < 0.05f) {
+                        continue;
+                    }
                     data.Player.Illumination.SetIllumination(illuminationLevel, time);
-                    DebugGizmos.Ray(data.LightPosition, data.DirectionToPlayer, Color.red, data.Distance, 0.05f, true, 0.15f, true);
+                    DebugGizmos.Ray(data.PlayerPosition, data.LightPosition - data.PlayerPosition, Color.red, data.Distance, 0.03f, true, 0.15f, true);
                     illumCount++;
                 }
 
@@ -138,6 +138,26 @@ namespace SAIN.BotControllerSpace.Classes
                 }
                 disposeRaycast();
             }
+        }
+
+        private float calcIllumLevel(LightComponent light, float distance)
+        {
+            const float MIN = 0.66f;
+            float range = light.Range;
+            float ratio = 1f - distance / range;
+            if (ratio <= MIN) {
+                return 1f;
+            }
+            float num = 1f - MIN;
+            float num2 = ratio - MIN;
+            float ratio2 = 1f - num2 / num;
+            float illuminationLevel = Mathf.Lerp(0.05f, 1f, ratio2);
+
+            float intensity = light.Intensity / 5f;
+            intensity = Mathf.Clamp(intensity, 0f, 1f);
+            illuminationLevel *= intensity;
+
+            return illuminationLevel;
         }
 
         private void disposeRaycast()
@@ -159,21 +179,23 @@ namespace SAIN.BotControllerSpace.Classes
                 Vector3 playerPos = player != null ? player.Transform.BodyPosition : Vector3.zero;
                 for (int l = 0; l < lightCount; l++) {
                     LightComponent light = lights[l];
-                    float lightRange = light != null ? light.Light.range : 0;
-                    Vector3 lightPos = light != null ? light.transform.position : Vector3.zero;
+
+                    float lightRange = light != null ? light.Range : 0;
+                    Vector3 lightPos = light != null ? light.LightPosition : Vector3.zero;
                     Vector3 directionToPlayer = directions[count];
                     float distance = distances[count];
-                    if (playerPos != Vector3.zero && lightPos != Vector3.zero && distance < lightRange) {
+
+                    if (player != null &&
+                        light != null &&
+                        distance < lightRange) {
                         LightRaycastData data = new LightRaycastData {
                             LightComponent = light,
                             Player = player,
-                            DirectionToPlayer = directionToPlayer,
-                            Distance = distance,
+                            Distance = distance - 0.1f,
                             LightPosition = lightPos,
                             PlayerPosition = playerPos,
                         };
                         result.Add(data);
-                        //Logger.LogDebug($" filterLights addResult");
                     }
                     count++;
                 }
@@ -187,7 +209,6 @@ namespace SAIN.BotControllerSpace.Classes
             public LightComponent LightComponent;
             public PlayerComponent Player;
             public float Distance;
-            public Vector3 DirectionToPlayer;
             public Vector3 LightPosition;
             public Vector3 PlayerPosition;
         }
@@ -199,27 +220,26 @@ namespace SAIN.BotControllerSpace.Classes
             total = lightCount * playerCount;
             int count = 0;
             NativeArray<Vector3> directions = new NativeArray<Vector3>(total, Allocator.TempJob);
+
             for (int p = 0; p < playerCount; p++) {
                 PlayerComponent player = players[p];
                 Vector3 playerPos = player.Transform.BodyPosition;
                 for (int l = 0; l < lightCount; l++) {
-                    LightComponent light = _activeLights[l];
-                    Vector3 directionToPlayer = playerPos - light.transform.position;
-                    directions[count] = directionToPlayer;
+                    directions[count] = playerPos - _activeLights[l].LightPosition;
                     count++;
                 }
             }
-            return new CalcDistanceJob {
-                directions = directions,
-                distances = new NativeArray<float>(total, Allocator.TempJob),
-            };
+
+            var job = new CalcDistanceJob();
+            job.Create(directions);
+            return job;
         }
 
         private void findActiveLights(List<LightComponent> result)
         {
             result.Clear();
             foreach (LightComponent light in AllLights) {
-                if (light != null && light.LightActive) {
+                if (light != null && light.Active) {
                     result.Add(light);
                 }
             }

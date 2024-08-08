@@ -12,7 +12,6 @@
         public void Init()
         {
             Enemy.Events.OnEnemyKnownChanged.OnToggle += OnEnemyKnownChanged;
-            SubscribeToDispose(Dispose);
             Targets.Init();
         }
 

@@ -16,7 +16,7 @@ namespace SAIN.Components.PlayerComponentSpace
 {
     public class PlayerComponent : MonoBehaviour
     {
-        public OtherPlayersData OtherPlayersData { get; private set; }
+        public OtherPlayerDatasClass OtherPlayersData { get; private set; }
         public BodyPartsClass BodyParts { get; private set; }
         public PlayerIlluminationClass Illumination { get; private set; }
 
@@ -34,9 +34,14 @@ namespace SAIN.Components.PlayerComponentSpace
                 Flashlight.Update();
                 Equipment.Update();
             }
+
             if (Player.IsYourPlayer) {
                 //testNavMeshNodes();
                 //testObjectInFront();
+                //var _fireArmController = (Player.HandsController as Player.FirearmController);
+                //if (Transform.WeaponData.WeaponAimBlocked) {
+                //    Logger.LogDebug($"WeaponAimBlocked [{_fireArmController?.OverlapValue}]");
+                //}
             }
         }
 
@@ -321,7 +326,7 @@ namespace SAIN.Components.PlayerComponentSpace
                 var playerData = new PlayerData(this, player, iPlayer);
                 Person = new PersonClass(playerData);
 
-                OtherPlayersData = new OtherPlayersData(this);
+                OtherPlayersData = new OtherPlayerDatasClass(this);
                 BodyParts = new BodyPartsClass(this);
                 Flashlight = new FlashLightClass(this);
                 Equipment = new SAINEquipmentClass(this);

@@ -1,5 +1,7 @@
 ﻿using EFT;
+using HarmonyLib;
 using SAIN.Helpers;
+using System.Reflection;
 using UnityEngine;
 
 namespace SAIN.Components.PlayerComponentSpace.PersonClasses
@@ -9,21 +11,37 @@ namespace SAIN.Components.PlayerComponentSpace.PersonClasses
         public Vector3 FirePort { get; private set; }
         public Vector3 PointDirection { get; private set; }
         public Vector3 Root { get; private set; }
+        public bool WeaponAimBlocked { get; private set; }
+        public bool WeaponPointBlocked { get; private set; }
+
+        public Player.FirearmController FirearmController {
+            get
+            {
+                if (_fireArmController == null) {
+                    _fireArmController = (Player.HandsController as Player.FirearmController);
+                }
+                return _fireArmController;
+            }
+        }
+
+        private Player.FirearmController _fireArmController;
+        private readonly BifacialTransform _weaponRootTransform;
 
         public void Update()
         {
-            Root = _weaponRootTransform.position; 
+            Root = _weaponRootTransform.position;
             getWeaponTransforms();
         }
 
         private void getWeaponTransforms()
         {
             var controller = FirearmController;
-            if (controller != null)
-            {
+            if (controller != null) {
+                WeaponAimBlocked = checkAimBlocked(controller);
+                WeaponPointBlocked = checkOverlapAmount(controller);
+
                 var currentFirePort = controller.CurrentFireport;
-                if (currentFirePort != null)
-                {
+                if (currentFirePort != null) {
                     Vector3 firePort = currentFirePort.position;
                     Vector3 pointDir = currentFirePort.Original.TransformDirection(Player.LocalShotDirection);
                     controller.AdjustShotVectors(ref firePort, ref pointDir);
@@ -38,16 +56,14 @@ namespace SAIN.Components.PlayerComponentSpace.PersonClasses
             PointDirection = Player.LookDirection;
         }
 
-        public Player.FirearmController FirearmController
+        private bool checkAimBlocked(Player.FirearmController controller)
         {
-            get
-            {
-                if (_fireArmController == null)
-                {
-                    _fireArmController = (Player.HandsController as Player.FirearmController);
-                }
-                return _fireArmController;
-            }
+            return controller.IsOverlap && (bool)_overlapField.GetValue(controller);
+        }
+
+        private bool checkOverlapAmount(Player.FirearmController controller)
+        {
+            return controller.IsOverlap && controller.OverlapValue > 0.4f;
         }
 
         public PersonWeaponTransform(PersonClass person, PlayerData playerData) : base(person, playerData)
@@ -55,7 +71,11 @@ namespace SAIN.Components.PlayerComponentSpace.PersonClasses
             _weaponRootTransform = playerData.Player.WeaponRoot;
         }
 
-        private Player.FirearmController _fireArmController;
-        private readonly BifacialTransform _weaponRootTransform;
+        static PersonWeaponTransform()
+        {
+            _overlapField = AccessTools.Field(typeof(Player.FirearmController), "AimingInterruptedByOverlap");
+        }
+
+        private static FieldInfo _overlapField;
     }
 }

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace SAIN.Components.PlayerComponentSpace
 {
-    public class OtherPlayersData : PlayerComponentBase
+    public class OtherPlayerDatasClass : PlayerComponentBase
     {
         public readonly Dictionary<string, OtherPlayerData> Datas = new Dictionary<string, OtherPlayerData>();
 
-        public OtherPlayersData(PlayerComponent playerComponent) : base(playerComponent)
+        public OtherPlayerDatasClass(PlayerComponent playerComponent) : base(playerComponent)
         {
         }
 

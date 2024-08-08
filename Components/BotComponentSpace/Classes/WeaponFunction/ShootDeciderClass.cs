@@ -316,13 +316,8 @@ namespace SAIN.SAINComponent.Classes
             if (enemy != null &&
                 enemy.IsVisible &&
                 enemy.CanShoot) {
-                //Vector3? test = enemy.Shoot.Targets.GetPointToShoot();
-                //if (test == null) {
-                //    Logger.LogWarning($"cant get point to shoot with new system! oh no!");
-                //}
-
                 Vector3? centerMass = findCenterMassPoint(enemy);
-                Vector3? partToShoot = getEnemyPartToShoot(enemy.EnemyInfo);
+                Vector3? partToShoot = getEnemyPartToShoot(enemy) ?? getEnemyPartToShoot(enemy.EnemyInfo);
                 Vector3? modifiedTarget = checkYValue(centerMass, partToShoot);
                 Vector3? finalTarget = modifiedTarget ?? partToShoot ?? centerMass;
                 if (finalTarget != null) {
@@ -363,19 +358,28 @@ namespace SAIN.SAINComponent.Classes
             return enemy.CenterMass;
         }
 
-        private Vector3? getEnemyPartToShoot(EnemyInfo enemy)
+        private Vector3? getEnemyPartToShoot(Enemy enemy)
         {
-            if (enemy != null) {
-                Vector3 value;
-                if (enemy.Distance < 6f) {
-                    value = enemy.GetCenterPart();
-                }
-                else {
-                    value = enemy.GetPartToShoot();
-                }
-                return new Vector3?(value);
+            Vector3 value;
+            if (enemy.RealDistance < 6f) {
+                value = enemy.Shoot.Targets.GetCenterMass() ?? enemy.EnemyInfo.GetCenterPart();
             }
-            return null;
+            else {
+                value = enemy.Shoot.Targets.GetPointToShoot() ?? enemy.EnemyInfo.GetPartToShoot();
+            }
+            return new Vector3?(value);
+        }
+
+        private Vector3? getEnemyPartToShoot(EnemyInfo enemyInfo)
+        {
+            Vector3 value;
+            if (enemyInfo.Distance < 6f) {
+                value = enemyInfo.GetCenterPart();
+            }
+            else {
+                value = enemyInfo.GetPartToShoot();
+            }
+            return new Vector3?(value);
         }
 
         private void tryShoot(Enemy enemy)

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SAIN.Components.PlayerComponentSpace
 {
-    public class PlayerDistanceData
+    public class OtherPlayerDistanceData
     {
         public Vector3 Position { get; private set; } = Vector3.zero;
         public Vector3 Direction { get; private set; } = Vector3.zero;

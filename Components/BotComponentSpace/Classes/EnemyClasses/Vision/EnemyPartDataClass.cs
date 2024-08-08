@@ -1,6 +1,5 @@
 ﻿using EFT;
 using SAIN.Components;
-using SAIN.Helpers;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,10 +7,25 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
     public class EnemyPartDataClass
     {
-        public readonly Dictionary<ERaycastCheck, RaycastResult> RaycastResults = new Dictionary<ERaycastCheck, RaycastResult>();
-
         public float TimeSeen { get; private set; }
-        public float TimeSinceSeen => IsVisible ? Time.time - TimeSeen : -1f;
+        public bool IsVisible { get; private set; }
+        public float TimeSinceLastVisionCheck => RaycastResults[ERaycastCheck.LineofSight].TimeSinceChecked;
+        public float TimeSinceLastVisionSuccess => RaycastResults[ERaycastCheck.LineofSight].TimeSinceSuccess;
+        public bool LineOfSight => RaycastResults[ERaycastCheck.LineofSight].InSight;
+        public bool CanShoot => RaycastResults[ERaycastCheck.Shoot].InSight;
+
+        public readonly Dictionary<ERaycastCheck, RaycastResult> RaycastResults = new Dictionary<ERaycastCheck, RaycastResult>();
+        private readonly Dictionary<EBodyPartColliderType, BodyPartCollider> _colliderDictionary = new Dictionary<EBodyPartColliderType, BodyPartCollider>();
+
+        public readonly EBodyPart BodyPart;
+        public readonly List<BodyPartCollider> Colliders;
+        public readonly BifacialTransform Transform;
+        private static int _debugCount = 0;
+        private GameObject _debugLine;
+        private LineRenderer _debugLineRenderer;
+        private int _index;
+        private readonly int _indexMax;
+        private BodyPartCollider _lastSuccessPart;
 
         public void Update(Enemy enemy)
         {
@@ -28,8 +42,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 TimeSeen = Time.time;
             }
         }
-
-        public bool IsVisible { get; private set; }
 
         public EnemyPartDataClass(EBodyPart bodyPart, BifacialTransform transform, List<BodyPartCollider> colliders)
         {
@@ -70,17 +82,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
 
             _debugLineRenderer.material.color = Color.red;
-            if (LastSuccessPoint != null) {
-                _debugLine.transform.position = LastSuccessPoint.Value;
-                _debugLineRenderer.SetPosition(1, LastSuccessPoint.Value);
-            }
+            //if (LastSuccessPoint != null) {
+            //    _debugLine.transform.position = LastSuccessPoint.Value;
+            //    _debugLineRenderer.SetPosition(1, LastSuccessPoint.Value);
+            //}
         }
-
-        private static int _debugCount = 0;
-        private GameObject _debugLine;
-        private LineRenderer _debugLineRenderer;
-
-        private readonly Dictionary<EBodyPartColliderType, BodyPartCollider> _colliderDictionary = new Dictionary<EBodyPartColliderType, BodyPartCollider>();
 
         public void SetLineOfSight(Vector3 castPoint, EBodyPartColliderType colliderType, RaycastHit raycastHit, ERaycastCheck type, float time)
         {
@@ -99,18 +105,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             };
         }
 
-        public Vector3? LastSuccessShootPoint { get; private set; }
-        public Vector3? LastSuccessPoint { get; private set; }
-
-        public readonly EBodyPart BodyPart;
-        public readonly List<BodyPartCollider> Colliders;
-        public readonly BifacialTransform Transform;
-
-        public float TimeSinceLastVisionCheck => RaycastResults[ERaycastCheck.LineofSight].TimeSinceChecked;
-        public float TimeSinceLastVisionSuccess => RaycastResults[ERaycastCheck.LineofSight].TimeSinceSuccess;
-        public bool LineOfSight => RaycastResults[ERaycastCheck.LineofSight].InSight;
-        public bool CanShoot => RaycastResults[ERaycastCheck.Shoot].InSight;
-
         private BodyPartCollider getCollider()
         {
             if (_lastSuccessPart != null) {
@@ -124,9 +118,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
             return collider;
         }
-
-        private int _index;
-        private readonly int _indexMax;
 
         private Vector3 getCastPoint(Vector3 origin, BodyPartCollider collider)
         {
@@ -152,7 +143,5 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
             return lowest;
         }
-
-        private BodyPartCollider _lastSuccessPart;
     }
 }

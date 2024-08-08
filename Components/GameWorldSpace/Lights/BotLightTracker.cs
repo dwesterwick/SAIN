@@ -19,8 +19,8 @@ namespace SAIN.Components
                     _trackedLights[light].Init(lampController);
                 return;
             }
-            if (light.range < 0.01f || light.intensity < 0.1f) {
-                //return;
+            if (light.range < 0.05f || light.intensity < 0.6f) {
+                return;
             }
 
             //var gameObject = new GameObject($"LightComp_{_count++}");
@@ -38,6 +38,10 @@ namespace SAIN.Components
 
         public static void GetLights(List<LightComponent> result)
         {
+            Light[] lights = GameObject.FindObjectsOfType<Light>();
+            foreach (var light in lights) {
+                AddLight(light);
+            }
             foreach (var light in _trackedLights.Values) {
                 if (light != null) {
                     result.Add(light);

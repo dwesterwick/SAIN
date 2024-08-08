@@ -26,7 +26,7 @@ namespace SAIN.Components
             Doors?.Update();
             Location?.Update();
             findSpawnPointMarkers();
-            BotLightTracker.LogDictionaryInfo();
+            //BotLightTracker.LogDictionaryInfo();
         }
 
         private void findSpawnPointMarkers()

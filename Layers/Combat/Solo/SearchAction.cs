@@ -9,7 +9,7 @@ namespace SAIN.Layers.Combat.Solo
 {
     internal class SearchAction : CombatAction, ISAINAction
     {
-        private Enemy _searchTarget;
+        private Enemy _searchTarget => Search.TargetEnemy;
         private bool _subscribed;
         private float _nextCheckWeaponTime;
         private float _nextUpdateSearchTime;
@@ -20,14 +20,13 @@ namespace SAIN.Layers.Combat.Solo
 
         public override void Start()
         {
-            subscribeToBotEvents();
-            setSearchTarget(Bot.Enemy);
+            Search.Start();
             Toggle(true);
         }
 
         public override void Stop()
         {
-            clearSearchTarget();
+            Search.Stop();
             Toggle(false);
             BotOwner.Mover?.MovementResume();
             _haveTalked = false;
@@ -40,8 +39,7 @@ namespace SAIN.Layers.Combat.Solo
 
         public override void Update()
         {
-            setTargetEnemy();
-            var enemy = _searchTarget;
+            var enemy = Search.TargetEnemy;
             if (enemy == null) return;
 
             bool isBeingStealthy = enemy.Hearing.EnemyHeardFromPeace;
@@ -49,11 +47,11 @@ namespace SAIN.Layers.Combat.Solo
                 _sprintEnabled = false;
             }
             else {
-                checkShouldSprint();
+                checkShouldSprint(enemy);
                 talk();
             }
 
-            steer();
+            steer(enemy);
 
             if (_nextUpdateSearchTime < Time.time) {
                 _nextUpdateSearchTime = Time.time + 0.1f;
@@ -67,63 +65,17 @@ namespace SAIN.Layers.Combat.Solo
             }
         }
 
-        private void checkClearEnemy(string profileId, Enemy enemy)
-        {
-            if (_searchTarget == null) {
-                return;
-            }
-            if (_searchTarget.EnemyProfileId == profileId) {
-                clearSearchTarget();
-            }
-        }
-
-        private void enemyChanged(Enemy enemy, Enemy lastEnemy)
-        {
-            if (_searchTarget == null) {
-                return;
-            }
-            clearSearchTarget();
-            if (enemy != null) setSearchTarget(enemy);
-        }
-
-        private void clearSearchTarget()
-        {
-            Search.ToggleSearch(false, _searchTarget);
-            _searchTarget = null;
-        }
-
-        private void setTargetEnemy()
-        {
-            if (_searchTarget != null &&
-                (!_searchTarget.EnemyKnown ||
-                !_searchTarget.Person.Active ||
-                !_searchTarget.CheckValid())) {
-                clearSearchTarget();
-            }
-            var activeEnemy = Bot.Enemy;
-            if (_searchTarget == null) {
-                if (activeEnemy == null) return;
-                setSearchTarget(activeEnemy);
-            }
-        }
-
-        private void setSearchTarget(Enemy enemy)
-        {
-            Search.ToggleSearch(true, enemy);
-            _searchTarget = enemy;
-            _nextUpdateSearchTime = 0f;
-        }
-
         private void talk()
         {
-            if (Search.FinalDestination == null) {
+            EnemyPlace target = Search.PathFinder.TargetPlace;
+            if (target == null) {
                 return;
             }
 
             // Scavs will speak out and be more vocal
             if (!_haveTalked &&
                 Bot.Info.Profile.IsScav &&
-                (BotOwner.Position - Search.FinalDestination.Value).sqrMagnitude < 50f * 50f) {
+                target.DistanceToBot < 50f) {
                 _haveTalked = true;
                 if (EFTMath.RandomBool(40)) {
                     Bot.Talk.Say(EPhraseTrigger.OnMutter, ETagStatus.Aware, true);
@@ -144,7 +96,7 @@ namespace SAIN.Layers.Combat.Solo
             }
         }
 
-        private void checkShouldSprint()
+        private void checkShouldSprint(Enemy enemy)
         {
             //  || Search.CurrentState == ESearchMove.MoveToDangerPoint
             if (Search.CurrentState == ESearchMove.MoveToEndPeek || Search.CurrentState == ESearchMove.Wait) {
@@ -153,7 +105,7 @@ namespace SAIN.Layers.Combat.Solo
             }
 
             //  || Bot.Enemy?.InLineOfSight == true
-            if (_searchTarget?.IsVisible == true) {
+            if (enemy.IsVisible) {
                 _sprintEnabled = false;
                 return;
             }
@@ -167,7 +119,7 @@ namespace SAIN.Layers.Combat.Solo
             float chance = persSettings.Search.SprintWhileSearchChance;
             if (_sprintTimer < Time.time && chance > 0) {
                 float myPower = Bot.Info.Profile.PowerLevel;
-                if (Bot.Enemy?.EnemyPlayer != null && Bot.Enemy.EnemyPlayer.AIData.PowerOfEquipment < myPower * 0.5f) {
+                if (enemy.EnemyPlayer != null && enemy.EnemyPlayer.AIData.PowerOfEquipment < myPower * 0.5f) {
                     chance = 100f;
                 }
 
@@ -183,19 +135,10 @@ namespace SAIN.Layers.Combat.Solo
             }
         }
 
-        private void steer()
+        private void steer(Enemy enemy)
         {
-            if (!Bot.Steering.SteerByPriority(_searchTarget, false)) {
+            if (!Bot.Steering.SteerByPriority(enemy, false)) {
                 Bot.Steering.LookToMovingDirection();
-            }
-        }
-
-        private void subscribeToBotEvents()
-        {
-            if (!_subscribed) {
-                Bot.EnemyController.Events.OnEnemyRemoved += checkClearEnemy;
-                Bot.EnemyController.Events.OnEnemyChanged += enemyChanged;
-                _subscribed = true;
             }
         }
 

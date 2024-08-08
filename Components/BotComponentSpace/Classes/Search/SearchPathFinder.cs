@@ -7,54 +7,38 @@ using UnityEngine.AI;
 
 namespace SAIN.SAINComponent.Classes.Search
 {
-    public enum EPathCalcFailReason
-    {
-        None,
-        NullDestination,
-        NoTarget,
-        NullPlace,
-        TooClose,
-        SampleStart,
-        SampleEnd,
-        CalcPath,
-        LastCorner,
-    }
-
     public class SearchPathFinder : BotSubClass<SAINSearchClass>
     {
-        public Vector3 FinalDestination { get; private set; }
+        public Vector3? FinalDestination => TargetPlace?.Position ?? RandomSearchPoint;
         public EnemyPlace TargetPlace { get; private set; }
         public BotPeekPlan? PeekPoints { get; private set; }
         public bool SearchedTargetPosition { get; private set; }
         public bool FinishedPeeking { get; set; }
 
-        private string _failReason;
-
         public SearchPathFinder(SAINSearchClass searchClass) : base(searchClass)
         {
-            _searchPath = new NavMeshPath();
         }
 
         public bool HasPathToSearchTarget(Enemy enemy, out string failReason)
         {
-            if (_nextCheckSearchTime < Time.time)
-            {
-                _nextCheckSearchTime = Time.time + 1f;
-                _canStartSearch = CalculatePath(enemy, out failReason);
-                _failReason = failReason;
-            }
-            failReason = _failReason;
-            return _canStartSearch;
+            //if (_nextCheckSearchTime < Time.time || _lastCheckedEnemy != enemy) {
+            //    _nextCheckSearchTime = Time.time + 1f;
+            //    Vector3? destination = CanPath(enemy, out failReason);
+            //    _canStartSearch = destination != null;
+            //    _failReason = failReason;
+            //    _lastCheckedEnemy = enemy;
+            //}
+            return CanPath(enemy, out failReason) != null;
         }
+
+        //private Enemy _lastCheckedEnemy;
 
         private bool checkBotZone(Vector3 target)
         {
-            if (Bot.Memory.Location.BotZoneCollider != null)
-            {
+            if (Bot.Memory.Location.BotZoneCollider != null) {
                 Vector3 closestPointInZone = Bot.Memory.Location.BotZoneCollider.ClosestPointOnBounds(target);
                 float distance = (target - closestPointInZone).sqrMagnitude;
-                if (distance > 50f * 50f)
-                {
+                if (distance > 50f * 50f) {
                     return false;
                 }
             }
@@ -63,33 +47,32 @@ namespace SAIN.SAINComponent.Classes.Search
 
         public void UpdateSearchDestination(Enemy enemy)
         {
+            if (!SearchedTargetPosition && RandomSearchPoint != null) {
+                RandomSearchPoint = null;
+            }
+            if (TargetPlace == null) {
+                FindPath(enemy, out _);
+                return;
+            }
             checkFinishedSearch(enemy);
-
-            if (_nextCheckPosTime < Time.time || SearchedTargetPosition || FinishedPeeking || TargetPlace == null)
-            {
-                _nextCheckPosTime = Time.time + 4f;
-                if (!CalculatePath(enemy, out string failReason))
-                {
-                    //Logger.LogDebug($"Failed to calc path during search for reason: [{failReason}]");
-                }
+            if (SearchedTargetPosition) {
+                RandomSearch();
+                return;
             }
         }
 
         private void checkFinishedSearch(Enemy enemy)
         {
-            if (SearchedTargetPosition)
-            {
-                return;
-            }
             var lastKnown = enemy.KnownPlaces.LastKnownPlace;
-            if (lastKnown == null)
-            {
-                Reset();
+            if (lastKnown == null) {
                 return;
             }
-            if (lastKnown.HasArrivedPersonal || lastKnown.HasArrivedSquad)
-            {
-                Reset();
+            if (TargetPlace != lastKnown) {
+                FindPath(enemy, out _);
+                return;
+            }
+            if (lastKnown.HasArrivedPersonal || lastKnown.HasArrivedSquad) {
+                SearchedTargetPosition = true;
                 return;
             }
 
@@ -98,99 +81,57 @@ namespace SAIN.SAINComponent.Classes.Search
                 return;
             }
 
-            if ((FinalDestination - Bot.Position).sqrMagnitude > 0.75)
-            {
-                return;
-            }
-
-            var lastCorner = pathToEnemy.LastCorner();
-            if (lastCorner == null)
-            {
-                Reset();
-                return;
-            }
-
-            if ((lastCorner.Value - FinalDestination).sqrMagnitude < 1f)
-            {
+            if (!SearchedTargetPosition &&
+                lastKnown.DistanceToBot < 0.5f) {
                 SearchedTargetPosition = true;
                 enemy.KnownPlaces.SetPlaceAsSearched(lastKnown);
-                Reset();
                 return;
             }
-            if (!CalculatePath(enemy, out string failReason))
-            {
-                Logger.LogDebug($"Failed to calc path during search for reason: [{failReason}]");
-                Reset();
-                return;
-            }
+
+            //var lastCorner = pathToEnemy.LastCorner();
+            //if (lastCorner == null) {
+            //    Reset();
+            //    return;
+            //}
+            //
+            //if ((lastCorner.Value - FinalDestination).sqrMagnitude < 0.5f) {
+            //    SearchedTargetPosition = true;
+            //    enemy.KnownPlaces.SetPlaceAsSearched(lastKnown);
+            //    Reset();
+            //    return;
+            //}
+            //if (!FindPath(enemy, out string failReason)) {
+            //    Logger.LogDebug($"Failed to calc path during search for reason: [{failReason}]");
+            //    Reset();
+            //    return;
+            //}
         }
 
-        public EnemyPlace FindTargetPlace(out bool hasTarget, bool randomSearch = false)
+        private void RandomSearch()
         {
-            hasTarget = false;
-            var enemy = Bot.Enemy;
-
-            if (enemy == null)
-            {
-                return null;
+            if (RandomSearchPoint != null) {
+                float dist = (RandomSearchPoint.Value - Bot.Position).sqrMagnitude;
+                if (dist < ComeToRandomDist * ComeToRandomDist || dist > 60f * 60f) {
+                    RandomSearchPoint = null;
+                }
             }
-
-            //if (enemy.IsVisible && enemy.KnownPlaces.LastSeenPlace != null)
-            //{
-            //    hasTarget = true;
-            //    return enemy.KnownPlaces.LastSeenPlace;
-            //}
-
-            var lastKnown = enemy.KnownPlaces.LastKnownPlace;
-            if (lastKnown != null)
-            {
-                hasTarget = !lastKnown.HasArrivedPersonal && !lastKnown.HasArrivedSquad;
-                return lastKnown;
-            }
-
-            //var knownPlaces = enemy.KnownPlaces.AllEnemyPlaces;
-            //for (int i = 0; i < knownPlaces.Count; i++)
-            //{
-            //    EnemyPlace enemyPlace = knownPlaces[i];
-            //    if (enemyPlace != null &&
-            //        !enemyPlace.HasArrivedPersonal)
-            //    {
-            //        hasTarget = true;
-            //        return enemyPlace;
-            //    }
-            //}
-            //if (randomSearch)
-            //{
-            //    //return RandomSearch();
-            //}
-            return null;
-        }
-
-        private Vector3 RandomSearch()
-        {
-            float dist = (RandomSearchPoint - BotOwner.Position).sqrMagnitude;
-            if (dist < ComeToRandomDist * ComeToRandomDist || dist > 60f * 60f)
-            {
+            if (RandomSearchPoint == null) {
                 RandomSearchPoint = GenerateSearchPoint();
             }
-            return RandomSearchPoint;
         }
 
-        private Vector3 RandomSearchPoint = Vector3.down * 300f;
+        private Vector3? RandomSearchPoint;
 
         private Vector3 GenerateSearchPoint()
         {
             Vector3 start = Bot.Position;
             float dispersion = 30f;
-            for (int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 float dispNum = EFTMath.Random(-dispersion, dispersion);
                 Vector3 vector = new Vector3(start.x + dispNum, start.y, start.z + dispNum);
-                if (NavMesh.SamplePosition(vector, out var hit, 10f, -1))
-                {
+                if (NavMesh.SamplePosition(vector, out var hit, 10f, -1)) {
                     NavMeshPath path = new NavMeshPath();
-                    if (NavMesh.CalculatePath(hit.position, start, -1, path))
-                    {
+                    if (NavMesh.CalculatePath(hit.position, start, -1, path)) {
                         return path.corners[path.corners.Length - 1];
                     }
                 }
@@ -200,96 +141,54 @@ namespace SAIN.SAINComponent.Classes.Search
 
         public void Reset()
         {
-            _searchPath.ClearCorners();
             PeekPoints?.DisposeDebug();
             PeekPoints = null;
             TargetPlace = null;
             FinishedPeeking = false;
             SearchedTargetPosition = false;
+            RandomSearchPoint = Vector3.zero;
         }
 
-        public bool CalculatePath(Enemy enemy, out string failReason)
+        public Vector3? CanPath(Enemy enemy, out string failReason)
         {
-            Vector3? lastPathPoint = enemy.Path.PathToEnemy.LastCorner() ?? enemy.KnownPlaces.LastKnownPlace?.Position;
-            if (lastPathPoint == null)
-            {
-                failReason = "lastPathPoint Null";
-                return false;
-            }
-
-            Vector3 point = lastPathPoint.Value;
-            Vector3 start = Bot.Position;
-            if ((point - start).sqrMagnitude <= 0.25f)
-            {
-                failReason = "tooClose";
-                return false;
-            }
-
-            _searchPath.ClearCorners();
-            if (!NavMesh.CalculatePath(start, point, -1, _searchPath))
-            {
+            var path = enemy.Path.PathToEnemy;
+            if (path.status == NavMeshPathStatus.PathInvalid) {
                 failReason = "pathInvalid";
-                return false;
-            }
-            Vector3? lastCorner = _searchPath.LastCorner();
-            if (lastCorner == null)
-            {
-                failReason = "lastCornerNull";
-                return false;
+                return null;
             }
 
+            Vector3? lastCorner = path.LastCorner();
+            if (lastCorner == null) {
+                failReason = "lastCorner Null";
+                return null;
+            }
+
+            if ((lastCorner.Value - Bot.Position).sqrMagnitude <= 0.25f) {
+                failReason = "tooClose";
+                return null;
+            }
+            failReason = string.Empty;
+            return lastCorner.Value;
+        }
+
+        public bool FindPath(Enemy enemy, out string failReason)
+        {
+            Vector3? destination = CanPath(enemy, out failReason);
+            if (destination == null) {
+                return false;
+            }
             BaseClass.Reset();
-            FinalDestination = lastCorner.Value;
             PeekPoints = findPeekPosition(enemy);
             TargetPlace = enemy.KnownPlaces.LastKnownPlace;
             failReason = string.Empty;
             return true;
         }
 
-        public bool CalculatePath(EnemyPlace place, out EPathCalcFailReason failReason)
+        public void InitPath(Enemy enemy, Vector3 position, EnemyPlace place)
         {
-            if (place == null)
-            {
-                failReason = EPathCalcFailReason.NullPlace;
-                return false;
-            }
-
-            Vector3 point = place.Position;
-            Vector3 start = Bot.Position;
-            if ((point - start).sqrMagnitude <= 0.5f)
-            {
-                failReason = EPathCalcFailReason.TooClose;
-                return false;
-            }
-
-            if (!NavMesh.SamplePosition(point, out var endHit, 1f, -1))
-            {
-                failReason = EPathCalcFailReason.SampleEnd;
-                return false;
-            }
-            if (!NavMesh.SamplePosition(start, out var startHit, 1f, -1))
-            {
-                failReason = EPathCalcFailReason.SampleStart;
-                return false;
-            }
-            _searchPath.ClearCorners();
-            if (!NavMesh.CalculatePath(startHit.position, endHit.position, -1, _searchPath) || _searchPath.status == NavMeshPathStatus.PathPartial)
-            {
-                failReason = EPathCalcFailReason.CalcPath;
-                return false;
-            }
-            Vector3? lastCorner = _searchPath.LastCorner();
-            if (lastCorner == null)
-            {
-                failReason = EPathCalcFailReason.LastCorner;
-                return false;
-            }
-
             BaseClass.Reset();
-            //PeekPoints = findPeekPosition(startHit.position);
             TargetPlace = place;
-            failReason = EPathCalcFailReason.None;
-            return true;
+            PeekPoints = findPeekPosition(enemy);
         }
 
         private BotPeekPlan? findPeekPosition(Enemy enemy)
@@ -342,11 +241,9 @@ namespace SAIN.SAINComponent.Classes.Search
             int cornerLength = corners.Length;
             newCorners.Clear();
 
-            for (int i = 0; i < cornerLength - 1; i++)
-            {
+            for (int i = 0; i < cornerLength - 1; i++) {
                 Vector3 corner = corners[i];
-                if ((corner - corners[i + 1]).sqrMagnitude > 1.5f)
-                {
+                if ((corner - corners[i + 1]).sqrMagnitude > 1.5f) {
                     newCorners.Add(corner);
                 }
             }
@@ -374,16 +271,13 @@ namespace SAIN.SAINComponent.Classes.Search
             Vector3 directionToStart = BotOwner.Position - blindCorner;
 
             Vector3 cornerStartDir;
-            if (directionToStart.magnitude > maxMagnitude)
-            {
+            if (directionToStart.magnitude > maxMagnitude) {
                 cornerStartDir = directionToStart.normalized * maxMagnitude;
             }
-            else if (directionToStart.magnitude < minMagnitude)
-            {
+            else if (directionToStart.magnitude < minMagnitude) {
                 cornerStartDir = directionToStart.normalized * minMagnitude;
             }
-            else
-            {
+            else {
                 cornerStartDir = Vector3.zero;
             }
 
@@ -410,17 +304,14 @@ namespace SAIN.SAINComponent.Classes.Search
 
         private void CheckForObstacles(Vector3 start, Vector3 direction, out Vector3 result)
         {
-            if (!NavMesh.SamplePosition(start, out var startHit, 5f, -1))
-            {
+            if (!NavMesh.SamplePosition(start, out var startHit, 5f, -1)) {
                 result = start + direction;
                 return;
             }
             direction.y = 0f;
-            if (!NavMesh.Raycast(startHit.position, direction, out var rayHit, -1))
-            {
+            if (!NavMesh.Raycast(startHit.position, direction, out var rayHit, -1)) {
                 result = startHit.position + direction;
-                if (NavMesh.SamplePosition(result, out var endHit, 5f, -1))
-                {
+                if (NavMesh.SamplePosition(result, out var endHit, 5f, -1)) {
                     result = endHit.position;
                 }
                 return;
@@ -433,6 +324,5 @@ namespace SAIN.SAINComponent.Classes.Search
         private bool _canStartSearch;
         private float _nextCheckSearchTime;
         private float _nextCheckPosTime;
-        private NavMeshPath _searchPath;
     }
 }

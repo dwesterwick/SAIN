@@ -10,8 +10,22 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
     public class EnemyPartsClass : EnemyBase
     {
-        private const float LINEOFSIGHT_TIME = 0.25f;
-        private const float CANSHOOT_TIME = 0.25f;
+        public bool LineOfSight => TimeSinceInLineOfSight < LINEOFSIGHT_TIME;
+        public float TimeSinceInLineOfSight => Time.time - _timeLastInSight;
+        public Vector3 LastSuccessLookPosition { get; private set; }
+        public bool CanShoot => TimeSinceCanShoot < CANSHOOT_TIME;
+        public float TimeSinceCanShoot => Time.time - _timeLastCanShoot;
+        public Vector3 LastSuccessShootPosition { get; private set; }
+        public Dictionary<EBodyPart, EnemyPartDataClass> Parts { get; } = new Dictionary<EBodyPart, EnemyPartDataClass>();
+        public EnemyPartDataClass[] PartsArray { get; private set; }
+
+        private float _timeLastInSight;
+        private float _timeLastCanShoot;
+        private int _index;
+        private readonly int _indexMax;
+
+        private const float LINEOFSIGHT_TIME = 0.1f;
+        private const float CANSHOOT_TIME = 0.1f;
 
         public EnemyPartsClass(Enemy enemy) : base(enemy)
         {
@@ -19,18 +33,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             PartsArray = Parts.Values.ToArray();
             _indexMax = Parts.Count;
         }
-
-        public bool LineOfSight => TimeSinceInLineOfSight < LINEOFSIGHT_TIME;
-        public float TimeSinceInLineOfSight => Time.time - _timeLastInSight;
-        public Vector3 LastSuccessLookPosition { get; private set; }
-
-        public bool CanShoot => TimeSinceCanShoot < CANSHOOT_TIME;
-        public float TimeSinceCanShoot => Time.time - _timeLastCanShoot;
-        public Vector3 LastSuccessShootPosition { get; private set; }
-
-        public Dictionary<EBodyPart, EnemyPartDataClass> Parts { get; } = new Dictionary<EBodyPart, EnemyPartDataClass>();
-
-        public EnemyPartDataClass[] PartsArray { get; private set; }
 
         public void Update()
         {
@@ -86,9 +88,5 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
         }
 
-        private float _timeLastInSight;
-        private float _timeLastCanShoot;
-        private int _index;
-        private readonly int _indexMax;
     }
 }

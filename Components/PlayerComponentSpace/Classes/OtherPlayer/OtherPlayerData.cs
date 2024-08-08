@@ -3,7 +3,7 @@
     public class OtherPlayerData
     {
         public readonly string ProfileId;
-        public PlayerDistanceData DistanceData { get; } = new PlayerDistanceData();
+        public OtherPlayerDistanceData DistanceData { get; } = new OtherPlayerDistanceData();
 
         public OtherPlayerData(string id)
         {

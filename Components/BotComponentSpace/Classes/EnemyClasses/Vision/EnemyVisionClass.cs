@@ -91,6 +91,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
             UpdateVisibleState(true);
             UpdateCanShootState(true);
+            Seen = false;
         }
 
         private void enemyIlluminationChanged(bool value)
@@ -155,7 +156,8 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 CanShoot = false;
                 return;
             }
-            CanShoot = EnemyInfo?.CanShoot == true;
+            //CanShoot = EnemyInfo?.CanShoot == true;
+            CanShoot = Bot.Transform.WeaponData.FirearmController?.IsOverlap == false && VisionChecker.EnemyParts.CanShoot;
         }
 
         private readonly EnemyGainSightClass _gainSight;
