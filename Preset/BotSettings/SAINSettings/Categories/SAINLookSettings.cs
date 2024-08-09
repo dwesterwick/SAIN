@@ -28,7 +28,7 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
             "The Maximum Angle of a bot's cone of vision with NightVision Enabled")]
         [MinMax(25, 180)]
         [Advanced]
-        public float VISIBLE_ANG_NIGHTVISION = 90f;
+        public float Visible_Angle_NVGs = 90f;
 
         //[Hidden]
         //public float LOOK_THROUGH_PERIOD_BY_HIT = 0f;
@@ -37,7 +37,7 @@ namespace SAIN.Preset.BotSettings.SAINSettings.Categories
             "The Maximum Angle of a bot's cone of vision with Flashlight Enabled")]
         [MinMax(10, 180)]
         [Advanced]
-        public float VISIBLE_ANG_LIGHT = 35f;
+        public float Visible_Angle_Flashlight = 35f;
 
         [NameAndDescription("White Light Visible Distance",
             "How far a bot can see enemies with a White Light Enabled")]

@@ -8,6 +8,7 @@ using SAIN.Helpers;
 using SAIN.Patches;
 using SAIN.Patches.Movement;
 using SAIN.Patches.Shoot.Aim;
+using SAIN.Patches.Vision;
 using SAIN.Plugin;
 using SAIN.Preset;
 using SAIN.Preset.GlobalSettings;
@@ -143,6 +144,7 @@ namespace SAIN
                 typeof(Patches.Talk.BotTalkPatch),
                 typeof(Patches.Talk.BotTalkManualUpdatePatch),
 
+                typeof(Patches.Vision.VisibleAngleFixPatch),
                 typeof(Patches.Vision.DisableLookUpdatePatch),
                 typeof(Patches.Vision.UpdateLightEnablePatch),
                 typeof(Patches.Vision.UpdateLightEnablePatch2),

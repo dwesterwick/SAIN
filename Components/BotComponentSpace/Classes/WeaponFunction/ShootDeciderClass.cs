@@ -14,6 +14,8 @@ namespace SAIN.SAINComponent.Classes
     {
         public event Action<Enemy> OnShootEnemy;
 
+        public event Action<Enemy> OnTargetEnemy;
+
         public event Action OnEndShoot;
 
         public Enemy LastShotEnemy { get; private set; }
@@ -77,11 +79,13 @@ namespace SAIN.SAINComponent.Classes
             //Bot.BotLight.HandleLightForEnemy(enemy);
             if (target != null &&
                 enemy != null) {
-                Bot.BotLight.HandleLightForEnemy(enemy);
-
+                OnTargetEnemy?.Invoke(enemy);
                 if (aimAtTarget(target.Value) &&
-                    weaponManager.HaveBullets) {
-                    tryShoot(enemy);
+                    weaponManager.HaveBullets && BotOwner.ShootData.Shoot()) {
+                    LastShotEnemy = enemy;
+                    enemy.EnemyInfo?.SetLastShootTime();
+                    _shooting = true;
+                    OnShootEnemy?.Invoke(enemy);
                 }
             }
         }
@@ -300,13 +304,11 @@ namespace SAIN.SAINComponent.Classes
             if (target != null) {
                 return target;
             }
-
             enemy = Bot.LastEnemy;
             target = getAimTarget(enemy);
             if (target != null) {
                 return target;
             }
-
             enemy = null;
             return null;
         }
@@ -316,14 +318,16 @@ namespace SAIN.SAINComponent.Classes
             if (enemy != null &&
                 enemy.IsVisible &&
                 enemy.CanShoot) {
-                Vector3? centerMass = findCenterMassPoint(enemy);
-                Vector3? partToShoot = getEnemyPartToShoot(enemy) ?? getEnemyPartToShoot(enemy.EnemyInfo);
-                Vector3? modifiedTarget = checkYValue(centerMass, partToShoot);
-                Vector3? finalTarget = modifiedTarget ?? partToShoot ?? centerMass;
-                if (finalTarget != null) {
-                    _targetEnemy = enemy;
+                Vector3? finalTarget;
+                if (GlobalSettingsClass.Instance.Aiming.AimCenterMassGlobal) {
+                    Vector3? centerMass = findCenterMassPoint(enemy);
+                    Vector3? partToShoot = getSAINEnemyPartToShoot(enemy) ?? getEFTEnemyPartToShoot(enemy.EnemyInfo);
+                    Vector3? modifiedTarget = checkYValue(centerMass, partToShoot);
+                    finalTarget = modifiedTarget ?? partToShoot ?? centerMass;
                 }
-
+                else {
+                    finalTarget = getSAINEnemyPartToShoot(enemy) ?? getEFTEnemyPartToShoot(enemy.EnemyInfo);
+                }
                 return finalTarget;
             }
             return null;
@@ -358,7 +362,7 @@ namespace SAIN.SAINComponent.Classes
             return enemy.CenterMass;
         }
 
-        private Vector3? getEnemyPartToShoot(Enemy enemy)
+        private Vector3? getSAINEnemyPartToShoot(Enemy enemy)
         {
             Vector3 value;
             if (enemy.RealDistance < 6f) {
@@ -370,7 +374,7 @@ namespace SAIN.SAINComponent.Classes
             return new Vector3?(value);
         }
 
-        private Vector3? getEnemyPartToShoot(EnemyInfo enemyInfo)
+        private Vector3? getEFTEnemyPartToShoot(EnemyInfo enemyInfo)
         {
             Vector3 value;
             if (enemyInfo.Distance < 6f) {
@@ -394,7 +398,6 @@ namespace SAIN.SAINComponent.Classes
 
         private bool _shooting;
         public bool IsMovementPaused => BotOwner?.Mover.Pause == true;
-        private Enemy _targetEnemy;
         private EquipmentSlot optimalSlot;
         private float _nextCheckOptimalTime;
         private float _lastDistance;

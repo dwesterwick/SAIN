@@ -27,36 +27,28 @@ namespace SAIN.Components
         public void Update()
         {
             Player player = Player;
-            if (player != null)
-            {
-                if (FreqencyTimer < Time.time)
-                {
+            if (player != null) {
+                if (FreqencyTimer < Time.time) {
                     Vector3 position = Position;
                     var botController = SAINBotController.Instance;
-                    if (botController != null)
-                    {
-                        TimeOfDay = botController.TimeVision.TimeOfDay;
+                    if (botController != null) {
+                        TimeOfDay = botController.TimeVision.Settings.ETimeOfDay;
                     }
                     var envManger = EnvironmentManager.Instance;
-                    if (envManger != null)
-                    {
+                    if (envManger != null) {
                         EnvironmentType = envManger.GetEnvironmentByPos(position);
                     }
                     FreqencyTimer = Time.time + 0.5f;
 
-                    for (int i = 0; i < BushColliders.Length; i++)
-                    {
+                    for (int i = 0; i < BushColliders.Length; i++) {
                         BushColliders[i] = null;
                     }
                     NearBush = Physics.OverlapSphereNonAlloc(player.MainParts[BodyPartType.body].Position, 2f, BushColliders, LayerMaskClass.HighPolyWithTerrainMaskAI) > 0;
 
                     bool inBush = false;
-                    for (int i = 0; i < BushColliders.Length; i++)
-                    {
-                        if (BushColliders[i] != null)
-                        {
-                            if ((BushColliders[i].transform.position - position).magnitude < 0.75f)
-                            {
+                    for (int i = 0; i < BushColliders.Length; i++) {
+                        if (BushColliders[i] != null) {
+                            if ((BushColliders[i].transform.position - position).magnitude < 0.75f) {
                                 inBush = true;
                                 break;
                             }
@@ -64,8 +56,7 @@ namespace SAIN.Components
                     }
                     InsideBush = inBush;
 
-                    for (int i = 0; i < GrassColliders.Length; i++)
-                    {
+                    for (int i = 0; i < GrassColliders.Length; i++) {
                         GrassColliders[i] = null;
                     }
                     OnGrass = Physics.OverlapSphereNonAlloc(position, 0.5f, GrassColliders, GrassLayer) > 0;
@@ -96,20 +87,16 @@ namespace SAIN.Components
 
         public void OnGUI()
         {
-            if (SAINPlugin.DebugMode)
-            {
+            if (SAINPlugin.DebugMode) {
                 GUIUtility.ScaleAroundPivot(RectLayout.ScaledPivot, Vector2.zero);
-                for (int i = 0; i < BushColliders.Length; i++)
-                {
+                for (int i = 0; i < BushColliders.Length; i++) {
                     var bush = BushColliders[i];
 
-                    if (bush != null)
-                    {
+                    if (bush != null) {
                         Vector3 bushPos = bush.transform.position;
                         float size = bush.bounds.size.magnitude;
                         Vector3 screenPos = Camera.main.WorldToScreenPoint(bushPos + Vector3.up);
-                        if (screenPos.z > 0)
-                        {
+                        if (screenPos.z > 0) {
                             GUIStyle guiStyle = GUI.skin.box;
                             GUIContent content = new GUIContent($"{bush.name} : {bush.material?.name} : {size} : {EnvironmentType}");
                             Rect guiRect = new Rect();

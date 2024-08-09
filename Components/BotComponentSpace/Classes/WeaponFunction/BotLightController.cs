@@ -13,12 +13,12 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
         public void Init()
         {
             base.SubscribeToPreset(null);
+            Bot.Shoot.OnTargetEnemy += handleLightForEnemy;
         }
 
         public void Update()
         {
-            if (BotOwner?.BotLight == null)
-            {
+            if (BotOwner?.BotLight == null) {
                 return;
             }
             updateLightToggle();
@@ -28,8 +28,7 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
         {
             if (Bot.SAINLayersActive &&
                 IsLightEnabled != wantLightOn &&
-                _nextLightChangeTime < Time.time)
-            {
+                _nextLightChangeTime < Time.time) {
                 _nextLightChangeTime = Time.time + _changelightFreq * UnityEngine.Random.Range(0.66f, 1.33f);
                 setLight(wantLightOn);
             }
@@ -42,16 +41,15 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
 
         public void Dispose()
         {
+            Bot.Shoot.OnTargetEnemy -= handleLightForEnemy;
         }
 
         private void setLight(bool value)
         {
-            if (value)
-            {
+            if (value) {
                 BotOwner.BotLight.TurnOn(true);
             }
-            else
-            {
+            else {
                 BotOwner.BotLight.TurnOff(false, true);
             }
         }
@@ -65,38 +63,31 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
 
         public void ToggleLaser(bool value)
         {
-
         }
 
         public void HandleLightForSearch(float distanceToCurrentCorner)
         {
-            if (distanceToCurrentCorner < 30f)
-            {
+            if (distanceToCurrentCorner < 30f) {
                 _timeWithinDistanceSearch = Time.time;
                 ToggleLight(true);
             }
-            else if (_timeWithinDistanceSearch + 0.66f < Time.time)
-            {
+            else if (_timeWithinDistanceSearch + 0.66f < Time.time) {
                 ToggleLight(false);
             }
         }
 
         private float _timeWithinDistanceSearch;
 
-        public void HandleLightForEnemy(Enemy enemy)
+        private void handleLightForEnemy(Enemy enemy)
         {
-            if (Bot.Decision.CurrentCombatDecision == ECombatDecision.Search)
-            {
+            if (Bot.Decision.CurrentCombatDecision == ECombatDecision.Search) {
                 return;
             }
-            if (BotOwner.ShootData.Shooting)
-            {
+            if (BotOwner.ShootData.Shooting) {
                 return;
             }
-            if (enemy != null)
-            {
-                if (!enemy.Seen)
-                {
+            if (enemy != null) {
+                if (!enemy.Seen) {
                     ToggleLight(false);
                     return;
                 }
@@ -104,21 +95,17 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
                 float maxTurnOnrange = 50f;
                 ECombatDecision decision = Bot.Decision.CurrentCombatDecision;
 
-                if (enemy.EnemyNotLooking && enemy.RealDistance <= maxTurnOnrange * 0.9f)
-                {
+                if (enemy.EnemyNotLooking && enemy.RealDistance <= maxTurnOnrange * 0.9f) {
                     ToggleLight(true);
                     return;
                 }
 
-                if (enemy.IsVisible && 
-                    Time.time - enemy.Vision.VisibleStartTime > 0.75f)
-                {
-                    if (enemy.RealDistance <= maxTurnOnrange * 0.9f)
-                    {
+                if (enemy.IsVisible &&
+                    Time.time - enemy.Vision.VisibleStartTime > 0.75f) {
+                    if (enemy.RealDistance <= maxTurnOnrange * 0.9f) {
                         ToggleLight(true);
                     }
-                    else if (enemy.RealDistance > maxTurnOnrange)
-                    {
+                    else if (enemy.RealDistance > maxTurnOnrange) {
                         ToggleLight(false);
                     }
                     return;
@@ -126,20 +113,17 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
 
                 if (enemy.Seen &&
                     BotOwner.BotLight?.IsEnable == true &&
-                    enemy.TimeSinceSeen > randomizedTurnOffTime)
-                {
+                    enemy.TimeSinceSeen > randomizedTurnOffTime) {
                     ToggleLight(false);
                     return;
                 }
             }
         }
 
-        private float randomizedTurnOffTime
-        {
+        private float randomizedTurnOffTime {
             get
             {
-                if (_nextRandomTime < Time.time)
-                {
+                if (_nextRandomTime < Time.time) {
                     _nextRandomTime = Time.time + _randomFreq * UnityEngine.Random.Range(0.66f, 1.33f);
                     _randomTime = UnityEngine.Random.Range(_minRandom, _maxRandom);
                 }
