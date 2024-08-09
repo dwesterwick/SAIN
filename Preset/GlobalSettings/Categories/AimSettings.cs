@@ -6,7 +6,7 @@ namespace SAIN.Preset.GlobalSettings
 {
     public class AimSettings : SAINSettingsBase<AimSettings>, ISAINSettings
     {
-        [Name("Always Aim Center Mass Global - FORCED DISABLED FOR TEST VERSION")]
+        [Name("Always Aim Center Mass Global - FORCED DISABLED FOR TEST VERSION - This option does nothing")]
         [Description("Force Bots to aim for center of mass. If this is disabled, all bots will have Always Aim Center Mass turned OFF, so their individual settings will be ignored.")]
         public bool AimCenterMassGlobal = true;
 

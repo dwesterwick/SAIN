@@ -319,7 +319,8 @@ namespace SAIN.SAINComponent.Classes
                 enemy.IsVisible &&
                 enemy.CanShoot) {
                 Vector3? finalTarget;
-                if (GlobalSettingsClass.Instance.Aiming.AimCenterMassGlobal) {
+                //if (GlobalSettingsClass.Instance.Aiming.AimCenterMassGlobal) {
+                if (false) {
                     Vector3? centerMass = findCenterMassPoint(enemy);
                     Vector3? partToShoot = getSAINEnemyPartToShoot(enemy) ?? getEFTEnemyPartToShoot(enemy.EnemyInfo);
                     Vector3? modifiedTarget = checkYValue(centerMass, partToShoot);
@@ -348,9 +349,6 @@ namespace SAIN.SAINComponent.Classes
         private Vector3? findCenterMassPoint(Enemy enemy)
         {
             if (enemy.IsAI) {
-                return null;
-            }
-            if (!SAINPlugin.LoadedPreset.GlobalSettings.Aiming.AimCenterMassGlobal) {
                 return null;
             }
             if (!Bot.Info.FileSettings.Aiming.AimCenterMass) {
