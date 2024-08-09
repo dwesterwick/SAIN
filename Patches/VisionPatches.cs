@@ -66,7 +66,7 @@ namespace SAIN.Patches.Vision
             }
             ____curLightDist = curLightDist;
 
-            float timeModifier = SAINBotController.Instance.TimeVision.TimeVisionDistanceModifier;
+            float timeModifier = SAINBotController.Instance.TimeVision.Settings.TimeVisionDistanceModifier;
             var lookSettings = GlobalSettingsClass.Instance.Look.Light;
             float turnOnRatio = lookSettings.LightOnRatio;
             float turnOffRatio = lookSettings.LightOffRatio;
@@ -132,7 +132,7 @@ namespace SAIN.Patches.Vision
             if (!__instance.IsEnable) {
                 return false;
             }
-            float timeModifier = SAINBotController.Instance.TimeVision.TimeVisionDistanceModifier;
+            float timeModifier = SAINBotController.Instance.TimeVision.Settings.TimeVisionDistanceModifier;
             float turnOffRatio = GlobalSettingsClass.Instance.Look.Light.LightOffRatio;
             bool wantOff = timeModifier >= turnOffRatio;
             if (wantOff) {
@@ -152,7 +152,7 @@ namespace SAIN.Patches.Vision
         [PatchPrefix]
         public static bool PatchPrefix(BotOwner ___botOwner_0, bool ____nightVisionAtPocket, BotNightVisionData __instance)
         {
-            float timeModifier = SAINBotController.Instance.TimeVision.TimeVisionDistanceModifier;
+            float timeModifier = SAINBotController.Instance.TimeVision.Settings.TimeVisionDistanceModifier;
             var lookSettings = GlobalSettingsClass.Instance.Look.Light;
             float turnOnRatio = lookSettings.NightVisionOnRatio;
             float turnOffRatio = lookSettings.NightVisionOffRatio;

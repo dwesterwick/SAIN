@@ -337,7 +337,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             if (flareEnabled) {
                 return 1f;
             }
-            return SAINBotController.Instance.TimeVision.TimeGainSightModifier;
+            return SAINBotController.Instance.TimeVision.Settings.TimeGainSightModifier;
         }
 
         // private static float _nextLogTime;

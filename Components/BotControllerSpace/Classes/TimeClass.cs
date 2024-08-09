@@ -9,8 +9,6 @@ namespace SAIN.Components.BotController
     public class TimeClass : SAINControllerBase
     {
         public DateTime GameDateTime { get; private set; }
-        public float TimeVisionDistanceModifier { get; private set; } = 1f;
-        public float TimeGainSightModifier { get; private set; } = 1f;
         public TimeSettings Settings { get; private set; }
 
         private float _visTime = 0f;
