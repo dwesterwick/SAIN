@@ -16,6 +16,8 @@ namespace SAIN.Components.PlayerComponentSpace
 {
     public class PlayerComponent : MonoBehaviour
     {
+        public event Action<string> OnComponentDestroyed;
+
         public OtherPlayerDatasClass OtherPlayersData { get; private set; }
         public BodyPartsClass BodyParts { get; private set; }
         public PlayerIlluminationClass Illumination { get; private set; }
@@ -42,8 +44,60 @@ namespace SAIN.Components.PlayerComponentSpace
                 //if (Transform.WeaponData.WeaponAimBlocked) {
                 //    Logger.LogDebug($"WeaponAimBlocked [{_fireArmController?.OverlapValue}]");
                 //}
+                //testCalcTrajectory();
             }
         }
+
+        private void testCalcTrajectory()
+        {
+            if (_nextCalcTrajTime > Time.time) {
+                return;
+            }
+            _nextCalcTrajTime = Time.time + 5f;
+
+            var weapon = Equipment.CurrentWeapon;
+            if (weapon == null) {
+                return;
+            }
+            Ballistics.BallisticsPredictionInput inputData = Ballistics.CreateData(Transform.WeaponFirePort, Transform.WeaponPointDirection, weapon.BulletSpeed, 0.005f, 0.5f, LayerMaskClass.HighPolyWithTerrainMask, true);
+            Ballistics.BallisticsPredictionResult result = Ballistics.CalcTrajectory(inputData);
+            int count = result.Arc.Length;
+            for (int i = 0; i < count; i++) {
+                DebugGizmos.Sphere(
+                    result.Arc[i],
+                    Mathf.Lerp(0.01f, 0.1f, (float)i / (float)count),
+                    Color.red,
+                    true,
+                    10f);
+            }
+            for (int i = 0; i < count - 1; i++) {
+                DebugGizmos.Line(
+                    result.Arc[i],
+                    result.Arc[i + 1], Color.red,
+                    Mathf.Lerp(0.01f, 0.15f, (float)i / (float)count),
+                    true,
+                    10f);
+            }
+            if (result.HitPoint != null) {
+                DebugGizmos.Sphere(result.HitPoint.Value.point, 0.1f, 10f);
+            }
+            if (_trajectoryLabel == null) {
+                _trajectoryLabel = DebugGizmos.CreateLabel(Vector3.zero, string.Empty);
+            }
+            if (_trajectoryLabel != null) {
+                if (result.HitPoint == null) {
+                    _trajectoryLabel.Enabled = false;
+                }
+                else {
+                    _trajectoryLabel.Enabled = true;
+                    _trajectoryLabel.WorldPos = result.HitPoint.Value.point;
+                    _trajectoryLabel.Text = $"{result.Arc.Length} : {result.TimeOfFlight}";
+                }
+            }
+        }
+
+        private float _nextCalcTrajTime;
+        private GUIObject _trajectoryLabel;
 
         private void testObjectInFront()
         {
@@ -393,7 +447,5 @@ namespace SAIN.Components.PlayerComponentSpace
             OtherPlayersData?.Dispose();
             Destroy(this);
         }
-
-        public event Action<string> OnComponentDestroyed;
     }
 }

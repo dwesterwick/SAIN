@@ -292,6 +292,13 @@
     <Compile Include="Components\BotComponentSpace\Classes\Sense\Hearing\HearingDispersionClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Sense\Hearing\HearingInputClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Steering\SteeringController.cs" />
+    <Compile Include="Components\BotControllerSpace\Classes\Jobs\JobManager.cs" />
+    <Compile Include="Components\BotControllerSpace\Classes\Jobs\RaycastManager.cs" />
+    <Compile Include="Components\BotControllerSpace\Classes\Jobs\SAINCustomJob.cs" />
+    <Compile Include="Components\BotControllerSpace\Classes\Jobs\SAINJobBase.cs" />
+    <Compile Include="Components\BotControllerSpace\Classes\Jobs\SAINRaycastJob.cs" />
+    <Compile Include="Helpers\Ballistics.cs" />
+    <Compile Include="Components\BotComponentSpace\Classes\WeaponFunction\BallisticTrajectorySimClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\WeaponFunction\Grenades\BotFlashbangedClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\WeaponFunction\Grenades\GrenadeReactionClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\WeaponFunction\Grenades\GrenadeThrowDecider.cs" />

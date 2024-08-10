@@ -8,7 +8,12 @@ using UnityEngine;
 
 namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 {
-    public struct CalcDistanceAndNormalJob : IJobFor
+    public interface ISAINJob : IJobFor
+    {
+        void Dispose();
+    }
+
+    public struct CalcDistanceAndNormalJob : ISAINJob
     {
         [ReadOnly] public NativeArray<Vector3> directions;
 
@@ -38,7 +43,7 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
         }
     }
 
-    public struct CalcDistanceJob : IJobFor
+    public struct CalcDistanceJob : ISAINJob
     {
         [ReadOnly] public NativeArray<Vector3> directions;
         [WriteOnly] public NativeArray<float> distances;

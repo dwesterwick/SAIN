@@ -3,6 +3,7 @@ using BepInEx.Configuration;
 using DrakiaXYZ.VersionChecker;
 using EFT;
 using HarmonyLib;
+using SAIN.Components;
 using SAIN.Editor;
 using SAIN.Helpers;
 using SAIN.Patches;
@@ -212,6 +213,7 @@ namespace SAIN
         {
             ModDetection.Update();
             SAINEditor.Update();
+            JobManager.Update();
         }
 
         private void Start() => SAINEditor.Init();
