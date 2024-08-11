@@ -7,15 +7,15 @@ namespace SAIN.Components
     {
         public JobTypeManager(T job)
         {
-            Job = job;
+            JobContainer = job;
         }
 
-        public readonly T Job;
+        public readonly T JobContainer;
         public readonly List<K> Datas = new List<K>();
 
         public virtual void Complete()
         {
-            Job.Complete();
+            JobContainer.Complete();
         }
 
         public virtual void Schedule()
@@ -24,7 +24,7 @@ namespace SAIN.Components
 
         protected bool ShallComplete()
         {
-            if (Job.Status == EJobStatus.Complete) {
+            if (JobContainer.Status == EJobStatus.Complete) {
                 return false;
             }
             if (Datas.Count == 0) {
@@ -35,11 +35,11 @@ namespace SAIN.Components
 
         protected bool ShallSchedule()
         {
-            if (Job.Status == EJobStatus.Scheduled) {
+            if (JobContainer.Status == EJobStatus.Scheduled) {
                 return false;
             }
 
-            if (!Job.ShallCalculate()) {
+            if (!JobContainer.ShallCalculate()) {
                 return false;
             }
 

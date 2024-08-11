@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class DirectionalBatchData : AbstractBatchJob<DirectionData>
+    public class DirectionalBatchJob : AbstractBatchJob<DirectionData>
     {
         public int ScheduleCalcBetweenVectors(Vector3[] vectors)
         {
@@ -37,7 +36,7 @@ namespace SAIN.Components
             return count;
         }
 
-        public DirectionalBatchData() : base(EJobType.Directional)
+        public DirectionalBatchJob() : base(EJobType.Directional)
         {
         }
     }

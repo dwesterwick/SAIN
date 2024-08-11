@@ -8,9 +8,78 @@ using UnityEngine;
 
 namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 {
-    public interface ISAINJob : IJobFor
+    public struct BiDirData
     {
-        void Dispose();
+        public DirData Primary;
+        public DirData Secondary;
+        public float SignedAngle;
+        public Vector3 Axis;
+        public float DotProduct;
+
+        public void Calculate()
+        {
+            Primary.Calculate();
+            Secondary.Calculate();
+            SignedAngle = Vector3.SignedAngle(Primary.Normal, Secondary.Normal, Axis);
+            DotProduct = Vector3.Dot(Primary.Normal, Secondary.Normal);
+        }
+    }
+
+    public struct DirData
+    {
+        public Vector3 Direction;
+        public Vector3 Normal;
+        public float Distance;
+
+        public void Calculate()
+        {
+            Normal = Direction.normalized;
+            Distance = Direction.magnitude;
+        }
+    }
+
+    public struct CalcDirectionalJob : ISAINJob
+    {
+        public NativeArray<DirData> DirectionData;
+
+        public void Execute(int index)
+        {
+            DirectionData[index].Calculate();
+        }
+
+        public NativeArray<DirData> Create(int count)
+        {
+            DirectionData = new NativeArray<DirData>(count, Allocator.TempJob);
+            return DirectionData;
+        }
+
+        public void Dispose()
+        {
+            if (DirectionData.IsCreated) DirectionData.Dispose();
+        }
+    }
+
+    public struct CalcBiDirectionalJob : ISAINJob
+    {
+        public NativeArray<BiDirData> DirectionData;
+
+        public void Execute(int index)
+        {
+            DirectionData[index].Calculate();
+        }
+
+        public void Create(List<BiDirectionData> dataList, int count)
+        {
+            DirectionData = new NativeArray<BiDirData>(count, Allocator.TempJob);
+            for (int i = 0; i < count; i++) {
+                DirectionData[i] = dataList[i].Data;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (DirectionData.IsCreated) DirectionData.Dispose();
+        }
     }
 
     public struct CalcDistanceAndNormalJob : ISAINJob
@@ -45,178 +114,37 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 
     public struct CalcDistanceJob : ISAINJob
     {
-        [ReadOnly] public NativeArray<Vector3> directions;
-        [WriteOnly] public NativeArray<float> distances;
+        [ReadOnly] public NativeArray<Vector3> Directions;
+        [WriteOnly] public NativeArray<float> Distances;
 
         public void Execute(int index)
         {
-            Vector3 direction = directions[index];
-            distances[index] = direction.magnitude;
+            Vector3 direction = Directions[index];
+            Distances[index] = direction.magnitude;
         }
 
         public void Create(NativeArray<Vector3> directions)
         {
             int total = directions.Length;
-            this.directions = directions;
-            distances = new NativeArray<float>(total, Allocator.TempJob);
+            this.Directions = directions;
+            Distances = new NativeArray<float>(total, Allocator.TempJob);
+        }
+
+        public void Create(List<Vector3> directions, int count)
+        {
+            Distances = new NativeArray<float>(count, Allocator.TempJob);
+            Directions = new NativeArray<Vector3>(count, Allocator.TempJob);
+            for (int i = 0; i < count; i++) {
+                Directions[i] = directions[i];
+            }
         }
 
         public void Dispose()
         {
-            if (directions.IsCreated) directions.Dispose();
-            if (distances.IsCreated) distances.Dispose();
+            if (Directions.IsCreated) Directions.Dispose();
+            if (Distances.IsCreated) Distances.Dispose();
         }
     }
-
-    /*
-    public class LastKnownDistanceJob : SAINControllerBase
-    {
-        private JobHandle _handle;
-        private CalcDistanceAndNormalJob _BotDistanceJob;
-        private CalcDistanceAndNormalJob _EnemyDistanceJob;
-        private readonly List<BotComponent> _bots = new List<BotComponent>();
-
-        public LastKnownDistanceJob(SAINBotController botController) : base(botController)
-        {
-            botController.StartCoroutine(calcDistancesLoop());
-        }
-
-        private IEnumerator calcDistancesLoop()
-        {
-            yield return null;
-            while (true) {
-                yield return null;
-                var bots = BotController?.Bots;
-                if (bots == null) {
-                    continue;
-                }
-
-                if (BotController.BotGame?.Status == EFT.GameStatus.Stopping) {
-                    yield return null;
-                    continue;
-                }
-
-                _bots.Clear();
-                _bots.AddRange(bots.Values);
-                int botCount = _bots.Count;
-                // check part directions for vision checks
-                var partDirections = getLastKnownDirectionsToBot(_bots, botCount);
-                int partDirTotal = partDirections.Length;
-                _BotDistanceJob = new CalcDistanceAndNormalJob();
-                _BotDistanceJob.Create(partDirections);
-
-                // schedule job and wait for next frame to read data
-                _handle = _BotDistanceJob.Schedule(partDirTotal, new JobHandle());
-                yield return null;
-                _handle.Complete();
-                readData(_bots, _BotDistanceJob);
-                _BotDistanceJob.Dispose();
-
-                _bots.Clear();
-            }
-        }
-
-        private static void readData(List<PlayerComponent> players, CalcDistanceAndNormalJob job)
-        {
-            var directions = job.directions;
-            var normals = job.normals;
-            var distances = job.distances;
-            int playerCount = players.Count;
-
-            int count = 0;
-            for (int i = 0; i < playerCount; i++) {
-                var player = players[i];
-                var datas = player?.OtherPlayersData.Datas;
-
-                for (int j = 0; j < playerCount; j++) {
-                    var otherPlayer = players[j];
-                    if (otherPlayer != null && datas?.TryGetValue(otherPlayer.ProfileId, out var data) == true) {
-                        data.DistanceData.Update(otherPlayer.Position, directions[count], normals[count], distances[count]);
-                    }
-                    count++;
-                }
-            }
-        }
-
-        private static void readData(List<PlayerComponent> players, CalcDistanceJob job)
-        {
-            var directions = job.directions;
-            var distances = job.distances;
-            int playerCount = players.Count;
-            int partCount = _bodyParts.Length;
-
-            int count = 0;
-            for (int i = 0; i < playerCount; i++) {
-                var player = players[i];
-                var datas = player?.OtherPlayersData.Datas;
-
-                for (int j = 0; j < playerCount; j++) {
-                    var otherPlayer = players[j];
-                    OtherPlayerData otherData = null;
-                    if (otherPlayer != null)
-                        datas?.TryGetValue(otherPlayer.ProfileId, out otherData);
-
-                    for (int b = 0; b < partCount; b++) {
-                        otherData?.DistanceData.UpdateBodyPart(_bodyParts[b], distances[count]);
-                        count++;
-                    }
-                }
-            }
-        }
-
-        private static NativeArray<Vector3> getLastKnownDirectionsToBot(List<BotComponent> bots, int playerCount)
-        {
-            int count = 0;
-            int partCount = _bodyParts.Length;
-            int totalChecks = playerCount * playerCount * partCount;
-            var directions = new NativeArray<Vector3>(totalChecks, Allocator.TempJob);
-            for (int i = 0; i < playerCount; i++) {
-                var player = bots[i];
-                Vector3 eyePosition = player != null ? player.Transform.EyePosition : Vector3.zero;
-
-                for (int j = 0; j < playerCount; j++) {
-                    var otherPlayer = bots[j];
-                    var parts = otherPlayer?.BodyParts.Parts;
-                    for (int b = 0; b < partCount; b++) {
-                        EBodyPart part = _bodyParts[b];
-                        Vector3 partDir = parts != null ? parts[part].Transform.position - eyePosition : Vector3.zero;
-                        directions[count] = partDir;
-                        count++;
-                    }
-                }
-            }
-            return directions;
-        }
-
-        private static NativeArray<Vector3> getDirections(List<BotComponent> bots, int botCount)
-        {
-            int count = 0;
-            int totalChecks = botCount * botCount;
-            var directions = new NativeArray<Vector3>(totalChecks, Allocator.TempJob);
-            for (int i = 0; i < botCount; i++) {
-                var player = bots[i];
-                Vector3 playerPos = player != null ? player.Position : Vector3.zero;
-
-                for (int j = 0; j < botCount; j++) {
-                    var otherPlayer = bots[j];
-                    Vector3 otherPlayerPos = otherPlayer != null ? otherPlayer.Position : Vector3.zero;
-                    Vector3 direction = otherPlayerPos - playerPos;
-                    directions[count] = direction;
-                    count++;
-                }
-            }
-            return directions;
-        }
-
-        public void Dispose()
-        {
-            if (!_handle.IsCompleted) _handle.Complete();
-            if (!_distanceJobHandle.IsCompleted) _distanceJobHandle.Complete();
-            _distanceJob.Dispose();
-            _BotDistanceJob.Dispose();
-        }
-    }
-    */
 
     public class PlayerDistancesJob : SAINControllerBase
     {
@@ -314,8 +242,8 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 
         private static void readData(List<PlayerComponent> players, CalcDistanceJob job)
         {
-            var directions = job.directions;
-            var distances = job.distances;
+            var directions = job.Directions;
+            var distances = job.Distances;
             int playerCount = players.Count;
             int partCount = _bodyParts.Length;
 

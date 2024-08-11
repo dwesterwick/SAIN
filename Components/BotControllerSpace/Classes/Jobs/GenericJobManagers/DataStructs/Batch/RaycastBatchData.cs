@@ -7,7 +7,7 @@ namespace SAIN.Components
     {
         public LayerMask LayerMask { get; private set; }
 
-        private readonly DirectionalBatchData _vectorMagnitudes = new DirectionalBatchData();
+        private readonly DistanceBatchJob _vectorMagnitudes = new DistanceBatchJob();
 
         public void ScheduleRaycastBetweenVectors(Vector3[] vectors)
         {

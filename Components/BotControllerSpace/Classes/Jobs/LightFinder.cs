@@ -170,8 +170,8 @@ namespace SAIN.BotControllerSpace.Classes
         {
             int count = 0;
 
-            NativeArray<Vector3> directions = job.directions;
-            NativeArray<float> distances = job.distances;
+            NativeArray<Vector3> directions = job.Directions;
+            NativeArray<float> distances = job.Distances;
 
             result.Clear();
             for (int p = 0; p < playerCount; p++) {
