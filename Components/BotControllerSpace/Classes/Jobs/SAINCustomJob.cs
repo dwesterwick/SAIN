@@ -3,9 +3,9 @@ using Unity.Jobs;
 
 namespace SAIN.Components
 {
-    public class SAINCustomJob : SAINJobBase
+    public class SAINCustomJob<T> : SAINJobBase where T : ISAINJob
     {
-        public ISAINJob Job { get; private set; }
+        public T Job { get; private set; }
 
         public SAINCustomJob(int frameDelay) : base(frameDelay)
         {
@@ -15,7 +15,7 @@ namespace SAIN.Components
         {
         }
 
-        public void Init(JobHandle handle, ISAINJob job)
+        public void Init(JobHandle handle, T job)
         {
             base.Schedule(handle);
             Job = job;

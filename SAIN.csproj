@@ -296,6 +296,7 @@
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\GenericJobManagers\DataStructs\DirectionData.cs" />
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\GenericJobManagers\DataStructs\EJobStatus.cs" />
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\GenericJobManagers\DataStructs\AbstractJobData.cs" />
+    <Compile Include="Components\BotControllerSpace\Classes\Jobs\GenericJobManagers\DirectionTypeManager.cs" />
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\GenericJobManagers\EJobType.cs" />
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\GenericJobManagers\JobManager.cs" />
     <Compile Include="Components\BotControllerSpace\Classes\Jobs\GenericJobManagers\DataStructs\RaycastData.cs" />

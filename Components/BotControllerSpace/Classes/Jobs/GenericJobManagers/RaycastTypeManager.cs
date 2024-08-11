@@ -22,14 +22,17 @@ namespace SAIN.Components
 
             int count = Datas.Count;
             base.Complete();
-            NativeArray<RaycastHit> jobHits = SAINJob.Hits;
+            int completeCount = 0;
+            NativeArray<RaycastHit> jobHits = Job.Hits;
             for (int i = 0; i < count; i++) {
                 RaycastData data = Datas[i];
                 if (data.Status == EJobStatus.Scheduled) {
-                    data.Complete(jobHits[i]);
+                    data.Complete(jobHits[completeCount]);
+                    completeCount++;
                 }
             }
-            SAINJob.DisposeArrays();
+            //Logger.LogInfo($"{completeCount} : {count}");
+            Job.DisposeArrays();
         }
 
         public override void Schedule()
@@ -39,25 +42,25 @@ namespace SAIN.Components
             }
 
             int count = Datas.Count;
+            //Logger.LogInfo(count);
             _commands.Clear();
             _hits.Clear();
             int scheduledCount = 0;
             for (int i = 0; i < count; i++) {
                 RaycastData data = Datas[i];
-                if (data.Status != EJobStatus.UnScheduled) {
-                    continue;
+                if (data.Status == EJobStatus.UnScheduled) {
+                    _commands.Add(data.Command);
+                    _hits.Add(data.Hit);
+                    data.Status = EJobStatus.Scheduled;
+                    scheduledCount++;
                 }
-                _commands.Add(data.Command);
-                _hits.Add(data.Hit);
-                data.Status = EJobStatus.Scheduled;
-                scheduledCount++;
             }
-
+            //Logger.LogInfo(scheduledCount);
             if (scheduledCount > 0) {
                 NativeArray<RaycastCommand> commandsArray = new NativeArray<RaycastCommand>(_commands.ToArray(), Allocator.TempJob);
                 NativeArray<RaycastHit> hitsArray = new NativeArray<RaycastHit>(_hits.ToArray(), Allocator.TempJob);
                 JobHandle handle = RaycastCommand.ScheduleBatch(commandsArray, hitsArray, 5);
-                SAINJob.Init(handle, commandsArray, hitsArray);
+                Job.Init(handle, commandsArray, hitsArray, scheduledCount);
             }
         }
     }

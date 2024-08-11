@@ -17,6 +17,7 @@ namespace SAIN.Components
             {
                 if (value != _status) {
                     _status = value;
+                    //Logger.LogDebug(value);
                     switch (value) {
                         case EJobStatus.Complete:
                             OnCompleted?.Invoke(this);

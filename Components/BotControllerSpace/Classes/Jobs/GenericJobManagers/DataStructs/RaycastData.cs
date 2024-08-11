@@ -39,6 +39,7 @@ namespace SAIN.Components
                 direction = DistanceData.Direction,
                 distance = DistanceData.Distance,
                 layerMask = LayerMask,
+                maxHits = 1,
             };
             Hit = new RaycastHit();
             Status = EJobStatus.UnScheduled;

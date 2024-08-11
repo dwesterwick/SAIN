@@ -45,26 +45,25 @@ namespace SAIN.Components.PlayerComponentSpace
                 //    Logger.LogDebug($"WeaponAimBlocked [{_fireArmController?.OverlapValue}]");
                 //}
                 //testCalcTrajectory();
-                testRaycastManager();
+                //testRaycastManager();
             }
         }
 
         private void testRaycastManager()
         {
-            if (_raycasts == null) {
-                _raycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask);
-            }
             //Logger.LogDebug(_raycasts.Status);
             switch (_raycasts.Status) {
                 case EJobStatus.Complete:
+
                     int hitCount = 0;
                     foreach (var data in _raycasts.Datas) {
-                        DebugGizmos.Line(data.Command.from, data.Hit.point, Color.green, 0.05f, true, 0.25f, true);
+                        //DebugGizmos.Line(data.Command.from, data.Command.from + data.Command.direction, Color.green, 0.05f, true, 0.25f, true);
                         if (data.Hit.collider != null) {
                             hitCount++;
                         }
                     }
                     Logger.LogDebug(hitCount);
+
                     break;
 
                 case EJobStatus.None:
@@ -75,10 +74,10 @@ namespace SAIN.Components.PlayerComponentSpace
             }
             Vector3 origin = Transform.BodyPosition;
             var list = new List<Vector3>();
-            for (int i = 0; i < 50; i++) {
-                list.Add(UnityEngine.Random.onUnitSphere * 20f);
+            for (int i = 0; i < 2000; i++) {
+                list.Add(UnityEngine.Random.onUnitSphere * 20f + origin);
             }
-            _raycasts.RaycastToPoints(list.ToArray(), origin);
+            _raycasts.ScheduleRaycastToPoints(list.ToArray(), origin);
         }
 
         private RaycastBatchData _raycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask);

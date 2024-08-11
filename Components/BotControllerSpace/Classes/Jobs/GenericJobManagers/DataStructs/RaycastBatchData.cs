@@ -9,7 +9,7 @@ namespace SAIN.Components
 
         private readonly DirectionalBatchData _vectorMagnitudes = new DirectionalBatchData();
 
-        public void RaycastBetweenVectors(Vector3[] vectors)
+        public void ScheduleRaycastBetweenVectors(Vector3[] vectors)
         {
             if (!base.CanBeScheduled()) {
                 return;
@@ -18,7 +18,7 @@ namespace SAIN.Components
             setupJob(count);
         }
 
-        public void RaycastToPoints(Vector3[] vectors, Vector3 origin)
+        public void ScheduleRaycastToPoints(Vector3[] vectors, Vector3 origin)
         {
             if (!base.CanBeScheduled()) {
                 return;
@@ -37,12 +37,14 @@ namespace SAIN.Components
 
         private void onCompleteDistanceCalc(AbstractJobData data)
         {
+            //Logger.LogInfo("Distance calculation complete. Ready for raycast");
             Status = EJobStatus.UnScheduled;
         }
 
         public override void Dispose()
         {
             base.Dispose();
+            OnItemAdded -= itemAdded;
             _vectorMagnitudes.Dispose();
             _vectorMagnitudes.OnCompleted -= onCompleteDistanceCalc;
         }
@@ -55,10 +57,17 @@ namespace SAIN.Components
             }
         }
 
+        private void itemAdded(RaycastData raycastData, int index)
+        {
+            raycastData.DistanceData = _vectorMagnitudes.Datas[index];
+            raycastData.LayerMask = this.LayerMask;
+        }
+
         public RaycastBatchData(LayerMask mask) : base(EJobType.Raycast)
         {
-            LayerMask = mask;
+            UpdateMask(mask);
             _vectorMagnitudes.OnCompleted += onCompleteDistanceCalc;
+            OnItemAdded += itemAdded;
         }
     }
 }

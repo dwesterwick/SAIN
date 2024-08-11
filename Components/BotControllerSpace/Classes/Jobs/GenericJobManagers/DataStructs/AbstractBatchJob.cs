@@ -5,6 +5,8 @@ namespace SAIN.Components
 {
     public abstract class AbstractBatchJob<T> : AbstractJobData where T : AbstractJobData
     {
+        public event Action<T, int> OnItemAdded;
+
         public AbstractBatchJob(EJobType type)
         {
             JobType = type;
@@ -21,6 +23,7 @@ namespace SAIN.Components
             data.OnCompleted += checkComplete;
             Datas.Add(data);
             JobManager.Add(data, JobType);
+            OnItemAdded?.Invoke(data, Datas.Count - 1);
         }
 
         protected void SetupJob(int count)

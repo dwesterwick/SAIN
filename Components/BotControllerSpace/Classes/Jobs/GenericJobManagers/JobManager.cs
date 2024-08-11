@@ -8,6 +8,7 @@ namespace SAIN.Components
         // private static readonly Dictionary<EJobType, SAINJobBase> _jobs = new Dictionary<EJobType, SAINJobBase>();
 
         public static RaycastTypeManager Raycasts = new RaycastTypeManager();
+        public static DirectionTypeManager Directions = new DirectionTypeManager();
 
         public static void Init()
         {
@@ -25,22 +26,26 @@ namespace SAIN.Components
 
         private static void completeAllJobs()
         {
+            Directions.Complete();
             Raycasts.Complete();
         }
 
         private static void scheduleAllJobs()
         {
             Raycasts.Schedule();
+            Directions.Schedule();
         }
 
         public static void Add(AbstractJobData jobData, EJobType type)
         {
             switch (type) {
                 case EJobType.Raycast:
+                    RaycastData raycastData = jobData as RaycastData;
                     Raycasts.Add(jobData as RaycastData);
                     break;
 
                 case EJobType.Directional:
+                    Directions.Add(jobData as DirectionData);
                     break;
 
                 default:
@@ -56,6 +61,7 @@ namespace SAIN.Components
                     break;
 
                 case EJobType.Directional:
+                    Directions.Remove(jobData as DirectionData);
                     break;
 
                 default:
