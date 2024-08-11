@@ -7,16 +7,24 @@ namespace SAIN.Components
     {
         public ISAINJob Job { get; private set; }
 
+        public SAINCustomJob(int frameDelay) : base(frameDelay)
+        {
+        }
+
+        public SAINCustomJob(float timeDelay) : base(timeDelay)
+        {
+        }
+
         public void Init(JobHandle handle, ISAINJob job)
         {
-            Job = job;
             base.Init(handle);
+            Job = job;
         }
 
         public override void Dispose()
         {
-            Job.Dispose();
             base.Dispose();
+            Job.Dispose();
         }
     }
 }

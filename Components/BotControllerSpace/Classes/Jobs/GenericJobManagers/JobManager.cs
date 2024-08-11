@@ -9,16 +9,23 @@ namespace SAIN.Components
 
         public static void Update()
         {
-            int frameCount = Time.frameCount;
+            RaycastManager.Update();
+        }
+
+        public static void LateUpdate()
+        {
+            completeAllJobs();
+            RaycastManager.LateUpdate();
+        }
+
+        private static void completeAllJobs()
+        {
             foreach (var job in _jobs.Values) {
-                if (job.IsComplete) continue;
-                if (job.FrameCreated < frameCount ||
-                    job.Handle.IsCompleted) {
+                if (!job.IsComplete) {
                     job.Handle.Complete();
                     job.IsComplete = true;
                 }
             }
-            RaycastManager.Update();
         }
 
         public static void AddJob(string name, SAINJobBase job)

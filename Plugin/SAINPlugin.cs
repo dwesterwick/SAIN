@@ -216,9 +216,13 @@ namespace SAIN
             JobManager.Update();
         }
 
-        private void Start() => SAINEditor.Init();
+        private void LateUpdate()
+        {
+            SAINEditor.LateUpdate();
+            JobManager.LateUpdate();
+        }
 
-        private void LateUpdate() => SAINEditor.LateUpdate();
+        private void Start() => SAINEditor.Init();
 
         private void OnGUI() => SAINEditor.OnGUI();
 
