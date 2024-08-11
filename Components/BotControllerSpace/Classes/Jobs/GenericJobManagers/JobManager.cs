@@ -5,42 +5,62 @@ namespace SAIN.Components
 {
     public static class JobManager
     {
-        private static readonly Dictionary<string, SAINJobBase> _jobs = new Dictionary<string, SAINJobBase>();
+        // private static readonly Dictionary<EJobType, SAINJobBase> _jobs = new Dictionary<EJobType, SAINJobBase>();
+
+        public static RaycastTypeManager Raycasts = new RaycastTypeManager();
+
+        public static void Init()
+        {
+        }
 
         public static void Update()
         {
-            RaycastManager.Update();
         }
 
         public static void LateUpdate()
         {
             completeAllJobs();
-            RaycastManager.LateUpdate();
+            scheduleAllJobs();
         }
 
         private static void completeAllJobs()
         {
-            foreach (var job in _jobs.Values) {
-                if (!job.IsComplete) {
-                    job.Handle.Complete();
-                    job.IsComplete = true;
-                }
+            Raycasts.Complete();
+        }
+
+        private static void scheduleAllJobs()
+        {
+            Raycasts.Schedule();
+        }
+
+        public static void Add(AbstractJobData jobData, EJobType type)
+        {
+            switch (type) {
+                case EJobType.Raycast:
+                    Raycasts.Add(jobData as RaycastData);
+                    break;
+
+                case EJobType.Directional:
+                    break;
+
+                default:
+                    break;
             }
         }
 
-        public static void AddJob(string name, SAINJobBase job)
+        public static void Remove(AbstractJobData jobData, EJobType type)
         {
-            if (!_jobs.ContainsKey(name)) {
-                _jobs.Add(name, job);
-            }
-            else {
-                Logger.LogError($"{name} already in dictionary");
-            }
-        }
+            switch (type) {
+                case EJobType.Raycast:
+                    Raycasts.Remove(jobData as RaycastData);
+                    break;
 
-        public static void RemoveJob(string name)
-        {
-            _jobs.Remove(name);
+                case EJobType.Directional:
+                    break;
+
+                default:
+                    break;
+            }
         }
     }
 }

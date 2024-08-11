@@ -2,7 +2,7 @@
 
 namespace SAIN.Components
 {
-    public class DistanceData : AbstractJobData
+    public class DirectionData : AbstractJobData
     {
         public Vector3 Origin { get; private set; }
         public Vector3 Direction { get; private set; }

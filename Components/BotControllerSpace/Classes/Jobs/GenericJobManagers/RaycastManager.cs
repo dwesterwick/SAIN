@@ -10,14 +10,13 @@ namespace SAIN.Components
         static RaycastManager()
         {
             _raycastJob = new GlobalRaycastJob();
-            JobManager.AddJob(nameof(RaycastManager), _raycastJob);
+            //JobManager.AddJob(nameof(RaycastManager), _raycastJob);
         }
 
         private static readonly GlobalRaycastJob _raycastJob;
         private static readonly List<RaycastData> _raycastDatas = new List<RaycastData>();
         private static readonly List<RaycastCommand> _commands = new List<RaycastCommand>();
         private static readonly List<RaycastHit> _hits = new List<RaycastHit>();
-        private static bool _jobScheduled;
 
         public static void Update()
         {
@@ -25,19 +24,16 @@ namespace SAIN.Components
 
         public static void LateUpdate()
         {
-            if (_jobScheduled) {
-                completeRaycasts();
-            }
-            if (_raycastJob.IsComplete) {
-                scheduleRaycasts();
-            }
+            completeRaycasts();
+            scheduleRaycasts();
         }
 
         private static void completeRaycasts()
         {
-            if (!_jobScheduled) {
+            if (_raycastJob.Status == EJobStatus.Complete) {
                 return;
             }
+
             int count = _raycastDatas.Count;
             if (count == 0) {
                 return;
@@ -51,12 +47,11 @@ namespace SAIN.Components
                 }
             }
             _raycastJob.Dispose();
-            _jobScheduled = false;
         }
 
         private static void scheduleRaycasts()
         {
-            if (!_raycastJob.IsComplete) {
+            if (_raycastJob.Status == EJobStatus.Scheduled) {
                 return;
             }
 
@@ -81,7 +76,6 @@ namespace SAIN.Components
             NativeArray<RaycastHit> hitsArray = new NativeArray<RaycastHit>(_hits.ToArray(), Allocator.TempJob);
             JobHandle handle = RaycastCommand.ScheduleBatch(commandsArray, hitsArray, 5);
             _raycastJob.Init(handle, commandsArray, hitsArray);
-            _jobScheduled = true;
         }
 
         public static void AddRaycastToJob(RaycastData data)
@@ -94,7 +88,7 @@ namespace SAIN.Components
             Logger.LogDebug($"Added data to Raycasts");
         }
 
-        public static void Remove(RaycastData data)
+        public static void RemoveRaycastFromJob(RaycastData data)
         {
             if (!_raycastDatas.Contains(data)) {
                 Logger.LogError($"Data not in List!");

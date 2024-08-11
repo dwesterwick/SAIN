@@ -3,18 +3,18 @@ using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class VectorsRaycastsData : AbstractBatchJob<RaycastData>
+    public class RaycastBatchData : AbstractBatchJob<RaycastData>
     {
         public LayerMask LayerMask { get; private set; }
 
-        private readonly VectorsDistancesData _vectorDistances = new VectorsDistancesData();
+        private readonly DirectionalBatchData _vectorMagnitudes = new DirectionalBatchData();
 
         public void RaycastBetweenVectors(Vector3[] vectors)
         {
             if (!base.CanBeScheduled()) {
                 return;
             }
-            int count = _vectorDistances.ScheduleCalcDistanceBetweenVectors(vectors);
+            int count = _vectorMagnitudes.ScheduleCalcBetweenVectors(vectors);
             setupJob(count);
         }
 
@@ -23,7 +23,7 @@ namespace SAIN.Components
             if (!base.CanBeScheduled()) {
                 return;
             }
-            int count = _vectorDistances.ScheduleCalcDistanceToPoints(vectors, origin);
+            int count = _vectorMagnitudes.ScheduleCalcToPoints(vectors, origin);
             setupJob(count);
         }
 
@@ -43,8 +43,8 @@ namespace SAIN.Components
         public override void Dispose()
         {
             base.Dispose();
-            _vectorDistances.Dispose();
-            _vectorDistances.OnCompleted -= onCompleteDistanceCalc;
+            _vectorMagnitudes.Dispose();
+            _vectorMagnitudes.OnCompleted -= onCompleteDistanceCalc;
         }
 
         public void UpdateMask(LayerMask mask)
@@ -55,10 +55,10 @@ namespace SAIN.Components
             }
         }
 
-        public VectorsRaycastsData(LayerMask mask)
+        public RaycastBatchData(LayerMask mask) : base(EJobType.Raycast)
         {
             LayerMask = mask;
-            _vectorDistances.OnCompleted += onCompleteDistanceCalc;
+            _vectorMagnitudes.OnCompleted += onCompleteDistanceCalc;
         }
     }
 }

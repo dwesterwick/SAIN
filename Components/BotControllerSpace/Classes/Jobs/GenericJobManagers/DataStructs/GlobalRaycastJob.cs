@@ -13,18 +13,28 @@ namespace SAIN.Components
         {
         }
 
+        public override void Complete()
+        {
+            base.Complete();
+        }
+
         public void Init(JobHandle handle, NativeArray<RaycastCommand> commands, NativeArray<RaycastHit> hits)
         {
-            base.Init(handle);
+            base.Schedule(handle);
             Commands = commands;
             Hits = hits;
+        }
+
+        public void DisposeArrays()
+        {
+            if (Commands.IsCreated) Commands.Dispose();
+            if (Hits.IsCreated) Hits.Dispose();
         }
 
         public override void Dispose()
         {
             base.Dispose();
-            Commands.Dispose();
-            Hits.Dispose();
+            DisposeArrays();
         }
     }
 }

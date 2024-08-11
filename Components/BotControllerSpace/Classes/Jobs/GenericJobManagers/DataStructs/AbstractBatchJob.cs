@@ -5,8 +5,14 @@ namespace SAIN.Components
 {
     public abstract class AbstractBatchJob<T> : AbstractJobData where T : AbstractJobData
     {
+        public AbstractBatchJob(EJobType type)
+        {
+            JobType = type;
+        }
+
         public int ActiveCount { get; set; }
         public readonly List<T> Datas = new List<T>();
+        public readonly EJobType JobType;
 
         private int _completeCount;
 
@@ -14,6 +20,7 @@ namespace SAIN.Components
         {
             data.OnCompleted += checkComplete;
             Datas.Add(data);
+            JobManager.Add(data, JobType);
         }
 
         protected void SetupJob(int count)

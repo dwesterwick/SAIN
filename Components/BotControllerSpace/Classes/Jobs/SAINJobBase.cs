@@ -5,11 +5,11 @@ namespace SAIN.Components
 {
     public abstract class SAINJobBase
     {
+        public EJobStatus Status;
         public JobHandle Handle { get; private set; }
         public int FrameCreated { get; private set; }
         public float TimeCreated { get; private set; }
 
-        public bool IsComplete;
         private readonly int _frameDelay = -1;
         private readonly float _timeDelay = -1f;
 
@@ -23,8 +23,13 @@ namespace SAIN.Components
 
         public bool ShallCalculate()
         {
-            if (!IsComplete) {
-                return false;
+            switch (Status) {
+                case EJobStatus.Complete:
+                case EJobStatus.None:
+                    break;
+
+                default:
+                    return false;
             }
             if (_frameDelay > 0) {
                 return Time.frameCount <= FrameCreated + _frameDelay;
@@ -35,19 +40,25 @@ namespace SAIN.Components
             return true;
         }
 
-        protected void Init(JobHandle handle)
-        {
-            Handle = handle;
-            FrameCreated = Time.frameCount;
-            TimeCreated = Time.time;
-            IsComplete = false;
-        }
-
-        public virtual void Dispose()
+        public virtual void Complete()
         {
             if (!Handle.IsCompleted) {
                 Handle.Complete();
             }
+            Status = EJobStatus.Complete;
+        }
+
+        public virtual void Schedule(JobHandle handle)
+        {
+            Handle = handle;
+            FrameCreated = Time.frameCount;
+            TimeCreated = Time.time;
+            Status = EJobStatus.Scheduled;
+        }
+
+        public virtual void Dispose()
+        {
+            Complete();
         }
     }
 }

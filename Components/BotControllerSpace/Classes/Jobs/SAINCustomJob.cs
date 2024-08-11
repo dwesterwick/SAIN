@@ -17,7 +17,7 @@ namespace SAIN.Components
 
         public void Init(JobHandle handle, ISAINJob job)
         {
-            base.Init(handle);
+            base.Schedule(handle);
             Job = job;
         }
 

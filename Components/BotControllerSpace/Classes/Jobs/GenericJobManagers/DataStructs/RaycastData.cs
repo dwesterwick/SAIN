@@ -8,7 +8,7 @@ namespace SAIN.Components
         public RaycastCommand Command;
         public RaycastHit Hit;
 
-        public DistanceData DistanceData {
+        public DirectionData DistanceData {
             get
             {
                 return _distanceData;
@@ -21,7 +21,7 @@ namespace SAIN.Components
             }
         }
 
-        private DistanceData _distanceData;
+        private DirectionData _distanceData;
 
         public void Complete(RaycastHit hit)
         {

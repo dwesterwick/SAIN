@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class VectorsDistancesData : AbstractBatchJob<DistanceData>
+    public class DirectionalBatchData : AbstractBatchJob<DirectionData>
     {
-        public int ScheduleCalcDistanceBetweenVectors(Vector3[] vectors)
+        public int ScheduleCalcBetweenVectors(Vector3[] vectors)
         {
             if (!base.CanBeScheduled()) {
                 return 0;
@@ -21,7 +21,7 @@ namespace SAIN.Components
             return count;
         }
 
-        public int ScheduleCalcDistanceToPoints(Vector3[] vectors, Vector3 origin)
+        public int ScheduleCalcToPoints(Vector3[] vectors, Vector3 origin)
         {
             if (!base.CanBeScheduled()) {
                 return 0;
@@ -35,6 +35,10 @@ namespace SAIN.Components
                 Datas[i].UpdateData(origin, vectors[i]);
             }
             return count;
+        }
+
+        public DirectionalBatchData() : base(EJobType.Directional)
+        {
         }
     }
 }
