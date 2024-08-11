@@ -10,6 +10,19 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 {
     public struct BiDirData
     {
+        public BiDirData(Vector3 primaryDir, Vector3 secondDir)
+        {
+            Primary = new DirData {
+                Direction = primaryDir,
+            };
+            Secondary = new DirData {
+                Direction = secondDir,
+            };
+            SignedAngle = 0;
+            Axis = Vector3.up;
+            DotProduct = 0;
+        }
+
         public DirData Primary;
         public DirData Secondary;
         public float SignedAngle;
