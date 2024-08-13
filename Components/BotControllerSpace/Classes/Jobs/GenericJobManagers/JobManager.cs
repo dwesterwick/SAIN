@@ -42,23 +42,23 @@ namespace SAIN.Components
             Raycasts.Schedule();
         }
 
-        public static void Add(AbstractJobData jobData, EJobType type)
+        public static void Add(AbstractJobObject jobData, EJobType type)
         {
             switch (type) {
                 case EJobType.Distance:
-                    Distances.Add(jobData as DistanceData);
+                    Distances.Add(jobData as DistanceObject);
                     break;
 
                 case EJobType.Raycast:
-                    Raycasts.Add(jobData as RaycastData);
+                    Raycasts.Add(jobData as RaycastObject);
                     break;
 
                 case EJobType.Directional:
-                    Directions.Add(jobData as DirectionData);
+                    Directions.Add(jobData as DirectionObject);
                     break;
 
                 case EJobType.BiDirectional:
-                    BiDirections.Add(jobData as BiDirectionData);
+                    BiDirections.Add(jobData as BiDirectionObject);
                     break;
 
                 default:
@@ -66,23 +66,23 @@ namespace SAIN.Components
             }
         }
 
-        public static void Remove(AbstractJobData jobData, EJobType type)
+        public static void Remove(AbstractJobObject jobData, EJobType type)
         {
             switch (type) {
                 case EJobType.Distance:
-                    Distances.Remove(jobData as DistanceData);
+                    Distances.Remove(jobData as DistanceObject);
                     break;
 
                 case EJobType.Raycast:
-                    Raycasts.Remove(jobData as RaycastData);
+                    Raycasts.Remove(jobData as RaycastObject);
                     break;
 
                 case EJobType.Directional:
-                    Directions.Remove(jobData as DirectionData);
+                    Directions.Remove(jobData as DirectionObject);
                     break;
 
                 case EJobType.BiDirectional:
-                    BiDirections.Remove(jobData as BiDirectionData);
+                    BiDirections.Remove(jobData as BiDirectionObject);
                     break;
 
                 default:

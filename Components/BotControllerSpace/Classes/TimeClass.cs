@@ -1,8 +1,8 @@
 ﻿using SAIN.Helpers;
+using SAIN.Preset.GlobalSettings;
 using System;
 using System.Text;
 using UnityEngine;
-using static EFT.SpeedTree.TreeWind;
 
 namespace SAIN.Components.BotController
 {
@@ -13,10 +13,9 @@ namespace SAIN.Components.BotController
 
         private float _visTime = 0f;
         private float _nextTestTime;
-
-        private float MIN_VISION_ANGLE_NIGHT = 20f;
         private float MAX_VISION_ANGLE_DAY = 180f;
-        private float NIGHT_MAX_VISION_SPEED_MULTI = 4f;
+        private float MIN_VISION_ANGLE_NIGHT => GlobalSettingsClass.Instance.Look.VisionCone.Visible_Angle_Minimum;
+        private float NIGHT_MAX_VISION_SPEED_MULTI => GlobalSettingsClass.Instance.Look.Time.NIGHT_VISION_SPEED_MAX;
 
         public struct TimeSettings
         {
@@ -122,7 +121,9 @@ namespace SAIN.Components.BotController
                     break;
             }
             percentage = ratio * 100f;
-            float result = Mathf.Lerp(min, max, ratio);
+            float smoothed = EasingFunctions.EaseInOutSine(ratio);
+            float result = Mathf.Lerp(min, max, smoothed);
+            Logger.LogWarning($"ratio {ratio} : smoothed {smoothed} : result {result}");
             return result;
         }
 

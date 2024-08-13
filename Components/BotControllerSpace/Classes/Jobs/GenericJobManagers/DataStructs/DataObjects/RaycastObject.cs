@@ -2,13 +2,13 @@
 
 namespace SAIN.Components
 {
-    public class RaycastData : AbstractJobData
+    public class RaycastObject : AbstractJobObject
     {
         public LayerMask LayerMask;
         public RaycastCommand Command;
         public RaycastHit Hit;
 
-        public DistanceData DistanceData {
+        public DistanceObject DistanceData {
             get
             {
                 return _distanceData;
@@ -21,7 +21,7 @@ namespace SAIN.Components
             }
         }
 
-        private DistanceData _distanceData;
+        private DistanceObject _distanceData;
 
         public void Complete(RaycastHit hit)
         {
@@ -58,7 +58,7 @@ namespace SAIN.Components
             }
         }
 
-        private void onDistanceCalced(AbstractJobData distanceData)
+        private void onDistanceCalced(AbstractJobObject distanceData)
         {
             Create();
             Status = EJobStatus.UnScheduled;

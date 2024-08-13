@@ -1,14 +1,13 @@
 ﻿using SAIN.Components.BotControllerSpace.Classes.Raycasts;
 using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class DirectionTypeManager : JobTypeManager<SAINCustomJob<CalcDistanceAndNormalJob>, DirectionObject>
+    public class DistanceTypeManager : JobTypeManager<SAINCustomJob<CalcDistanceJob>, DistanceObject>
     {
-        public DirectionTypeManager() : base(new SAINCustomJob<CalcDistanceAndNormalJob>(0))
+        public DistanceTypeManager() : base(new SAINCustomJob<CalcDistanceJob>(0))
         {
         }
 
@@ -24,13 +23,12 @@ namespace SAIN.Components
             //Logger.LogInfo(count);
             base.Complete();
 
-            var normals = JobContainer.Job.normals;
-            var distances = JobContainer.Job.distances;
+            var distances = JobContainer.Job.Distances;
             int completeCount = 0;
             for (int i = 0; i < count; i++) {
-                DirectionObject data = Datas[i];
+                DistanceObject data = Datas[i];
                 if (data.Status == EJobStatus.Scheduled) {
-                    data.Complete(normals[completeCount], distances[completeCount]);
+                    data.Complete(distances[completeCount]);
                     completeCount++;
                 }
             }
@@ -48,7 +46,7 @@ namespace SAIN.Components
             int scheduledCount = 0;
             _directions.Clear();
             for (int i = 0; i < count; i++) {
-                DirectionObject data = Datas[i];
+                DistanceObject data = Datas[i];
                 if (data.Status == EJobStatus.UnScheduled) {
                     _directions.Add(data.Direction);
                     data.Schedule();
@@ -59,8 +57,8 @@ namespace SAIN.Components
             //Logger.LogInfo(scheduledCount);
 
             if (scheduledCount > 0) {
-                var job = new CalcDistanceAndNormalJob();
-                job.Create(new NativeArray<Vector3>(_directions.ToArray(), Allocator.TempJob));
+                var job = new CalcDistanceJob();
+                job.Create(_directions, scheduledCount);
                 var handle = job.ScheduleParallel(scheduledCount, 10, new JobHandle());
                 JobContainer.Init(handle, job);
             }

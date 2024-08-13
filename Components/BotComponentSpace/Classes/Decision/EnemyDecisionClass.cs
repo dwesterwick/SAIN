@@ -591,7 +591,7 @@ namespace SAIN.SAINComponent.Classes.Decision
                 reason = "holdingFromTime";
                 return true;
             }
-            else if (Bot.Cover.CheckLimbsForCover()) {
+            else if (Bot.Cover.CheckHasCoverFromEnemy(enemy)) {
                 reason = "holdingHaveSomeCover";
                 return true;
             }

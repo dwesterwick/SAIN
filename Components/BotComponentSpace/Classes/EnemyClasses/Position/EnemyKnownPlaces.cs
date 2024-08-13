@@ -1,4 +1,5 @@
 ﻿using EFT;
+using SAIN.Components;
 using SAIN.Components.BotComponentSpace.Classes.EnemyClasses;
 using SAIN.Helpers;
 using System.Collections.Generic;
@@ -170,7 +171,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             if (lastKnown == null) {
                 return;
             }
-            lastKnown.CheckLineOfSight(Bot.Transform.EyePosition, LayerMaskClass.HighPolyWithTerrainMaskAI);
+            lastKnown.InLineOfSight(Bot.Transform.EyePosition, LayerMaskClass.HighPolyWithTerrainMaskAI);
         }
 
         private void tryTalk()

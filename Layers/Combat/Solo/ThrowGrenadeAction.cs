@@ -17,7 +17,7 @@ namespace SAIN.Layers.Combat.Solo
 
         public override void Update()
         {
-            if (!Stopped && Time.time - StartTime > 1f || Bot.Cover.CheckLimbsForCover()) {
+            if (!Stopped && Time.time - StartTime > 1f || Bot.Cover.CheckHasCoverFromEnemy(Bot.Enemy)) {
                 Stopped = true;
                 BotOwner.StopMove();
             }

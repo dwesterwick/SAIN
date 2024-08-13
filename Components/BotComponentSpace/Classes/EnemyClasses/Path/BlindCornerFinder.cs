@@ -5,20 +5,42 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
     public class BlindCornerFinder : EnemyBase
     {
+        private Coroutine _blindCornerLoop;
+        private EnemyCorner _blindCorner = new EnemyCorner();
+        private RaycastBatchData _raycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask, new ListCache<RaycastObject>("BlindCornerRaycasts"));
+        private BiDirectionObject _biDirectionData = new BiDirectionObject();
+
+        private readonly List<Vector3> _raycastPoints = new List<Vector3>();
+        private readonly List<Vector3> _corners = new List<Vector3>();
+        private readonly List<Vector3> _segments = new List<Vector3>();
+
+        private Vector3 HEIGHT_OFFSET = Vector3.up * HEIGHT;
+        private Vector3 HEIGHT_OFFSET_HALF = Vector3.up * HEIGHT_HALF;
+
+        private static readonly LayerMask _mask = LayerMaskClass.HighPolyWithTerrainMask;
+        private const float HEIGHT = 1.6f;
+        private const float HEIGHT_HALF = HEIGHT / 2f;
+        private const float SEGMENT_LENGTH = 1f;
+        private const float SEGMENT_LENGTH_SQR = SEGMENT_LENGTH * SEGMENT_LENGTH;
+
+        private float _nextLogTime;
+
         public BlindCornerFinder(Enemy enemy) : base(enemy)
         {
             //createDebug();
+            JobManager.BiDirections.Add(_biDirectionData);
         }
 
         public void Init()
         {
-            //_blindCornerLoop = Bot.StartCoroutine(blindCornerLoop());
-            //SubscribeToDispose(Dispose);
+            _blindCornerLoop = Bot.StartCoroutine(FindBlindCorner3Loop());
+            SubscribeToDispose(Dispose);
         }
 
         public void Dispose()
@@ -27,9 +49,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 Bot.StopCoroutine(_blindCornerLoop);
                 _blindCornerLoop = null;
             }
-            foreach (var debug in _debugObjects) {
-                GameObject.Destroy(debug);
-            }
+            //foreach (var debug in _debugObjects) {
+            //    GameObject.Destroy(debug);
+            //}
+            JobManager.BiDirections.Remove(_biDirectionData);
+            _raycasts.Dispose();
         }
 
         public void ClearBlindCorner()
@@ -37,63 +61,19 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Enemy.Path.EnemyCorners.Remove(ECornerType.Blind);
         }
 
-        private Coroutine _blindCornerLoop;
-
-        public IEnumerator blindCornerLoop()
-        {
-            WaitForSeconds wait = new WaitForSeconds(1f);
-            yield return wait;
-
-            while (true) {
-                if (!Enemy.EnemyKnown) {
-                    yield return wait;
-                    continue;
-                }
-
-                Vector3[] corners = Enemy.Path.PathToEnemy.corners;
-                if (corners == null || corners.Length <= 1) {
-                    yield return wait;
-                    continue;
-                }
-
-                findCastPoints(corners, _castPoints);
-                int castPointCount = _castPoints.Count;
-                Logger.LogDebug($"Found {castPointCount} castPoints");
-
-                if (castPointCount == 0) {
-                    yield return wait;
-                    continue;
-                }
-
-                for (int i = 0; i < _debugObjects.Length; i++) {
-                    GameObject sphere = _debugObjects[i];
-                    var renderer = sphere.GetComponent<Renderer>();
-                    if (i < castPointCount) {
-                        renderer.enabled = true;
-                        sphere.transform.position = _castPoints[i];
-                        continue;
-                    }
-                    renderer.enabled = false;
-                }
-                yield return wait;
-            }
-        }
-
         private void createDebug()
         {
-            float size = 0.015f;
-            Color color = Color.white;
-            for (int i = 0; i < _debugObjects.Length; i++) {
-                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                sphere.GetComponent<Renderer>().material.color = color;
-                sphere.GetComponent<Collider>().enabled = false;
-                sphere.transform.position = new Vector3(0, -1000, 0);
-                sphere.transform.localScale = new Vector3(size, size, size);
-                _debugObjects[i] = sphere;
-            }
+            //float size = 0.015f;
+            //Color color = Color.white;
+            //for (int i = 0; i < _debugObjects.Length; i++) {
+            //    GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            //    sphere.GetComponent<Renderer>().material.color = color;
+            //    sphere.GetComponent<Collider>().enabled = false;
+            //    sphere.transform.position = new Vector3(0, -1000, 0);
+            //    sphere.transform.localScale = new Vector3(size, size, size);
+            //    _debugObjects[i] = sphere;
+            //}
         }
-
-        private readonly GameObject[] _debugObjects = new GameObject[2000];
 
         private void findCastPoints(Vector3[] corners, List<Vector3> castPoints)
         {
@@ -123,10 +103,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
         }
 
-        private readonly List<Vector3> _castPoints = new List<Vector3>();
-        private RaycastBatchData _raycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask);
-        private BiDirectionData _biDirectionData = new BiDirectionData();
-        private readonly List<Vector3> _points = new List<Vector3>();
+        //private readonly GameObject[] _debugObjects = new GameObject[2000];
 
         public IEnumerator FindBlindCorner2(Vector3[] corners, Vector3 enemyPosition)
         {
@@ -139,32 +116,42 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 yield break;
             }
 
+            //const int MAX_RAYCASTS_PERFRAME = 100;
             int blindCornerIndex = count - 1;
             Vector3? blindCorner = null;
-
-            const int MAX_CORNERS = 20;
-            int cornersChecked = 0;
-
-            for (int i = count - 1; i > 0; i--) {
-                Vector3 corner = _corners[i];
-                blindCornerIndex = i - 1;
-                Vector3 nextCorner = _corners[i - 1];
-
-                _segments.Clear();
-                findSegmentsBetweenCorner(corner, nextCorner, _segments);
-                int segmentCount = _segments.Count;
-                for (int j = 0; j < segmentCount; j++) {
-                    AddSegmentPoints(_segments[j]);
-                }
-                cornersChecked++;
-                if (cornersChecked > MAX_CORNERS) {
-                    break;
-                }
-            }
-
-            _raycasts.ScheduleRaycastToPoints(_points.ToArray(), Bot.Transform.EyePosition);
+            //int cornersChecked = 0;
 
             float startTime = Time.time + 1f;
+            _raycastPoints.Clear();
+            //int raycasts = 0;
+            int pointsPerCorner = 0;
+            for (int i = 0; i < count; i++) {
+                Vector3 corner = _corners[i];
+                blindCornerIndex = i;
+                pointsPerCorner = AddSegmentPoints(corner);
+
+                //_segments.Clear();
+                //findSegmentsBetweenCorner(corner, nextCorner, _segments);
+                //int segmentCount = _segments.Count;
+                //for (int j = 0; j < segmentCount; j++) {
+                //    raycasts += AddSegmentPoints(_segments[j]);
+                //}
+                //cornersChecked++;
+                //if (raycasts >= MAX_RAYCASTS_PERFRAME) {
+                //    raycasts = 0;
+                //    _raycasts.ScheduleRaycastToPoints(_points.ToArray(), Bot.Transform.EyePosition);
+                //    while (_raycasts.Status != EJobStatus.Complete) {
+                //        if (startTime < Time.time) {
+                //            Logger.LogError($"Raycast Job is taking too long!");
+                //            break;
+                //        }
+                //        yield return null;
+                //    }
+                //}
+            }
+
+            _raycasts.ScheduleRaycastToPoints(_raycastPoints, Bot.Transform.EyePosition);
+            yield return new WaitForEndOfFrame();
             while (_raycasts.Status != EJobStatus.Complete) {
                 if (startTime < Time.time) {
                     Logger.LogError($"Raycast Job is taking too long!");
@@ -173,12 +160,13 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 yield return null;
             }
 
-            List<RaycastData> raycastDatas = _raycasts.Datas;
+            List<RaycastObject> raycastDatas = _raycasts.Datas;
             int raycastCount = raycastDatas.Count;
             for (int i = raycastCount - 1; i >= 0; i--) {
-                RaycastData raycastData = raycastDatas[i];
+                RaycastObject raycastData = raycastDatas[i];
                 if (raycastData.Hit.collider != null) {
-                    blindCorner = raycastData.Command.from + raycastData.Command.direction;
+                    blindCornerIndex = i / pointsPerCorner;
+                    blindCorner = _corners[blindCornerIndex];
                     break;
                 }
             }
@@ -197,10 +185,10 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             _biDirectionData.UpdateData(dirData);
 
             startTime = Time.time + 1f;
+            yield return new WaitForEndOfFrame();
             while (_biDirectionData.Status != EJobStatus.Complete) {
                 if (startTime < Time.time) {
                     Logger.LogError($"Direction Job is taking too long!");
-                    break;
                 }
                 yield return null;
             }
@@ -211,13 +199,111 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             DebugGizmos.Line(blindCorner.Value, eyePos, Color.cyan, 0.1f, true, 1f);
         }
 
-        private EnemyCorner _blindCorner = new EnemyCorner();
-
-        private void AddSegmentPoints(Vector3 segment)
+        public IEnumerator FindBlindCorner3Loop()
         {
-            _points.Add(segment + (Vector3.up * 0.1f));
-            _points.Add(segment + HEIGHT_OFFSET_HALF);
-            _points.Add(segment + HEIGHT_OFFSET);
+            var wait = new WaitForSeconds(0.25f);
+            var waitActiveEnemy = new WaitForSeconds(0.05f);
+            while (true) {
+                yield return Enemy.IsCurrentEnemy ? waitActiveEnemy : wait;
+
+                if (!Enemy.EnemyKnown) {
+                    ClearBlindCorner();
+                    continue;
+                }
+
+                NavMeshPath enemyPath = Enemy.Path.PathToEnemy;
+                if (enemyPath.status == NavMeshPathStatus.PathInvalid) {
+                    continue;
+                }
+                Vector3[] corners = enemyPath.corners;
+                int count = corners.Length;
+                if (count <= 2) {
+                    ClearBlindCorner();
+                    yield break;
+                }
+
+                _corners.Clear();
+                _corners.AddRange(corners);
+                int blindCornerIndex = count - 1;
+                Vector3? blindCorner = null;
+
+                float startTime = Time.time + 1f;
+                _raycastPoints.Clear();
+                int pointsPerCorner = 0;
+                for (int i = 0; i < count; i++) {
+                    Vector3 corner = _corners[i];
+                    pointsPerCorner = AddSegmentPoints(corner);
+                }
+
+                _raycasts.ScheduleRaycastToPoints(_raycastPoints, Bot.Transform.EyePosition);
+
+                yield return new WaitForEndOfFrame();
+                while (_raycasts.Status != EJobStatus.Complete) {
+                    if (startTime < Time.time) {
+                        Logger.LogError($"Raycast Job is taking too long!");
+                        break;
+                    }
+                    yield return null;
+                }
+
+                Vector3? enemyLastKnown = Enemy.KnownPlaces.LastKnownPosition;
+                if (enemyLastKnown == null) {
+                    ClearBlindCorner();
+                    yield break;
+                }
+
+                List<RaycastObject> raycastDatas = _raycasts.Datas;
+                int raycastCount = raycastDatas.Count;
+                for (int i = raycastCount - 1; i >= 0; i--) {
+                    RaycastObject raycastData = raycastDatas[i];
+                    if (raycastData.Hit.collider != null) {
+                        blindCornerIndex = i / pointsPerCorner;
+                        blindCorner = _corners[blindCornerIndex];
+                        break;
+                    }
+                }
+
+                if (blindCorner == null) {
+                    ClearBlindCorner();
+                    yield break;
+                }
+
+                Vector3 eyePos = Bot.Transform.EyePosition;
+                Vector3 blindCornerDir = blindCorner.Value - eyePos;
+                blindCornerDir.y = 0;
+                Vector3 enemyPosDir = enemyLastKnown.Value - eyePos;
+                enemyPosDir.y = 0;
+                BiDirData dirData = new BiDirData(blindCornerDir, enemyPosDir);
+                _biDirectionData.UpdateData(dirData);
+
+                startTime = Time.time + 1f;
+                yield return new WaitForEndOfFrame();
+                while (_biDirectionData.Status != EJobStatus.Complete) {
+                    if (startTime < Time.time) {
+                        Logger.LogError($"Direction Job is taking too long!");
+                    }
+                    yield return null;
+                }
+
+                float signedAngle = _biDirectionData.Data.SignedAngle;
+                _blindCorner.UpdateData(blindCorner.Value, signedAngle, blindCornerIndex);
+                Enemy.Path.EnemyCorners.AddOrReplace(ECornerType.Blind, _blindCorner);
+                DebugGizmos.Line(blindCorner.Value, eyePos, Color.cyan, 0.1f, true, 1f);
+            }
+        }
+
+        private int AddSegmentPoints(Vector3 segment)
+        {
+            int result = 0;
+
+            _raycastPoints.Add(segment + (Vector3.up * 0.1f));
+            result++;
+            _raycastPoints.Add(segment + HEIGHT_OFFSET_HALF);
+            result++;
+            _raycastPoints.Add(segment + HEIGHT_OFFSET);
+            result++;
+
+            return result;
         }
 
         private bool CheckSightAtSegment(Vector3 segment, Vector3 origin, out Vector3 sightPoint)
@@ -252,11 +338,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             return false;
         }
 
-        private const float HEIGHT = 1.6f;
-        private const float HEIGHT_HALF = HEIGHT / 2f;
-        private Vector3 HEIGHT_OFFSET = Vector3.up * HEIGHT;
-        private Vector3 HEIGHT_OFFSET_HALF = Vector3.up * HEIGHT_HALF;
-
         private void findSegmentsBetweenCorner(Vector3 corner, Vector3 nextCorner, List<Vector3> segmentsList)
         {
             segmentsList.Add(corner);
@@ -278,10 +359,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 segmentsList.Add(segmentPoint);
             }
         }
-
-        private readonly List<Vector3> _segments = new List<Vector3>();
-        private const float SEGMENT_LENGTH = 0.5f;
-        private const float SEGMENT_LENGTH_SQR = SEGMENT_LENGTH * SEGMENT_LENGTH;
 
         public IEnumerator FindBlindCorner(Vector3[] corners, Vector3 enemyPosition)
         {
@@ -456,8 +533,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         //    }
         //}
 
-        private float _nextLogTime;
-
         private void drawDebug(Vector3 corner, Vector3 lookPoint, bool hit)
         {
             if (SAINPlugin.DebugMode && SAINPlugin.DebugSettings.Gizmos.DebugDrawBlindCorner) {
@@ -495,8 +570,5 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Vector3 direction = corner - lookPoint;
             return Physics.Raycast(lookPoint, direction, direction.magnitude, _mask);
         }
-
-        private static readonly LayerMask _mask = LayerMaskClass.HighPolyWithTerrainMask;
-        private readonly List<Vector3> _corners = new List<Vector3>();
     }
 }

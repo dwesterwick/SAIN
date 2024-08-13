@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class RaycastTypeManager : JobTypeManager<GlobalRaycastJob, RaycastData>
+    public class RaycastTypeManager : JobTypeManager<GlobalRaycastJob, RaycastObject>
     {
         public RaycastTypeManager() : base(new GlobalRaycastJob())
         {
@@ -16,7 +16,7 @@ namespace SAIN.Components
 
         public override void Complete()
         {
-            if (!ShallComplete()) {
+            if (!HasJobsToCheckComplete()) {
                 return;
             }
 
@@ -24,9 +24,14 @@ namespace SAIN.Components
             base.Complete();
             int completeCount = 0;
             NativeArray<RaycastHit> jobHits = JobContainer.Hits;
+            int jobHitsCount = jobHits.Length;
             for (int i = 0; i < count; i++) {
-                RaycastData data = Datas[i];
+                RaycastObject data = Datas[i];
                 if (data.Status == EJobStatus.Scheduled) {
+                    if (completeCount >= jobHitsCount) {
+                        Logger.LogError("complete count more than job count?");
+                        break;
+                    }
                     data.Complete(jobHits[completeCount]);
                     completeCount++;
                 }
@@ -37,7 +42,7 @@ namespace SAIN.Components
 
         public override void Schedule()
         {
-            if (!ShallSchedule()) {
+            if (!HasJobsToSchedule()) {
                 return;
             }
 
@@ -47,7 +52,7 @@ namespace SAIN.Components
             //_hits.Clear();
             int scheduledCount = 0;
             for (int i = 0; i < count; i++) {
-                RaycastData data = Datas[i];
+                RaycastObject data = Datas[i];
                 if (data.Status == EJobStatus.UnScheduled) {
                     _commands.Add(data.Command);
                     //_hits.Add(data.Hit);

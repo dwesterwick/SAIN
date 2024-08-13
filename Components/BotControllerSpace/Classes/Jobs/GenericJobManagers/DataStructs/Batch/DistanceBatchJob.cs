@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using SAIN.Helpers;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class DistanceBatchJob : AbstractBatchJob<DistanceData>
+    public class DistanceBatchJob : AbstractBatchJob<DistanceObject>
     {
         public int ScheduleCalcBetweenVectors(Vector3[] vectors)
         {
@@ -37,7 +38,28 @@ namespace SAIN.Components
             return count;
         }
 
-        public DistanceBatchJob() : base(EJobType.Distance)
+        public int ScheduleCalcToPoints(List<Vector3> vectors, Vector3 origin)
+        {
+            if (!base.CanBeScheduled()) {
+                return 0;
+            }
+            int count = vectors.Count;
+            if (count < 0) {
+                return 0;
+            }
+            base.SetupJob(count);
+            for (int i = 0; i < count; i++) {
+                Datas[i].UpdateData(origin, vectors[i]);
+            }
+            return count;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+        }
+
+        public DistanceBatchJob(ListCache<DistanceObject> cache) : base(EJobType.Distance, cache)
         {
         }
     }

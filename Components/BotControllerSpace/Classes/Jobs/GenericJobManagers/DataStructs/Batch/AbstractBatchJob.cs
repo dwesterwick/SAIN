@@ -1,40 +1,69 @@
-﻿using System;
+﻿using SAIN.Helpers;
+using System;
 using System.Collections.Generic;
 
 namespace SAIN.Components
 {
-    public abstract class AbstractBatchJob<T> : AbstractJobData where T : AbstractJobData
+    public abstract class AbstractBatchJob<T> : AbstractJobObject where T : AbstractJobObject
     {
         public event Action<T, int> OnItemAdded;
-
-        public AbstractBatchJob(EJobType type)
-        {
-            JobType = type;
-        }
 
         public int ActiveCount { get; set; }
         public readonly List<T> Datas = new List<T>();
         public readonly EJobType JobType;
+        public readonly ListCache<T> Cache;
 
         private int _completeCount;
+
+        public AbstractBatchJob(EJobType type, ListCache<T> cache)
+        {
+            Cache = cache;
+            JobType = type;
+        }
 
         protected void Add(T data)
         {
             data.OnCompleted += checkComplete;
-            Datas.Add(data);
+            data.SetAsReady();
             JobManager.Add(data, JobType);
             OnItemAdded?.Invoke(data, Datas.Count - 1);
+        }
+
+        protected void Remove(T data)
+        {
+            data.OnCompleted -= checkComplete;
+            data.SetAsCached();
+            JobManager.Remove(data, JobType);
         }
 
         protected void SetupJob(int count)
         {
             _completeCount = 0;
             ActiveCount = count;
-            createCache(count);
+
+            ReturnAllToCache();
+            Cache.HandleCache(Datas, count);
+            foreach (var data in Datas) {
+                Add(data);
+            }
+            //foreach (var data in cache.Removed) {
+            //    Remove(data);
+            //}
             Status = EJobStatus.UnScheduled;
         }
 
-        private void checkComplete(AbstractJobData data)
+        public void ReturnAllToCache()
+        {
+            foreach (var data in Datas) {
+                Remove(data);
+            }
+            Cache.ReturnAllToCache(Datas);
+            if (Datas.Count > 0) {
+                Logger.LogWarning("Datas.Count > 0");
+            }
+        }
+
+        private void checkComplete(AbstractJobObject data)
         {
             _completeCount++;
             if (_completeCount == ActiveCount) {
@@ -42,27 +71,10 @@ namespace SAIN.Components
             }
         }
 
-        private void createCache(int targetCount)
-        {
-            int cacheCount = Datas.Count;
-            if (cacheCount >= targetCount) {
-                return;
-            }
-            // This is not optimal, but the loops are making my fucking brain hurt
-            while (cacheCount < targetCount) {
-                Add((T)Activator.CreateInstance(typeof(T)));
-                cacheCount++;
-            }
-        }
-
         public override void Dispose()
         {
+            ReturnAllToCache();
             base.Dispose();
-            Logger.LogDebug("Disposed BatchJob");
-            foreach (var data in Datas) {
-                data.OnCompleted -= checkComplete;
-                data.Dispose();
-            }
         }
     }
 }

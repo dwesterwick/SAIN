@@ -2,7 +2,7 @@
 
 namespace SAIN.Components
 {
-    public class BiDirectionData : AbstractJobData
+    public class BiDirectionObject : AbstractJobObject
     {
         public BiDirData Data { get; private set; }
 
@@ -10,6 +10,7 @@ namespace SAIN.Components
         {
             Data = data;
             Status = EJobStatus.Complete;
+            Logger.LogInfo(data.SignedAngle);
         }
 
         public void Schedule()

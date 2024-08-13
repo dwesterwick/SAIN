@@ -25,7 +25,7 @@ namespace SAIN.Components
         {
             switch (Status) {
                 case EJobStatus.Complete:
-                case EJobStatus.None:
+                case EJobStatus.Ready:
                 case EJobStatus.UnScheduled:
                     break;
 

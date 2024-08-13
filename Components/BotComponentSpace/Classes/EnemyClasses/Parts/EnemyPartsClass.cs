@@ -84,9 +84,8 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         {
             var parts = Enemy.EnemyPlayerComponent.BodyParts.Parts;
             foreach (var bodyPart in parts) {
-                Parts.Add(bodyPart.Key, new EnemyPartDataClass(bodyPart.Key, bodyPart.Value.Transform, bodyPart.Value.Colliders));
+                Parts.Add(bodyPart.Key, new EnemyPartDataClass(bodyPart.Value, bodyPart.Key, bodyPart.Value.Transform, bodyPart.Value.Colliders));
             }
         }
-
     }
 }

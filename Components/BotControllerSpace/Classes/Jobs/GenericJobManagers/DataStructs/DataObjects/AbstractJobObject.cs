@@ -2,11 +2,11 @@
 
 namespace SAIN.Components
 {
-    public abstract class AbstractJobData
+    public abstract class AbstractJobObject
     {
-        public event Action<AbstractJobData> OnCompleted;
+        public event Action<AbstractJobObject> OnCompleted;
 
-        public event Action<AbstractJobData> OnDispose;
+        public event Action<AbstractJobObject> OnDispose;
 
         public EJobStatus Status {
             get
@@ -39,7 +39,7 @@ namespace SAIN.Components
         protected bool CanBeScheduled()
         {
             switch (Status) {
-                case EJobStatus.None:
+                case EJobStatus.Ready:
                 case EJobStatus.Complete:
                     return true;
 
@@ -52,6 +52,16 @@ namespace SAIN.Components
         public virtual void Dispose()
         {
             Status = EJobStatus.Disposed;
+        }
+
+        public virtual void SetAsCached()
+        {
+            Status = EJobStatus.Cached;
+        }
+
+        public virtual void SetAsReady()
+        {
+            Status = EJobStatus.Ready;
         }
     }
 }

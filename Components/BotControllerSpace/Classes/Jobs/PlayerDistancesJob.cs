@@ -1,5 +1,4 @@
 ﻿using SAIN.Components.PlayerComponentSpace;
-using SAIN.SAINComponent;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -57,7 +56,8 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 
         public void Execute(int index)
         {
-            DirectionData[index].Calculate();
+            var data = DirectionData[index];
+            data.Calculate();
         }
 
         public NativeArray<DirData> Create(int count)
@@ -78,10 +78,12 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 
         public void Execute(int index)
         {
-            DirectionData[index].Calculate();
+            BiDirData data = DirectionData[index];
+            data.Calculate();
+            DirectionData[index] = data;
         }
 
-        public void Create(List<BiDirectionData> dataList, int count)
+        public void Create(List<BiDirectionObject> dataList, int count)
         {
             DirectionData = new NativeArray<BiDirData>(count, Allocator.TempJob);
             for (int i = 0; i < count; i++) {

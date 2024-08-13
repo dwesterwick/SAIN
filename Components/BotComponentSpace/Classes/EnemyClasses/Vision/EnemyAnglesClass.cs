@@ -2,6 +2,7 @@
 using SAIN.Components.BotController;
 using SAIN.Helpers;
 using SAIN.Preset.BotSettings.SAINSettings.Categories;
+using SAIN.Preset.GlobalSettings;
 using UnityEngine;
 
 namespace SAIN.SAINComponent.Classes.EnemyClasses
@@ -22,7 +23,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public float AngleToEnemyVertical { get; private set; }
         public float AngleToEnemyVerticalSigned { get; private set; }
 
-        private float Global_Min_VisionConeAngle = 10;
         private float _calcAngleTime;
         private TimeClass _globalTimeClass;
 
@@ -104,7 +104,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 min = fileSettings.Look.Visible_Angle_Flashlight;
             }
             else {
-                min = Global_Min_VisionConeAngle;
+                min = GlobalSettingsClass.Instance.Look.VisionCone.Visible_Angle_Minimum;
             }
 
             return Mathf.Clamp(globalMax, min, 180);

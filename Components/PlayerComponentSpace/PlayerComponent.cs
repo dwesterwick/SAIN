@@ -6,6 +6,7 @@ using SAIN.Components.PlayerComponentSpace.Classes.Equipment;
 using SAIN.Components.PlayerComponentSpace.PersonClasses;
 using SAIN.Helpers;
 using SAIN.SAINComponent;
+using SAIN.SAINComponent.Classes.Mover;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace SAIN.Components.PlayerComponentSpace
     {
         public event Action<string> OnComponentDestroyed;
 
+        public DoorFinder2 DoorFinder { get; private set; }
         public OtherPlayerDatasClass OtherPlayersData { get; private set; }
         public BodyPartsClass BodyParts { get; private set; }
         public PlayerIlluminationClass Illumination { get; private set; }
@@ -31,6 +33,7 @@ namespace SAIN.Components.PlayerComponentSpace
             }
 
             if (!IsAI || Person.ActivationClass.BotActive) {
+                DoorFinder.Update();
                 Illumination.Update();
                 drawTransformGizmos();
                 Flashlight.Update();
@@ -66,7 +69,7 @@ namespace SAIN.Components.PlayerComponentSpace
 
                     break;
 
-                case EJobStatus.None:
+                case EJobStatus.Ready:
                     break;
 
                 default:
@@ -80,7 +83,7 @@ namespace SAIN.Components.PlayerComponentSpace
             _raycasts.ScheduleRaycastToPoints(list.ToArray(), origin);
         }
 
-        private RaycastBatchData _raycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask);
+        private RaycastBatchData _raycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask, new ListCache<RaycastObject>("playerTest"));
 
         private void testCalcTrajectory()
         {
@@ -420,7 +423,9 @@ namespace SAIN.Components.PlayerComponentSpace
                 Equipment = new SAINEquipmentClass(this);
                 AIData = new SAINAIData(Equipment.GearInfo, this);
                 Illumination = new PlayerIlluminationClass(this);
+                DoorFinder = new DoorFinder2(this);
 
+                DoorFinder.Init();
                 Illumination.Init();
                 OtherPlayersData.Init();
 
@@ -479,6 +484,7 @@ namespace SAIN.Components.PlayerComponentSpace
             Illumination?.Dispose();
             Equipment?.Dispose();
             OtherPlayersData?.Dispose();
+            DoorFinder?.Dispose();
             Destroy(this);
         }
     }

@@ -4,7 +4,13 @@ namespace SAIN.Preset.GlobalSettings
 {
     public class TimeSettings : SAINSettingsBase<TimeSettings>, ISAINSettings
     {
-        [Name("Nighttime Vision Modifier")]
+        [Name("Max Night Vision Speed Modifier")]
+        [Description(
+            "Max Vision Speed reduction a bot can get from it being nighttime.")]
+        [MinMax(1f, 5f, 100f)]
+        public float NIGHT_VISION_SPEED_MAX = 3f;
+
+        [Name("Night Vision Distance Modifier")]
         [Description(
             "By how much to lower visible distance at nighttime. " +
             "at the default value of 0.2, bots will see 0.2 times as far, or 20% of " +
@@ -12,7 +18,7 @@ namespace SAIN.Preset.GlobalSettings
         [MinMax(0.01f, 1f, 100f)]
         public float NightTimeVisionModifier = 0.2f;
 
-        [Name("Snow Nighttime Vision Modifier")]
+        [Name("Snow Night Vision Distance Modifier")]
         [Description(
             "By how much to lower visible distance at nighttime in the snow. " +
             "at the default value of 0.2, bots will see 0.2 times as far, or 20% of " +

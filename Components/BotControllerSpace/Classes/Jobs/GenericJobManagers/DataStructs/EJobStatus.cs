@@ -2,11 +2,12 @@
 {
     public enum EJobStatus
     {
-        None,
+        Ready,
         AwaitingOtherJob,
         UnScheduled,
         Scheduled,
         Complete,
         Disposed,
+        Cached,
     }
 }

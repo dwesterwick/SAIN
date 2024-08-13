@@ -9,29 +9,6 @@ using UnityEngine;
 
 namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
-    public class EnemyEquipmentInfo : EnemyBase, IBotEnemyClass
-    {
-        public EnemyEquipmentInfo(Enemy enemy) : base(enemy)
-        {
-        }
-
-        public void Init()
-        {
-        }
-
-        public void Update()
-        {
-        }
-
-        public void Dispose()
-        {
-        }
-
-        public void OnEnemyKnownChanged(bool value, Enemy enemy)
-        {
-        }
-    }
-
     public class Enemy : BotBase, IBotClass
     {
         public string EnemyName { get; }
@@ -56,6 +33,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public EnemyHearing Hearing { get; }
         public EnemyShootClass Shoot { get; }
         public EnemyPartsClass EnemyParts { get; }
+        public CoverFromEnemyClass CoverFromEnemy { get; }
 
         private EnemyKnownChecker _knownChecker { get; }
         private EnemyActiveThreatChecker _activeThreatChecker { get; }
@@ -88,6 +66,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Hearing = new EnemyHearing(this);
             Shoot = new EnemyShootClass(this);
             EnemyParts = new EnemyPartsClass(this);
+            CoverFromEnemy = new CoverFromEnemyClass(this);
 
             updateDistAndDirection(true);
         }
@@ -106,6 +85,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Hearing.Init();
             Status.Init();
             Shoot.Init();
+            CoverFromEnemy.Init();
         }
 
         public void Update()
@@ -125,6 +105,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Shoot.Update();
             Hearing.Update();
             EnemyParts.Update();
+            CoverFromEnemy.Update();
         }
 
         public void Dispose()
@@ -140,6 +121,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Hearing.Dispose();
             Status.Dispose();
             Shoot.Dispose();
+            CoverFromEnemy.Dispose();
         }
 
         public bool EnemyKnown => Events.OnEnemyKnownChanged.Value;

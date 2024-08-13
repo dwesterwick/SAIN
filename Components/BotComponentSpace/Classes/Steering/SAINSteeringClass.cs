@@ -220,7 +220,7 @@ namespace SAIN.SAINComponent.Classes.Mover
             if (lastKnownPlace == null) {
                 return null;
             }
-            visible = lastKnownPlace.CheckLineOfSight(Bot.Transform.EyePosition, LayerMaskClass.HighPolyWithTerrainMask);
+            visible = lastKnownPlace.InLineOfSight(Bot.Transform.EyePosition, LayerMaskClass.HighPolyWithTerrainMask);
             return lastKnownPlace.GroundedPosition();
         }
 
@@ -238,6 +238,12 @@ namespace SAIN.SAINComponent.Classes.Mover
             var lastKnown = enemy.KnownPlaces.LastKnownPlace;
             if (lastKnown == null) {
                 return null;
+            }
+
+            EnemyCorner blindCorner = enemy.Path.EnemyCorners.GetCorner(ECornerType.Blind);
+            if (blindCorner != null) {
+                Vector3 botPos = Bot.Position;
+                return blindCorner.EyeLevelCorner(botPos + WeaponRootOffset, botPos);
             }
 
             var lastSeen = enemy.KnownPlaces.LastSeenPlace;

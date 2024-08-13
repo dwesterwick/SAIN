@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using SAIN.Helpers;
+using System.Collections.Generic;
 
 namespace SAIN.Components
 {
-    public class BiDirectionalBatchJob : AbstractBatchJob<BiDirectionData>
+    public class BiDirectionalBatchJob : AbstractBatchJob<BiDirectionObject>
     {
-        public int Schedule(List<BiDirectionData> datas)
+        public int Schedule(List<BiDirectionObject> datas)
         {
             if (!base.CanBeScheduled()) {
                 return 0;
@@ -20,7 +21,13 @@ namespace SAIN.Components
             return count;
         }
 
-        public BiDirectionalBatchJob() : base(EJobType.BiDirectional)
+        public override void Dispose()
+        {
+            base.Dispose();
+            base.ReturnAllToCache();
+        }
+
+        public BiDirectionalBatchJob(ListCache<BiDirectionObject> cache) : base(EJobType.BiDirectional, cache)
         {
         }
     }

@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using SAIN.Helpers;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class RaycastBatchData : AbstractBatchJob<RaycastData>
+    public class RaycastBatchData : AbstractBatchJob<RaycastObject>
     {
         public LayerMask LayerMask { get; private set; }
 
-        private readonly DistanceBatchJob _vectorMagnitudes = new DistanceBatchJob();
+        private readonly DistanceBatchJob _vectorMagnitudes = new DistanceBatchJob(new ListCache<DistanceObject>("RaycastDistances"));
 
         public void ScheduleRaycastBetweenVectors(Vector3[] vectors)
         {
@@ -27,6 +28,15 @@ namespace SAIN.Components
             setupJob(count);
         }
 
+        public void ScheduleRaycastToPoints(List<Vector3> vectors, Vector3 origin)
+        {
+            if (!base.CanBeScheduled()) {
+                return;
+            }
+            int count = _vectorMagnitudes.ScheduleCalcToPoints(vectors, origin);
+            setupJob(count);
+        }
+
         private void setupJob(int count)
         {
             if (count > 0) {
@@ -35,7 +45,7 @@ namespace SAIN.Components
             }
         }
 
-        private void onCompleteDistanceCalc(AbstractJobData data)
+        private void onCompleteDistanceCalc(AbstractJobObject data)
         {
             //Logger.LogInfo("Distance calculation complete. Ready for raycast");
             Status = EJobStatus.UnScheduled;
@@ -57,13 +67,13 @@ namespace SAIN.Components
             }
         }
 
-        private void itemAdded(RaycastData raycastData, int index)
+        private void itemAdded(RaycastObject raycastData, int index)
         {
             raycastData.DistanceData = _vectorMagnitudes.Datas[index];
             raycastData.LayerMask = this.LayerMask;
         }
 
-        public RaycastBatchData(LayerMask mask) : base(EJobType.Raycast)
+        public RaycastBatchData(LayerMask mask, ListCache<RaycastObject> cache) : base(EJobType.Raycast, cache)
         {
             UpdateMask(mask);
             _vectorMagnitudes.OnCompleted += onCompleteDistanceCalc;

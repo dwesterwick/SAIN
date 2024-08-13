@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SAIN.Components
 {
-    public class JobTypeManager<T, K> where T : SAINJobBase where K : AbstractJobData
+    public class JobTypeManager<T, K> where T : SAINJobBase where K : AbstractJobObject
     {
         public JobTypeManager(T job)
         {
@@ -22,7 +22,7 @@ namespace SAIN.Components
         {
         }
 
-        protected bool ShallComplete()
+        protected bool HasJobsToCheckComplete()
         {
             if (JobContainer.Status == EJobStatus.Complete) {
                 return false;
@@ -33,7 +33,7 @@ namespace SAIN.Components
             return true;
         }
 
-        protected bool ShallSchedule()
+        protected bool HasJobsToSchedule()
         {
             if (JobContainer.Status == EJobStatus.Scheduled) {
                 return false;
@@ -53,20 +53,20 @@ namespace SAIN.Components
         public void Add(K data)
         {
             if (Datas.Contains(data)) {
-                Logger.LogError($"Data already added to {typeof(K)} batch list!");
+                Logger.LogError($"Data already added to {typeof(K).Name} batch list!");
                 return;
             }
             Datas.Add(data);
-            Logger.LogDebug($"Added data to {typeof(K)} batch");
+            //Logger.LogDebug($"Added data to {typeof(K)} batch");
         }
 
         public void Remove(K data)
         {
             if (!Datas.Contains(data)) {
-                Logger.LogError($"Data not in {typeof(K)} batch List!");
+                Logger.LogError($"Data not in {typeof(K).Name} batch List!");
                 return;
             }
-            Logger.LogDebug($"Removed data from {typeof(K)} batch");
+            //Logger.LogDebug($"Removed data from {typeof(K)} batch");
             Datas.Remove(data);
         }
     }

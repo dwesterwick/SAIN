@@ -17,8 +17,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         {
             GroundPosition = groundPoint;
             SignedAngleToTarget = signedAngle;
-            _nextLookPointTime = 0f;
-            _blindCornerLookPoint = groundPoint;
             PathIndex = pathIndex;
         }
 
@@ -35,9 +33,5 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         {
             return CornerHelpers.PointPastEyeLevelCorner(eyePos, botPosition, GroundPosition); ;
         }
-
-        private Vector3 _blindCornerLookPoint;
-        private float _nextLookPointTime;
-        private const float LOOK_POINT_FREQUENCY = 1f / 30f;
     }
 }

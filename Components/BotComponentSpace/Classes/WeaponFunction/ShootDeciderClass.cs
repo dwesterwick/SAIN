@@ -290,7 +290,7 @@ namespace SAIN.SAINComponent.Classes
                     && enemy.Status.HeardRecently
                     && enemy.InLineOfSight) {
                 EnemyPlace lastKnown = enemy.KnownPlaces.LastKnownPlace;
-                if (lastKnown != null && lastKnown.CheckLineOfSight(BotOwner.LookSensor._headPoint, LayerMaskClass.HighPolyWithTerrainMask)) {
+                if (lastKnown != null && lastKnown.InLineOfSight(BotOwner.LookSensor._headPoint, LayerMaskClass.HighPolyWithTerrainMask)) {
                     result = lastKnown.Position + Vector3.up + UnityEngine.Random.onUnitSphere;
                 }
             }

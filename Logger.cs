@@ -10,17 +10,17 @@ namespace SAIN
 {
     public static class Logger
     {
-        public static void LogInfo(object data)
-            => Log(LogLevel.Info, data);
+        public static void LogDebug(object data, string methodName = null)
+            => createLogMessage(LogLevel.Debug, data, methodName);
 
-        public static void LogDebug(object data)
-            => Log(LogLevel.Debug, data);
+        public static void LogInfo(object data, string methodName = null)
+            => createLogMessage(LogLevel.Info, data, methodName);
 
-        public static void LogWarning(object data)
-            => Log(LogLevel.Warning, data);
+        public static void LogWarning(object data, string methodName = null)
+            => createLogMessage(LogLevel.Warning, data, methodName);
 
-        public static void LogError(object data)
-            => Log(LogLevel.Error, data);
+        public static void LogError(object data, string methodName = null)
+            => createLogMessage(LogLevel.Error, data, methodName);
 
         public static void NotifyInfo(object data, ENotificationDurationType duration = ENotificationDurationType.Default)
             => NotifyMessage(data, duration, ENotificationIconType.Note);
@@ -36,25 +36,25 @@ namespace SAIN
 
         public static void LogAndNotifyInfo(object data, ENotificationDurationType duration = ENotificationDurationType.Default)
         {
-            Log(LogLevel.Info, data);
+            createLogMessage(LogLevel.Info, data);
             NotifyMessage(data, duration, ENotificationIconType.Note);
         }
 
         public static void LogAndNotifyDebug(object data, ENotificationDurationType duration = ENotificationDurationType.Default)
         {
-            Log(LogLevel.Debug, data);
+            createLogMessage(LogLevel.Debug, data);
             NotifyMessage(data, duration, ENotificationIconType.Note, Color.gray);
         }
 
         public static void LogAndNotifyWarning(object data, ENotificationDurationType duration = ENotificationDurationType.Default)
         {
-            Log(LogLevel.Warning, data);
+            createLogMessage(LogLevel.Warning, data);
             NotifyMessage(data, duration, ENotificationIconType.Alert, Color.yellow);
         }
 
         public static void LogAndNotifyError(object data, ENotificationDurationType duration = ENotificationDurationType.Long)
         {
-            Log(LogLevel.Error, data);
+            createLogMessage(LogLevel.Error, data);
             string message = CreateErrorMessage(data);
             NotificationManagerClass.DisplayMessageNotification(message, duration, ENotificationIconType.Alert, Color.red);
         }
@@ -73,7 +73,7 @@ namespace SAIN
 
         private static string CreateErrorMessage(object data)
         {
-            StackTrace stackTrace = new StackTrace();
+            StackTrace stackTrace = new StackTrace(2);
             int max = Mathf.Clamp(stackTrace.FrameCount, 0, 10);
             for (int i = 0; i < max; i++) {
                 MethodBase method = stackTrace.GetFrame(i)?.GetMethod();
@@ -86,16 +86,32 @@ namespace SAIN
             return data.ToString();
         }
 
-        private static void Log(LogLevel level, object data)
+        private static void createLogMessage(LogLevel level, object data, string methodName = null)
         {
-            string methodsString = string.Empty;
-            Type declaringType = null;
+            string result = createLogString(level, data, methodName);
+            if (level == LogLevel.Error || level == LogLevel.Fatal) {
+                if (MonoBehaviourSingleton<PreloaderUI>.Instance?.Console != null) {
+                    ConsoleScreen.LogError(data.ToString());
+                }
+            }
+            sendLog(level, result);
+        }
 
+        private static string createLogString(LogLevel level, object data, string methodName)
+        {
+            if (!methodName.IsNullOrEmpty()) {
+                return $"[{methodName}]: {data}";
+            }
+            Type declaringType = null;
+            string methodsString = string.Empty;
             if (level != LogLevel.Debug) {
                 int max = GetMaxFrames(level);
                 StackTrace stackTrace = new StackTrace(2);
-                max = Mathf.Clamp(max, 0, stackTrace.FrameCount);
-                for (int i = 0; i < max; i++) {
+                int count = 0;
+                for (int i = 0; i < stackTrace.FrameCount; i++) {
+                    if (count >= max) {
+                        break;
+                    }
                     var method = stackTrace.GetFrame(i).GetMethod();
 
                     if (method.DeclaringType == typeof(Logger)) continue;
@@ -109,20 +125,36 @@ namespace SAIN
                     }
 
                     methodsString = $"{method.Name}()" + methodsString;
+                    count++;
                 }
                 methodsString = $"[{methodsString}]:";
             }
 
-            string result = $"[{declaringType}] : [{methodsString}] : [{data}]";
-
-            if (SAINLogger == null) {
-                SAINLogger = BepInEx.Logging.Logger.CreateLogSource("SAIN");
+            if (methodsString.IsNullOrEmpty()) {
+                return data.ToString();
             }
-            if (level == LogLevel.Error || level == LogLevel.Fatal) {
-                //NotifyError(data);
-                if (MonoBehaviourSingleton<PreloaderUI>.Instance?.Console != null) {
-                    //ConsoleScreen.LogError(data.ToString());
-                }
+            else if (declaringType != null) {
+                return $"[{declaringType}] : [{methodsString}] : [{data}]";
+            }
+            else {
+                return $"[{methodsString}] : [{data}]";
+            }
+        }
+
+        private static void sendLog(LogLevel level, string result)
+        {
+            switch (level) {
+                case LogLevel.Debug:
+                case LogLevel.Fatal:
+                    UnityEngine.Debug.LogError(result);
+                    if (MonoBehaviourSingleton<PreloaderUI>.Instance?.Console != null) {
+                        ConsoleScreen.LogError(result);
+                    }
+                    break;
+
+                default:
+                    UnityEngine.Debug.Log(result);
+                    break;
             }
             SAINLogger.Log(level, result);
         }
@@ -133,23 +165,25 @@ namespace SAIN
         {
             switch (level) {
                 case LogLevel.Debug:
-                case LogLevel.Info:
                     return 1;
 
-                case LogLevel.Warning:
+                case LogLevel.Info:
                     return 2;
 
-                case LogLevel.Error:
+                case LogLevel.Warning:
                     return 3;
 
-                case LogLevel.Fatal:
+                case LogLevel.Error:
                     return 4;
+
+                case LogLevel.Fatal:
+                    return 5;
 
                 default:
                     return 1;
             }
         }
 
-        private static ManualLogSource SAINLogger;
+        private static readonly ManualLogSource SAINLogger = BepInEx.Logging.Logger.CreateLogSource("SAIN");
     }
 }
