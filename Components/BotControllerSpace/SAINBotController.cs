@@ -22,7 +22,9 @@ namespace SAIN.Components
         public static SAINBotController Instance { get; private set; }
 
         public BotDictionary Bots => BotSpawnController.Bots;
+
         public GameWorld GameWorld => SAINGameWorld.GameWorld;
+
         public IBotGame BotGame => Singleton<IBotGame>.Instance;
 
         public BotEventHandler BotEventHandler {
@@ -56,6 +58,7 @@ namespace SAIN.Components
         }
 
         private BotSpawner _spawner;
+
         public LightFinder LightFinder { get; private set; }
         public GrenadeController GrenadeController { get; private set; }
         public BotJobsClass BotJobs { get; private set; }
@@ -66,6 +69,12 @@ namespace SAIN.Components
         public BotSquads BotSquads { get; private set; }
         public BotHearingClass BotHearing { get; private set; }
         public BotPeacefulActionController PeacefulActions { get; private set; }
+
+        private readonly Dictionary<BotComponent, GUIObject> _debugObjects = new Dictionary<BotComponent, GUIObject>();
+        public List<Player> DeadBots { get; private set; } = new List<Player>();
+        public List<BotDeathObject> DeathObstacles { get; private set; } = new List<BotDeathObject>();
+        private readonly List<int> IndexToRemove = new List<int>();
+        public readonly List<string> Groups = new List<string>();
 
         public void BotChangedWeapon(BotOwner botOwner, IFirearmHandsController firearmController)
         {
@@ -139,12 +148,6 @@ namespace SAIN.Components
                 DeadBots.Add(bot.GetPlayer);
             }
         }
-
-        private readonly Dictionary<BotComponent, GUIObject> _debugObjects = new Dictionary<BotComponent, GUIObject>();
-        public List<Player> DeadBots { get; private set; } = new List<Player>();
-        public List<BotDeathObject> DeathObstacles { get; private set; } = new List<BotDeathObject>();
-        private readonly List<int> IndexToRemove = new List<int>();
-        public readonly List<string> Groups = new List<string>();
 
         public void AddNavObstacles()
         {

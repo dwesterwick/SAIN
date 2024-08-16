@@ -46,7 +46,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             if (!Enemies.TryGetValue(profileID, out Enemy enemy)) {
                 return null;
             }
-            if (enemy == null || !enemy.CheckValid()) {
+            if (enemy == null || !enemy.WasValid) {
                 destroyEnemy(enemy);
                 Enemies.Remove(profileID);
                 return null;
@@ -272,7 +272,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         private void compareEnemyLists()
         {
             if (_nextCompareListsTime < Time.time) {
-
                 _nextCompareListsTime = Time.time + COMPARE_ENEMY_LIST_FREQ;
                 int enemyCount = Enemies.Count;
 
@@ -289,7 +288,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
                 int failedMyAdds = 0;
                 var myEnemies = BotOwner.EnemiesController.EnemyInfos;
-                if (enemyCount !=  myEnemies.Count) {
+                if (enemyCount != myEnemies.Count) {
                     foreach (var person in myEnemies.Keys) {
                         Enemy enemy = tryAddEnemy(person);
                         if (enemy == null) {

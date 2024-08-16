@@ -177,7 +177,7 @@ namespace SAIN.Components.PlayerComponentSpace
             if (enemy.IsAI) {
                 return false;
             }
-            if (!enemy.CheckValid()) {
+            if (!enemy.WasValid) {
                 return false;
             }
             if (enemy.EnemyPlayerComponent == null) {

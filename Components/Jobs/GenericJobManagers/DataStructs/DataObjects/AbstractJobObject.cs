@@ -44,7 +44,7 @@ namespace SAIN.Components
                     return true;
 
                 default:
-                    Logger.LogError($"Cannot update data that is in Queue for job! Status: {Status}");
+                    //Logger.LogError($"Cannot update data that is in Queue for job! Status: {Status}");
                     return false;
             }
         }

@@ -67,7 +67,7 @@ namespace SAIN.SAINComponent.Classes.Search
             if (Enemy != null &&
                 (!Enemy.EnemyKnown ||
                 !Enemy.Person.Active ||
-                !Enemy.CheckValid())) {
+                !Enemy.WasValid)) {
                 Clear();
             }
             if (Enemy == null) {

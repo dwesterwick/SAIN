@@ -1,6 +1,7 @@
 ﻿using Comfort.Common;
 using EFT;
 using SAIN.Components.BotComponentSpace.Classes.EnemyClasses;
+using SAIN.Components.PlayerComponentSpace;
 using SAIN.Helpers;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SAIN.SAINComponent.Classes.WeaponFunction;

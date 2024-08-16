@@ -162,7 +162,7 @@ namespace SAIN.Components
                 if (bot == null || !bot.BotActive) continue;
                 if (bot.Vision.TimeSinceCheckedLOS < 0.05f) continue;
                 foreach (var enemy in bot.EnemyController.Enemies.Values) {
-                    if (!enemy.CheckValid()) continue;
+                    if (!enemy.WasValid) continue;
                     var visionChecker = enemy.Vision.VisionChecker;
                     if (enemy.RealDistance > visionChecker.AIVisionRangeLimit()) continue;
                     if (visionChecker.LastCheckLOSTime < time) {

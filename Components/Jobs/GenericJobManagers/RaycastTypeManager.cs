@@ -67,7 +67,7 @@ namespace SAIN.Components
                     commandsArray[i] = _commands[i];
                 }
                 NativeArray<RaycastHit> hitsArray = new NativeArray<RaycastHit>(scheduledCount, Allocator.TempJob);
-                JobHandle handle = RaycastCommand.ScheduleBatch(commandsArray, hitsArray, 5);
+                JobHandle handle = RaycastCommand.ScheduleBatch(commandsArray, hitsArray, 8);
                 JobContainer.Init(handle, commandsArray, hitsArray, scheduledCount);
             }
         }

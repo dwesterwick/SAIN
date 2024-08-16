@@ -82,7 +82,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Enemy activeEnemy = findActiveEnemy();
 
             if (activeEnemy != null &&
-                (!activeEnemy.CheckValid() || !activeEnemy.EnemyPerson.Active)) {
+                (!activeEnemy.WasValid || !activeEnemy.EnemyPerson.Active)) {
                 //Logger.LogWarning($"Tried to assign inactive or invalid player.");
                 activeEnemy = null;
             }
@@ -92,7 +92,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         private Enemy findActiveEnemy()
         {
             Enemy dogFightTarget = Bot.Decision.DogFightDecision.DogFightTarget;
-            if (dogFightTarget?.CheckValid() == true && dogFightTarget.EnemyPerson.Active) {
+            if (dogFightTarget?.WasValid == true && dogFightTarget.EnemyPerson.Active) {
                 return dogFightTarget;
             }
 
@@ -107,7 +107,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             if (goalEnemy != null) {
                 if (!goalEnemy.IsVisible) {
                     Enemy visibileEnemy = BaseClass.EnemyLists.First(EEnemyListType.Visible);
-                    if (visibileEnemy?.CheckValid() == true &&
+                    if (visibileEnemy?.WasValid == true &&
                         visibileEnemy.EnemyPerson.Active) {
                         return visibileEnemy;
                     }
@@ -140,7 +140,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 if (activeEnemy == null) {
                     return;
                 }
-                if (activeEnemy.CheckValid() &&
+                if (activeEnemy.WasValid &&
                     activeEnemy.EnemyPerson.Active &&
                     (activeEnemy.Status.ShotAtMeRecently || activeEnemy.IsVisible)) {
                     enemy = activeEnemy;
@@ -163,7 +163,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 return;
             }
 
-            if (activeEnemy.CheckValid() && activeEnemy.EnemyPerson.Active) {
+            if (activeEnemy.WasValid && activeEnemy.EnemyPerson.Active) {
                 enemy = activeEnemy;
             }
             else {
@@ -173,7 +173,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         private void setActiveEnemy(Enemy enemy)
         {
-            if (enemy == null || (enemy.CheckValid() && enemy.EnemyPerson.Active)) {
+            if (enemy == null || (enemy.WasValid && enemy.EnemyPerson.Active)) {
                 ActiveEnemy = enemy;
                 setGoalEnemy(enemy?.EnemyInfo);
             }

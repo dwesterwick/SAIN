@@ -398,12 +398,12 @@ namespace SAIN.SAINComponent.Classes.Search
 
         public bool botIsAtPoint(Vector3 point, float reachDist = 0.5f)
         {
-            return DistanceToDestination(point) < reachDist;
+            return DistanceSqrToDestination(point) < reachDist * reachDist;
         }
 
-        public float DistanceToDestination(Vector3 point)
+        public float DistanceSqrToDestination(Vector3 point)
         {
-            return (point - Bot.Position).magnitude;
+            return (point - Bot.Position).sqrMagnitude;
         }
 
         private bool _Running => Bot.Mover.SprintController.Running;

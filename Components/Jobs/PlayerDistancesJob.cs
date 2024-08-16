@@ -23,21 +23,19 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 
         private IEnumerator calcDistancesLoop()
         {
-            yield return null;
             while (true) {
+                yield return null;
                 var gameWorld = GameWorldComponent.Instance;
                 if (gameWorld == null) {
-                    yield return null;
                     continue;
                 }
+
                 var players = gameWorld.PlayerTracker?.AlivePlayers;
                 if (players == null || players.Count <= 1) {
-                    yield return null;
                     continue;
                 }
 
                 if (BotController?.BotGame?.Status == EFT.GameStatus.Stopping) {
-                    yield return null;
                     continue;
                 }
 
@@ -74,7 +72,6 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
                 _partDistanceJobHandle.Complete();
                 readData(_players, _partDistanceJob);
                 _partDistanceJob.Dispose();
-
                 _players.Clear();
             }
         }

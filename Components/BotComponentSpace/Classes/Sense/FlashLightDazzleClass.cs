@@ -20,27 +20,22 @@ namespace SAIN.SAINComponent.Classes.Sense
 
         public void CheckIfDazzleApplied(Enemy enemy)
         {
-            if (enemy?.CheckValid() == true && 
-                enemy.IsVisible)
-            {
+            if (enemy?.WasValid == true &&
+                enemy.IsVisible) {
                 // If modifier is already applied, don't re-apply it
-                if (Modifiers.Modifiers.IsApplyed)
-                {
+                if (Modifiers.Modifiers.IsApplyed) {
                     return;
                 }
 
                 FlashLightClass flashlight = enemy?.EnemyPlayerComponent?.Flashlight;
-                if (flashlight != null)
-                {
+                if (flashlight != null) {
                     bool usingNVGs = BotOwner.NightVision.UsingNow;
                     if ((flashlight.WhiteLight || (usingNVGs && flashlight.IRLight)) &&
-                        enemyWithFlashlight(enemy))
-                    {
+                        enemyWithFlashlight(enemy)) {
                         return;
                     }
                     else if ((flashlight.Laser || (usingNVGs && flashlight.IRLaser)) &&
-                        enemyWithLaser(enemy))
-                    {
+                        enemyWithLaser(enemy)) {
                         return;
                     }
                 }
@@ -50,13 +45,11 @@ namespace SAIN.SAINComponent.Classes.Sense
         private bool enemyWithFlashlight(Enemy enemy)
         {
             float dist = enemy.RealDistance;
-            if (dist < 80f && 
-                flashlightVisionCheck(enemy.EnemyIPlayer))
-            {
+            if (dist < 80f &&
+                flashlightVisionCheck(enemy.EnemyIPlayer)) {
                 Vector3 botPos = BotOwner.MyHead.position;
                 Vector3 weaponRoot = enemy.EnemyPlayer.WeaponRoot.position;
-                if (!Physics.Raycast(weaponRoot, (botPos - weaponRoot).normalized, (botPos - weaponRoot).magnitude, LayerMaskClass.HighPolyWithTerrainMask))
-                {
+                if (!Physics.Raycast(weaponRoot, (botPos - weaponRoot).normalized, (botPos - weaponRoot).magnitude, LayerMaskClass.HighPolyWithTerrainMask)) {
                     float gainSight = 0.66f;
                     float dazzlemodifier = dist < MaxDazzleRange ? getDazzleModifier(enemy) : 1f;
 
@@ -74,12 +67,10 @@ namespace SAIN.SAINComponent.Classes.Sense
         {
             float dist = enemy.RealDistance;
             if (dist < 100f &&
-                laserVisionCheck(enemy.EnemyIPlayer))
-            {
+                laserVisionCheck(enemy.EnemyIPlayer)) {
                 Vector3 botPos = BotOwner.MyHead.position;
                 Vector3 weaponRoot = enemy.EnemyPlayer.WeaponRoot.position;
-                if (!Physics.Raycast(weaponRoot, (botPos - weaponRoot).normalized, (botPos - weaponRoot).magnitude, LayerMaskClass.HighPolyWithTerrainMask))
-                {
+                if (!Physics.Raycast(weaponRoot, (botPos - weaponRoot).normalized, (botPos - weaponRoot).magnitude, LayerMaskClass.HighPolyWithTerrainMask)) {
                     float gainSight = 0.66f;
                     float dazzlemodifier = dist < MaxDazzleRange ? getDazzleModifier(enemy) : 1f;
                     ApplyDazzle(dazzlemodifier, gainSight);
@@ -134,9 +125,8 @@ namespace SAIN.SAINComponent.Classes.Sense
             float ratio = (num2 / num);
             float result = Mathf.InverseLerp(1f, 2f, ratio);
 
-            if (BotOwner.NightVision.UsingNow && 
-                (enemy.EnemyPlayerComponent.Flashlight.WhiteLight || enemy.EnemyPlayerComponent.Flashlight.Laser))
-            {
+            if (BotOwner.NightVision.UsingNow &&
+                (enemy.EnemyPlayerComponent.Flashlight.WhiteLight || enemy.EnemyPlayerComponent.Flashlight.Laser)) {
                 result *= 1.5f;
             }
 

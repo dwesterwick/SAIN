@@ -18,6 +18,21 @@ namespace SAIN.Helpers
 {
     public static class Vector
     {
+        public static float Distance(Vector3 a, Vector3 b)
+        {
+            return Vector3.Distance(a, b);
+        }
+
+        public static float Distance(Vector3 direction)
+        {
+            return direction.magnitude;
+        }
+
+        public static Vector3 Normal(Vector3 v)
+        {
+            return v.normalized;
+        }
+
         public static float FindFlatSignedAngle(Vector3 a, Vector3 b, Vector3 origin)
         {
             a.y = 0;
@@ -36,8 +51,7 @@ namespace SAIN.Helpers
 
         public static Vector3? FindFirstBlindCorner(BotOwner botOwner, NavMeshPath path)
         {
-            if (botOwner == null || path == null)
-            {
+            if (botOwner == null || path == null) {
                 return null;
             }
 
@@ -47,23 +61,18 @@ namespace SAIN.Helpers
             Vector3 headOffset = headPosition - botPosition;
             Vector3[] corners = path.corners;
 
-            if (corners.Length > 2)
-            {
-                for (int i = 0; i < corners.Length - 2; i++)
-                {
+            if (corners.Length > 2) {
+                for (int i = 0; i < corners.Length - 2; i++) {
                     Vector3 cornerA = corners[i];
                     Vector3 cornerB = corners[i + 1];
                     Vector3 cornerC = corners[i + 2];
 
-                    if (CheckIfBlindCorner(headPosition, cornerC, headOffset))
-                    {
-                        if (SAINPlugin.DebugMode)
-                        {
+                    if (CheckIfBlindCorner(headPosition, cornerC, headOffset)) {
+                        if (SAINPlugin.DebugMode) {
                             DebugGizmos.Sphere(cornerB, 0.025f, 5f);
                         }
                         Vector3 result = AdjustCornerPosition(cornerA, cornerB, cornerC, 0.5f);
-                        if (SAINPlugin.DebugMode)
-                        {
+                        if (SAINPlugin.DebugMode) {
                             DebugGizmos.Sphere(result, 0.05f, 5f);
                         }
                         return new Vector3?(result + (botOwner.WeaponRoot.position - botOwner.Position));
@@ -138,15 +147,13 @@ namespace SAIN.Helpers
         private static bool CheckThreePoints(Vector3 from, Vector3 midPoint, Vector3 target, out Vector3 hitPos)
         {
             Vector3 direction = midPoint - from;
-            if (Physics.Raycast(new Ray(from, direction), out RaycastHit raycastHit, direction.magnitude, LayerMaskClass.HighPolyWithTerrainMask))
-            {
+            if (Physics.Raycast(new Ray(from, direction), out RaycastHit raycastHit, direction.magnitude, LayerMaskClass.HighPolyWithTerrainMask)) {
                 hitPos = raycastHit.point;
                 return false;
             }
 
             Vector3 direction2 = midPoint - target;
-            if (Physics.Raycast(new Ray(midPoint, direction2), out raycastHit, direction2.magnitude, LayerMaskClass.HighPolyWithTerrainMask))
-            {
+            if (Physics.Raycast(new Ray(midPoint, direction2), out raycastHit, direction2.magnitude, LayerMaskClass.HighPolyWithTerrainMask)) {
                 hitPos = raycastHit.point;
                 return false;
             }
@@ -159,12 +166,11 @@ namespace SAIN.Helpers
         {
             Vector3 v = new Vector3(force.x, 0f, force.z);
 
-            Vector2 vector = new Vector2(v.magnitude, force.y);
+            Vector2 vector = new Vector2(Vector.Distance(v), force.y);
 
             float num = 2f * vector.x * vector.y / HelpersGClass.Gravity;
 
-            if (vector.y < 0f)
-            {
+            if (vector.y < 0f) {
                 num = -num;
             }
 
@@ -173,25 +179,20 @@ namespace SAIN.Helpers
 
         public static bool CanShootToTarget(ShootPointClass shootToPoint, Vector3 firePos, LayerMask mask, bool doubleSide = false)
         {
-            if (shootToPoint == null)
-            {
+            if (shootToPoint == null) {
                 return false;
             }
             bool flag = false;
             Vector3 vector = shootToPoint.Point - firePos;
             Ray ray = new Ray(firePos, vector);
             float magnitude = vector.magnitude;
-            if (!Physics.Raycast(ray, out RaycastHit raycastHit, magnitude * shootToPoint.DistCoef, mask))
-            {
-                if (doubleSide)
-                {
-                    if (!Physics.Raycast(new Ray(shootToPoint.Point, -vector), out raycastHit, magnitude, mask))
-                    {
+            if (!Physics.Raycast(ray, out RaycastHit raycastHit, magnitude * shootToPoint.DistCoef, mask)) {
+                if (doubleSide) {
+                    if (!Physics.Raycast(new Ray(shootToPoint.Point, -vector), out raycastHit, magnitude, mask)) {
                         flag = true;
                     }
                 }
-                else
-                {
+                else {
                     flag = true;
                 }
             }
@@ -210,8 +211,7 @@ namespace SAIN.Helpers
 
         public static float SignedAngle(Vector3 from, Vector3 to, bool normalize = false)
         {
-            if (normalize)
-            {
+            if (normalize) {
                 to.Normalize();
                 from.Normalize();
             }
@@ -221,31 +221,24 @@ namespace SAIN.Helpers
 
         public static List<Vector3> NavMeshPointsFromSampledPoint(Vector3 point, Vector3 start, List<Vector3> list, int count = 5, float magnitude = 4f, float sampleDistance = 0.25f, int maxIterations = 15)
         {
-            if (list == null)
-            {
+            if (list == null) {
                 return null;
             }
             list.Clear();
-            for (int i = 0; i < maxIterations; i++)
-            {
+            for (int i = 0; i < maxIterations; i++) {
                 Vector3 randomDirection = RandomVector3(1, 0, 1).normalized * magnitude;
-                if (NavMesh.SamplePosition(randomDirection + point, out var hit, sampleDistance, -1))
-                {
+                if (NavMesh.SamplePosition(randomDirection + point, out var hit, sampleDistance, -1)) {
                     NavMeshPath Path = new NavMeshPath();
-                    if (NavMesh.CalculatePath(point, hit.position, -1, Path))
-                    {
-                        if (Path.status == NavMeshPathStatus.PathPartial)
-                        {
+                    if (NavMesh.CalculatePath(point, hit.position, -1, Path)) {
+                        if (Path.status == NavMeshPathStatus.PathPartial) {
                             list.Add(Path.corners[Path.corners.Length - 1]);
                         }
-                        else
-                        {
+                        else {
                             list.Add(hit.position);
                         }
                     }
                 }
-                if (list.Count >= count)
-                {
+                if (list.Count >= count) {
                     break;
                 }
             }
@@ -344,8 +337,7 @@ namespace SAIN.Helpers
 
         public static Vector3 Rotate90(Vector3 n, SideTurn side)
         {
-            if (side == SideTurn.left)
-            {
+            if (side == SideTurn.left) {
                 return new Vector3(-n.z, n.y, n.x);
             }
             return new Vector3(n.z, n.y, -n.x);
@@ -388,12 +380,10 @@ namespace SAIN.Helpers
         public static void Normalize(this Quaternion quaternion)
         {
             float num = quaternion.Length();
-            if (Mathf.Approximately(num, 1f))
-            {
+            if (Mathf.Approximately(num, 1f)) {
                 return;
             }
-            if (Mathf.Approximately(num, 0f))
-            {
+            if (Mathf.Approximately(num, 0f)) {
                 quaternion.Set(0f, 0f, 0f, 1f);
                 return;
             }
@@ -409,13 +399,11 @@ namespace SAIN.Helpers
         public static Vector3 GetProjectionPoint(Vector3 p, Vector3 p1, Vector3 p2)
         {
             float num = p1.z - p2.z;
-            if (num == 0f)
-            {
+            if (num == 0f) {
                 return new Vector3(p.x, p1.y, p1.z);
             }
             float num2 = p2.x - p1.x;
-            if (num2 == 0f)
-            {
+            if (num2 == 0f) {
                 return new Vector3(p1.x, p1.y, p.z);
             }
             float num3 = p1.x * p2.z - p2.x * p1.z;
@@ -428,15 +416,12 @@ namespace SAIN.Helpers
         {
             dir.y = 0f;
             Vector3[] array = FindAngleFromDir(dir);
-            if (array == null)
-            {
+            if (array == null) {
                 Console.WriteLine("can' find posible dirs");
                 return dir;
             }
-            foreach (Vector3 vector in array)
-            {
-                if (TestDir(headPos, vector, 8f))
-                {
+            foreach (Vector3 vector in array) {
+                if (TestDir(headPos, vector, 8f)) {
                     return vector;
                 }
             }
@@ -453,8 +438,7 @@ namespace SAIN.Helpers
             outPos = null;
             bool flag = Physics.Raycast(new Ray(headPos, dir), out RaycastHit raycastHit, dist, LayerMaskClass.HighPolyWithTerrainMask);
             bool result = !flag;
-            if (flag)
-            {
+            if (flag) {
                 outPos = new Vector3?(raycastHit.point);
             }
             return result;
@@ -462,10 +446,8 @@ namespace SAIN.Helpers
 
         public static bool InBounds(Vector3 pos, BoxCollider[] colliders)
         {
-            foreach (BoxCollider box in colliders)
-            {
-                if (PointInOABB(pos, box))
-                {
+            foreach (BoxCollider box in colliders) {
+                if (PointInOABB(pos, box)) {
                     return true;
                 }
             }
@@ -495,8 +477,7 @@ namespace SAIN.Helpers
         private static void CreateVectorArray8Dir(Vector3 startDir, int[] indexOfDirs)
         {
             Vector3[] array = new Vector3[8];
-            for (int i = 0; i < 8; i++)
-            {
+            for (int i = 0; i < 8; i++) {
                 int num = indexOfDirs[i];
                 Vector3 vector = RotateOnAngUp(startDir, EFTMath.GreateRandom((float)num, 0.1f));
                 array[i] = vector;
@@ -508,11 +489,9 @@ namespace SAIN.Helpers
         {
             float num = float.MaxValue;
             Vector3[] result = null;
-            foreach (KeyValuePair<Vector3, Vector3[]> keyValuePair in dictionary_0)
-            {
+            foreach (KeyValuePair<Vector3, Vector3[]> keyValuePair in dictionary_0) {
                 float num2 = Vector3.Angle(dir, keyValuePair.Key);
-                if (num2 < num)
-                {
+                if (num2 < num) {
                     num = num2;
                     result = keyValuePair.Value;
                 }
@@ -526,15 +505,12 @@ namespace SAIN.Helpers
             int num = 45;
             int num2 = 4;
             int num3 = 1;
-            for (int i = 0; i < num2; i++)
-            {
-                if (i == 0)
-                {
+            for (int i = 0; i < num2; i++) {
+                if (i == 0) {
                     array[0] = 0;
                     array[7] = 180;
                 }
-                else
-                {
+                else {
                     int num4 = i * num;
                     int num5 = 360 - num4;
                     array[num3] = num4;
@@ -548,7 +524,7 @@ namespace SAIN.Helpers
             CreateVectorArray8Dir(Vector3.back, array);
         }
 
-        // I have no idea what the fuck this does, but im copying it here to avoid using gclass references. names are guesses based on the functions that call it, also WHAT THE FUCK 
+        // I have no idea what the fuck this does, but im copying it here to avoid using gclass references. names are guesses based on the functions that call it, also WHAT THE FUCK
 
         public static Vector3? GetCrossPoint(VectorPair p1, VectorPair p2)
         {
@@ -558,8 +534,7 @@ namespace SAIN.Helpers
         public static Vector3? GetCrossPoint(Vector3 a1, Vector3 b1, Vector3 a2, Vector3 b2)
         {
             CrossPoint? _cross = cross(new CrossPoint(a1), new CrossPoint(b1), new CrossPoint(a2), new CrossPoint(b2));
-            if (_cross != null)
-            {
+            if (_cross != null) {
                 return new Vector3?(new Vector3(_cross.Value.x, a1.y, _cross.Value.y));
             }
             return null;
@@ -568,16 +543,14 @@ namespace SAIN.Helpers
         public static CrossPoint? cross(CrossPoint p1, CrossPoint p2, CrossPoint p3, CrossPoint p4)
         {
             float num = (p1.x - p2.x) * (p4.y - p3.y) - (p1.y - p2.y) * (p4.x - p3.x);
-            if (num == 0f)
-            {
+            if (num == 0f) {
                 return null;
             }
             float num2 = (p1.x - p3.x) * (p4.y - p3.y) - (p1.y - p3.y) * (p4.x - p3.x);
             float num3 = (p1.x - p2.x) * (p1.y - p3.y) - (p1.y - p2.y) * (p1.x - p3.x);
             float num4 = num2 / num;
             float num5 = num3 / num;
-            if (num4 >= 0f && num4 <= 1f && num5 >= 0f && num5 <= 1f)
-            {
+            if (num4 >= 0f && num4 <= 1f && num5 >= 0f && num5 <= 1f) {
                 float dx = p1.x + num4 * (p2.x - p1.x);
                 float dy = p1.y + num4 * (p2.y - p1.y);
                 return new CrossPoint(dx, dy);
@@ -592,11 +565,13 @@ namespace SAIN.Helpers
                 this.x = dx;
                 this.y = dy;
             }
+
             public CrossPoint(Vector3 v)
             {
                 this.x = v.x;
                 this.y = v.z;
             }
+
             public float x;
             public float y;
         }

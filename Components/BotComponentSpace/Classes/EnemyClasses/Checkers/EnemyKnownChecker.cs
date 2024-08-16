@@ -7,7 +7,6 @@ namespace SAIN.Components.BotComponentSpace.Classes.EnemyClasses
     {
         public EnemyKnownChecker(Enemy enemy) : base(enemy)
         {
-
         }
 
         public void Init()
@@ -33,8 +32,7 @@ namespace SAIN.Components.BotComponentSpace.Classes.EnemyClasses
 
         private void botStateChanged(bool botActive)
         {
-            if (!botActive)
-            {
+            if (!botActive) {
                 setEnemyKnown(false);
             }
         }
@@ -46,7 +44,7 @@ namespace SAIN.Components.BotComponentSpace.Classes.EnemyClasses
 
         private bool shallKnowEnemy()
         {
-            if (!Enemy.CheckValid())
+            if (!Enemy.WasValid)
                 return false;
 
             if (!EnemyPlayerComponent.IsActive)
@@ -73,12 +71,10 @@ namespace SAIN.Components.BotComponentSpace.Classes.EnemyClasses
 
         public bool BotIsSearchingForMe()
         {
-            if (!isBotSearching())
-            {
+            if (!isBotSearching()) {
                 return false;
             }
-            if (Enemy.Events.OnSearch.Value)
-            {
+            if (Enemy.Events.OnSearch.Value) {
                 return !Enemy.KnownPlaces.SearchedAllKnownLocations;
             }
             return false;
@@ -86,14 +82,12 @@ namespace SAIN.Components.BotComponentSpace.Classes.EnemyClasses
 
         private bool isBotSearching()
         {
-            if (Bot.Decision.CurrentCombatDecision == ECombatDecision.Search)
-            {
+            if (Bot.Decision.CurrentCombatDecision == ECombatDecision.Search) {
                 return true;
             }
             var squadDecision = Bot.Decision.CurrentSquadDecision;
             if (squadDecision == ESquadDecision.Search ||
-                squadDecision == ESquadDecision.GroupSearch)
-            {
+                squadDecision == ESquadDecision.GroupSearch) {
                 return true;
             }
             return false;

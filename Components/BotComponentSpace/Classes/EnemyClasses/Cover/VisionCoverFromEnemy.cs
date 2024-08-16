@@ -13,7 +13,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         private float MAX_CHECK_COVER_RANGE = 100f;
         private float MIN_RATIO_FOR_COVER = 0.4f;
         private float _checkLimbsTime;
-        private RaycastBatchData _limbRaycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask, new ListCache<RaycastObject>("Raycasts"));
+        private RaycastBatchJob _limbRaycasts = new RaycastBatchJob(LayerMaskClass.HighPolyWithTerrainMask, new ListCache<RaycastObject>("Raycasts"));
         private readonly List<Vector3> _limbPoints = new List<Vector3>();
         private float _lastHasCoverTime;
 

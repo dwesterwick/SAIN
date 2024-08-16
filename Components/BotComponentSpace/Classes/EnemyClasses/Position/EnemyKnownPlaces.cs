@@ -1,5 +1,4 @@
 ﻿using EFT;
-using SAIN.Components;
 using SAIN.Components.BotComponentSpace.Classes.EnemyClasses;
 using SAIN.Helpers;
 using System.Collections.Generic;
@@ -11,10 +10,12 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
     public class EnemyKnownPlaces : EnemyBase, IBotEnemyClass
     {
         public EnemyPlace LastKnownPlace { get; private set; }
+
         public EnemyPlace LastSeenPlace { get; private set; }
         public EnemyPlace LastHeardPlace { get; private set; }
         public EnemyPlace LastSquadSeenPlace { get; private set; }
         public EnemyPlace LastSquadHeardPlace { get; private set; }
+
         public float TimeSinceLastKnownUpdated => LastKnownPlace == null ? float.MaxValue : Time.time - TimeLastKnownUpdated;
 
         public Vector3? LastKnownPosition => LastKnownPlace?.Position;
@@ -27,7 +28,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 if (LastKnownPlace == null) {
                     return float.MaxValue;
                 }
-                return LastKnownPlace.DistanceToEnemyRealPosition;
+                return LastKnownPlace.DistanceToEnemy;
             }
         }
 
@@ -41,27 +42,31 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
         }
 
-        public float EnemyDistanceFromLastSeen {
-            get
-            {
-                if (LastSeenPlace == null) {
-                    return float.MaxValue;
-                }
-                return LastSeenPlace.DistanceToEnemyRealPosition;
-            }
-        }
-
-        public float EnemyDistanceFromLastHeard {
-            get
-            {
-                if (LastHeardPlace == null) {
-                    return float.MaxValue;
-                }
-                return LastHeardPlace.DistanceToEnemyRealPosition;
-            }
-        }
-
         public bool SearchedAllKnownLocations { get; private set; }
+        public List<EnemyPlace> AllEnemyPlaces { get; } = new List<EnemyPlace>();
+        public float TimeLastKnownUpdated { get; private set; } = -1000f;
+
+        private readonly PlaceData _placeData;
+        private float _nextTalkClearTime;
+        private float _nextCheckSearchTime;
+        private float _nextSortPlacesTime;
+        private GUIObject debugLastKnown;
+        private readonly Dictionary<EnemyPlace, GUIObject> _guiObjects = new Dictionary<EnemyPlace, GUIObject>();
+        private float _nextUpdateDistancesTime;
+
+        private const float DIST_UPDATE_FREQ_AI = 0.25f;
+        private const float DIST_UPDATE_FREQ_HUMAN = 0.1f;
+
+        public void CalcDistancesToAllPlaces()
+        {
+            if (_nextUpdateDistancesTime <= Time.time) {
+                float delay = Enemy.IsAI ? DIST_UPDATE_FREQ_AI : DIST_UPDATE_FREQ_HUMAN;
+                _nextUpdateDistancesTime = Time.time + delay;
+                foreach (EnemyPlace place in AllEnemyPlaces) {
+                    place.CalcDistances();
+                }
+            }
+        }
 
         private void checkSearched()
         {
@@ -83,8 +88,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             SearchedAllKnownLocations = allSearched;
         }
 
-        public List<EnemyPlace> AllEnemyPlaces { get; } = new List<EnemyPlace>();
-
         public EnemyKnownPlaces(Enemy enemy) : base(enemy)
         {
             _placeData = new PlaceData {
@@ -103,12 +106,14 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public void Update()
         {
             updatePlaces();
+            if (_nextUpdateDistancesTime <= Time.time) {
+                float delay = Enemy.IsAI ? DIST_UPDATE_FREQ_AI : DIST_UPDATE_FREQ_HUMAN;
+                _nextUpdateDistancesTime = Time.time + delay;
+                CalcDistancesToAllPlaces();
+            }
             if (Enemy.EnemyKnown) {
-                //checkIfArrived();
                 checkSearched();
-
                 if (Enemy.IsCurrentEnemy) {
-                    //checkIfSeen();
                     createDebug();
                 }
             }
@@ -117,9 +122,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public void Dispose()
         {
             clearAllPlaces();
-
             Enemy.Events.OnEnemyKnownChanged.OnToggle -= OnEnemyKnownChanged;
-
             foreach (var obj in _guiObjects) {
                 DebugGizmos.DestroyLabel(obj.Value);
             }
@@ -160,18 +163,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 DebugGizmos.DestroyLabel(debugLastKnown);
                 debugLastKnown = null;
             }
-        }
-
-        private void checkIfSeen()
-        {
-            if (!Enemy.IsCurrentEnemy) {
-                return;
-            }
-            EnemyPlace lastKnown = LastKnownPlace;
-            if (lastKnown == null) {
-                return;
-            }
-            lastKnown.InLineOfSight(Bot.Transform.EyePosition, LayerMaskClass.HighPolyWithTerrainMaskAI);
         }
 
         private void tryTalk()
@@ -254,10 +245,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         public EnemyPlace UpdatePersonalHeardPosition(HearingReport report)
         {
-            if (Enemy.IsVisible) {
-                //return null;
-            }
-
             var lastHeard = LastHeardPlace;
             if (lastHeard != null) {
                 lastHeard.Position = report.position;
@@ -344,22 +331,5 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             LastKnownPlace = place;
             Enemy.Events.LastKnownUpdated(place);
         }
-
-        public float TimeLastKnownUpdated { get; private set; } = -1000f;
-
-        private readonly PlaceData _placeData;
-        private float _nextTalkClearTime;
-
-        //private float _checkArrivedTime;
-        //private const float _checkArriveFreq = 0.25f;
-        //private const float arrivedReachDistanceSqr = 0.5f;
-        private float _nextCheckSearchTime;
-
-        //private float _nextCheckSeenTime;
-        //private const float _checkSeenFreq = 0.5f;
-        private float _nextSortPlacesTime;
-
-        private GUIObject debugLastKnown;
-        private readonly Dictionary<EnemyPlace, GUIObject> _guiObjects = new Dictionary<EnemyPlace, GUIObject>();
     }
 }

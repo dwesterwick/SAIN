@@ -6,29 +6,15 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
     {
         public BiDirData(Vector3 primaryDir, Vector3 secondDir)
         {
-            Primary = new DirData {
-                Direction = primaryDir,
-            };
-            Secondary = new DirData {
-                Direction = secondDir,
-            };
-            SignedAngle = 0;
-            Axis = Vector3.up;
-            DotProduct = 0;
-        }
-
-        public DirData Primary;
-        public DirData Secondary;
-        public float SignedAngle;
-        public Vector3 Axis;
-        public float DotProduct;
-
-        public void Calculate()
-        {
-            Primary.Calculate();
-            Secondary.Calculate();
-            SignedAngle = Vector3.SignedAngle(Primary.Normal, Secondary.Normal, Axis);
+            Primary = new DirData(primaryDir);
+            Secondary = new DirData(secondDir);
+            SignedAngle = Vector3.SignedAngle(Primary.Normal, Secondary.Normal, Vector3.up);
             DotProduct = Vector3.Dot(Primary.Normal, Secondary.Normal);
         }
+
+        public readonly DirData Primary;
+        public readonly DirData Secondary;
+        public readonly float SignedAngle;
+        public readonly float DotProduct;
     }
 }

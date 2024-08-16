@@ -260,7 +260,7 @@ namespace SAIN.Layers
             if (place != null) {
                 stringBuilder.AppendLine($"{name} Data");
                 stringBuilder.AppendLabeledValue("Time Since Updated", $"{place.TimeSincePositionUpdated.Round100()}", Color.white, Color.yellow, true);
-                stringBuilder.AppendLabeledValue("Enemy Distance", $"{place.DistanceToEnemyRealPosition.Round100()}", Color.white, Color.yellow, true);
+                stringBuilder.AppendLabeledValue("Enemy Distance", $"{place.DistanceToEnemy.Round100()}", Color.white, Color.yellow, true);
                 stringBuilder.AppendLabeledValue("Bot Distance", $"{place.DistanceToBot.Round100()}", Color.white, Color.yellow, true);
                 stringBuilder.AppendLabeledValue("Searched", $"Personal: {place.HasArrivedPersonal} / Squad: {place.HasArrivedSquad}", Color.white, Color.yellow, true);
                 stringBuilder.AppendLine();

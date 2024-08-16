@@ -3,6 +3,7 @@ using EFT.Interactive;
 using HarmonyLib;
 using SAIN.Components;
 using SAIN.Components.BotController;
+using SAIN.Components.PlayerComponentSpace;
 using SAIN.Helpers;
 using SPT.Reflection.Patching;
 using System;
@@ -78,6 +79,9 @@ namespace SAIN.Patches.Components
         {
             try {
                 gameObject.AddComponent<GameWorldComponent>();
+                gameObject.AddComponent<PersonUpdater>();
+                gameObject.AddComponent<SAINBotController>();
+                gameObject.AddComponent<BotEnemyUpdater>();
                 gameObject.AddComponent<JobManager>();
             }
             catch (Exception ex) {

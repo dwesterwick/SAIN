@@ -325,7 +325,7 @@ namespace SAIN.SAINComponent.Classes.Talk
         {
             yield return new WaitForSeconds(delay);
 
-            if (enemy == null || !enemy.CheckValid()) {
+            if (enemy == null || !enemy.WasValid) {
                 yield break;
             }
             if (BotOwner == null ||

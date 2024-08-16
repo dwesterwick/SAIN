@@ -157,7 +157,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             float result = 1f;
             if (lastSeen != null) {
                 result *= calcVisionSpeedPositional(
-                    lastSeen.DistanceToEnemyRealPosition,
+                    lastSeen.DistanceToEnemy,
                     DIST_SEEN_MIN_COEF,
                     DIST_SEEN_MIN_DIST,
                     DIST_SEEN_MAX_DIST,
@@ -166,7 +166,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             EnemyPlace lastHeard = Enemy.KnownPlaces.LastHeardPlace;
             if (lastHeard != null) {
                 result *= calcVisionSpeedPositional(
-                    lastHeard.DistanceToEnemyRealPosition,
+                    lastHeard.DistanceToEnemy,
                     DIST_HEARD_MIN_COEF,
                     DIST_HEARD_MIN_DIST,
                     DIST_HEARD_MAX_DIST,

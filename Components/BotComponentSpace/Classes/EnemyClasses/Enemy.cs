@@ -11,6 +11,8 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
     public class Enemy : BotBase, IBotClass
     {
+        public event Action OnEnemyDisposed;
+
         public string EnemyName { get; }
         public string EnemyProfileId { get; }
         public PlayerComponent EnemyPlayerComponent { get; }
@@ -19,12 +21,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public bool IsAI => EnemyPlayer.IsAI;
 
         public bool IsCurrentEnemy { get; private set; }
-        public float LastCheckLookTime { get; set; }
         public float RealDistance => EnemyPlayerData.DistanceData.Distance;
         public bool IsSniper { get; private set; }
 
         public EnemyEvents Events { get; }
-        public EnemyKnownPlaces KnownPlaces { get; private set; }
+        public EnemyKnownPlaces KnownPlaces { get; }
         public SAINEnemyStatus Status { get; }
         public EnemyVisionClass Vision { get; }
         public SAINEnemyPath Path { get; }
@@ -34,13 +35,9 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public EnemyShootClass Shoot { get; }
         public EnemyPartsClass EnemyParts { get; }
         public CoverFromEnemyClass CoverFromEnemy { get; }
-
         private EnemyKnownChecker _knownChecker { get; }
         private EnemyActiveThreatChecker _activeThreatChecker { get; }
         private EnemyValidChecker _validChecker { get; }
-
-        public event Action OnEnemyDisposed;
-
         public OtherPlayerData EnemyPlayerData { get; }
 
         public Enemy(BotComponent bot, PlayerComponent enemyComponent, EnemyInfo enemyInfo) : base(bot)
@@ -51,13 +48,14 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             EnemyName = $"{enemyComponent.Name} ({enemyComponent.Person.Nickname})";
             EnemyInfo = enemyInfo;
             EnemyProfileId = enemyComponent.ProfileId;
-
-            EnemyPlayerData = bot.PlayerComponent.OtherPlayersData.Datas[enemyComponent.ProfileId];
+            EnemyPlayerData = bot.PlayerComponent.OtherPlayersData.Datas[EnemyProfileId];
 
             Events = new EnemyEvents(this);
+
             _activeThreatChecker = new EnemyActiveThreatChecker(this);
             _validChecker = new EnemyValidChecker(this);
             _knownChecker = new EnemyKnownChecker(this);
+
             Status = new SAINEnemyStatus(this);
             Vision = new EnemyVisionClass(this);
             Path = new SAINEnemyPath(this);
@@ -68,13 +66,12 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             EnemyParts = new EnemyPartsClass(this);
             CoverFromEnemy = new CoverFromEnemyClass(this);
 
-            updateDistAndDirection(true);
+            updateDistAndDirection();
         }
 
         public void Init()
         {
             base.SubscribeToPreset(updatePresetSettings);
-
             Events.Init();
             _validChecker.Init();
             _knownChecker.Init();
@@ -92,7 +89,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         {
             IsCurrentEnemy = Bot.EnemyController.ActiveEnemy?.EnemyProfileId == EnemyProfileId;
             calcFrequencyCoef();
-            updateDistAndDirection();
+
             Events.Update();
             _validChecker.Update();
             _knownChecker.Update();
@@ -106,6 +103,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Hearing.Update();
             EnemyParts.Update();
             CoverFromEnemy.Update();
+            updateDistAndDirection();
         }
 
         public void Dispose()
@@ -133,7 +131,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         }
 
         public bool WasValid => _validChecker.WasValid;
-
         public bool ActiveThreat => _activeThreatChecker.ActiveThreat;
         public float TimeSinceCurrentEnemy => _hasBeenActive ? Time.time - _timeLastActive : float.MaxValue;
 
@@ -268,7 +265,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public float TimeSinceSeen => Vision.TimeSinceSeen;
         public float TimeSinceHeard => Hearing.TimeSinceHeard;
 
-        private void updateDistAndDirection(bool force = false)
+        private void updateDistAndDirection()
         {
             try {
                 EnemyInfo.Direction = EnemyDirection;

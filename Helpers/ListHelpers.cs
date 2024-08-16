@@ -58,6 +58,7 @@ namespace SAIN.Helpers
                 return;
             }
             Cache.AddRange(list);
+            list.Clear();
             Logger.LogDebug($"returned [{count}] items in cache [{Name}] cacheCount: [{Cache.Count}]");
         }
 

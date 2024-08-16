@@ -13,8 +13,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
     {
         private Coroutine _blindCornerLoop;
         private EnemyCorner _blindCorner = new EnemyCorner();
-        private RaycastBatchData _raycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask, new ListCache<RaycastObject>("BlindCornerRaycasts"));
-        private BiDirectionObject _biDirectionData = new BiDirectionObject();
+        private RaycastBatchJob _raycasts = new RaycastBatchJob(LayerMaskClass.HighPolyWithTerrainMask, new ListCache<RaycastObject>("BlindCornerRaycasts"));
 
         private readonly List<Vector3> _raycastPoints = new List<Vector3>();
         private readonly List<Vector3> _corners = new List<Vector3>();
@@ -34,7 +33,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public BlindCornerFinder(Enemy enemy) : base(enemy)
         {
             //createDebug();
-            JobManager.Instance.BiDirections.Add(_biDirectionData);
         }
 
         public void Init()
@@ -52,7 +50,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             //foreach (var debug in _debugObjects) {
             //    GameObject.Destroy(debug);
             //}
-            JobManager.Instance.BiDirections.Remove(_biDirectionData);
             _raycasts.Dispose();
         }
 
@@ -182,19 +179,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Vector3 enemyPosDir = enemyPosition - eyePos;
             enemyPosDir.y = 0;
             BiDirData dirData = new BiDirData(blindCornerDir, enemyPosDir);
-            _biDirectionData.UpdateData(dirData);
-
-            startTime = Time.time + 1f;
-            yield return new WaitForEndOfFrame();
-            while (_biDirectionData.Status != EJobStatus.Complete) {
-                if (startTime < Time.time) {
-                    Logger.LogError($"Direction Job is taking too long!");
-                }
-                yield return null;
-            }
-
-            float signedAngle = _biDirectionData.Data.SignedAngle;
-            _blindCorner.UpdateData(blindCorner.Value, signedAngle, blindCornerIndex);
+            _blindCorner.UpdateData(blindCorner.Value, dirData.SignedAngle, blindCornerIndex);
             Enemy.Path.EnemyCorners.AddOrReplace(ECornerType.Blind, _blindCorner);
             DebugGizmos.Line(blindCorner.Value, eyePos, Color.cyan, 0.1f, true, 1f);
         }
@@ -274,19 +259,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 Vector3 enemyPosDir = enemyLastKnown.Value - eyePos;
                 enemyPosDir.y = 0;
                 BiDirData dirData = new BiDirData(blindCornerDir, enemyPosDir);
-                _biDirectionData.UpdateData(dirData);
-
-                startTime = Time.time + 1f;
-                yield return new WaitForEndOfFrame();
-                while (_biDirectionData.Status != EJobStatus.Complete) {
-                    if (startTime < Time.time) {
-                        Logger.LogError($"Direction Job is taking too long!");
-                    }
-                    yield return null;
-                }
-
-                float signedAngle = _biDirectionData.Data.SignedAngle;
-                _blindCorner.UpdateData(blindCorner.Value, signedAngle, blindCornerIndex);
+                _blindCorner.UpdateData(blindCorner.Value, dirData.SignedAngle, blindCornerIndex);
                 Enemy.Path.EnemyCorners.AddOrReplace(ECornerType.Blind, _blindCorner);
                 DebugGizmos.Line(blindCorner.Value, eyePos, Color.cyan, 0.1f, true, 1f);
             }

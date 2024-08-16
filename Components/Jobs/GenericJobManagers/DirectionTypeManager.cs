@@ -61,7 +61,7 @@ namespace SAIN.Components
             if (scheduledCount > 0) {
                 var job = new CalcDistanceAndNormalJob();
                 job.Create(new NativeArray<Vector3>(_directions.ToArray(), Allocator.TempJob));
-                var handle = job.ScheduleParallel(scheduledCount, 10, dependency);
+                var handle = job.ScheduleParallel(scheduledCount, 32, dependency);
                 JobContainer.Init(handle, job);
             }
         }

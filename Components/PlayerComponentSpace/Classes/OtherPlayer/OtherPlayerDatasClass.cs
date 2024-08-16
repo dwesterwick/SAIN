@@ -6,6 +6,7 @@ namespace SAIN.Components.PlayerComponentSpace
     public class OtherPlayerDatasClass : PlayerComponentBase
     {
         public readonly Dictionary<string, OtherPlayerData> Datas = new Dictionary<string, OtherPlayerData>();
+        private static PlayerSpawnTracker _spawns => GameWorldComponent.Instance.PlayerTracker;
 
         public OtherPlayerDatasClass(PlayerComponent playerComponent) : base(playerComponent)
         {
@@ -55,7 +56,5 @@ namespace SAIN.Components.PlayerComponentSpace
         {
             Datas.Remove(profileId);
         }
-
-        private static PlayerSpawnTracker _spawns => GameWorldComponent.Instance.PlayerTracker;
     }
 }

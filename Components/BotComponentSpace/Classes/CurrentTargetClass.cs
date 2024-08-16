@@ -40,10 +40,8 @@ namespace SAIN.SAINComponent.Classes
         {
             Vector3? target = getTarget(out Enemy newTargetEnemy);
             _currentTarget = target;
-            if (target == null)
-            {
-                if (CurrentTargetEnemy != null)
-                {
+            if (target == null) {
+                if (CurrentTargetEnemy != null) {
                     OnLoseTarget?.Invoke();
                     CurrentTargetEnemy = null;
                 }
@@ -51,8 +49,7 @@ namespace SAIN.SAINComponent.Classes
             }
 
             if (CurrentTargetEnemy == null ||
-                CurrentTargetEnemy.IsDifferent(newTargetEnemy))
-            {
+                CurrentTargetEnemy.IsDifferent(newTargetEnemy)) {
                 CurrentTargetEnemy = newTargetEnemy;
                 OnNewTargetEnemy?.Invoke(newTargetEnemy, target.Value);
             }
@@ -60,17 +57,14 @@ namespace SAIN.SAINComponent.Classes
 
         private void updateGoalTarget()
         {
-            if (_updateGoalTargetTime < Time.time)
-            {
+            if (_updateGoalTargetTime < Time.time) {
                 _updateGoalTargetTime = Time.time + 0.5f;
 
                 var goalTarget = BotOwner.Memory.GoalTarget;
                 var Target = goalTarget?.Position;
-                if (Target != null)
-                {
+                if (Target != null) {
                     if ((Target.Value - Bot.Position).sqrMagnitude < 1f ||
-                        goalTarget.CreatedTime > 120f)
-                    {
+                        goalTarget.CreatedTime > 120f) {
                         goalTarget.Clear();
                         BotOwner.CalcGoal();
                     }
@@ -92,16 +86,13 @@ namespace SAIN.SAINComponent.Classes
         private Vector3? getVisibleEnemyPos(out Enemy targetEnemy)
         {
             Enemy enemy = Bot.Enemy;
-            if (enemy != null)
-            {
+            if (enemy != null) {
                 Vector3 pos = enemy.EnemyPosition;
-                if (enemy.IsVisible)
-                {
+                if (enemy.IsVisible) {
                     targetEnemy = enemy;
                     return pos;
                 }
-                if (enemy.Seen && enemy.TimeSinceSeen < 1f)
-                {
+                if (enemy.Seen && enemy.TimeSinceSeen < 1f) {
                     //return pos;
                 }
             }
@@ -112,14 +103,12 @@ namespace SAIN.SAINComponent.Classes
         private Vector3? getLastHitPosition(out Enemy targetEnemy)
         {
             targetEnemy = null;
-            if (Bot.Medical.TimeSinceShot > 5f)
-            {
+            if (Bot.Medical.TimeSinceShot > 5f) {
                 return null;
             }
 
             Enemy enemy = Bot.Medical.HitByEnemy.EnemyWhoLastShotMe;
-            if (enemy == null || !enemy.CheckValid() || enemy.IsCurrentEnemy)
-            {
+            if (enemy == null || !enemy.WasValid || enemy.IsCurrentEnemy) {
                 return null;
             }
             targetEnemy = enemy;
@@ -129,16 +118,14 @@ namespace SAIN.SAINComponent.Classes
         private Vector3? getUnderFirePosition(out Enemy targetEnemy)
         {
             targetEnemy = null;
-            if (!BotOwner.Memory.IsUnderFire)
-            {
+            if (!BotOwner.Memory.IsUnderFire) {
                 return null;
             }
 
             Enemy enemy = Bot.Memory.LastUnderFireEnemy;
             if (enemy == null ||
-                !enemy.CheckValid() ||
-                enemy.IsCurrentEnemy)
-            {
+                !enemy.WasValid ||
+                enemy.IsCurrentEnemy) {
                 return null;
             }
             targetEnemy = enemy;
@@ -148,11 +135,9 @@ namespace SAIN.SAINComponent.Classes
         private Vector3? getEnemylastKnownPos(out Enemy targetEnemy)
         {
             Enemy enemy = Bot.Enemy;
-            if (enemy != null)
-            {
+            if (enemy != null) {
                 var lastKnown = getLastKnown(enemy);
-                if (lastKnown != null)
-                {
+                if (lastKnown != null) {
                     targetEnemy = enemy;
                     return lastKnown.Value;
                 }

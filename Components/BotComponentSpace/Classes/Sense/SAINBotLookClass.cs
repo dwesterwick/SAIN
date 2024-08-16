@@ -87,7 +87,7 @@ namespace SAIN.SAINComponent.Classes
 
         private bool shallCheckEnemy(Enemy enemy)
         {
-            if (enemy?.CheckValid() != true)
+            if (enemy?.WasValid != true)
                 return false;
 
             if (!enemy.InLineOfSight ||

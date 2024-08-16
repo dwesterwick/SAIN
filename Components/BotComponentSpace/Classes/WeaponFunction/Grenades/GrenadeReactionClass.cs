@@ -1,6 +1,7 @@
 ﻿using EFT;
 using HarmonyLib;
 using SAIN.Components;
+using SAIN.Helpers;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SAIN.SAINComponent.SubComponents;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
             if (_nextUpdateTime < Time.time) {
                 _nextUpdateTime = Time.time + GRENADE_UPDATE_FREQUENCY;
                 Velocity = _rigidBody.velocity;
-                VelocityMagnitude = Velocity.magnitude;
+                VelocityMagnitude = Vector.Distance(Velocity);
                 //Logger.LogInfo($"Grenade {_grenade.Id} Velocity [{Velocity}] Magnitude: [{VelocityMagnitude}]");
             }
         }

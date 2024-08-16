@@ -1,17 +1,19 @@
 ﻿using UnityEngine;
+using SAIN.Helpers;
 
 namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 {
     public struct DirData
     {
-        public Vector3 Direction;
-        public Vector3 Normal;
-        public float Distance;
-
-        public void Calculate()
+        public DirData(Vector3 direction)
         {
-            Normal = Direction.normalized;
-            Distance = Direction.magnitude;
+            Direction = direction;
+            Normal = Vector.Normal(direction);
+            Distance = Vector.Distance(direction);
         }
+
+        public readonly Vector3 Direction;
+        public readonly Vector3 Normal;
+        public readonly float Distance;
     }
 }

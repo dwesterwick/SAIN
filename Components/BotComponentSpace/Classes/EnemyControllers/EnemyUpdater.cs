@@ -4,51 +4,46 @@ using UnityEngine;
 
 namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
-    public class EnemyUpdaterComponent : MonoBehaviour
+    public class EnemyUpdater : BotBase, IBotClass
     {
-        private BotComponent _bot;
-        private Dictionary<string, Enemy> _enemies => _bot.EnemyController.Enemies;
+        private Dictionary<string, Enemy> _enemies;
         private readonly List<string> _allyIdsToRemove = new List<string>();
         private readonly List<string> _invalidIdsToRemove = new List<string>();
 
-        public void Init(BotComponent bot)
+        public EnemyUpdater(BotComponent bot) : base(bot)
         {
-            _bot = bot;
         }
 
-        private void Update()
+        public void Init()
         {
-            if (_bot == null || _bot.EnemyController == null || !_bot.BotActive) {
-                return;
-            }
+            _enemies = Bot.EnemyController.Enemies;
+        }
 
+        public void Update()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void CheckAllEnemies()
+        {
             foreach (var kvp in _enemies) {
                 string profileId = kvp.Key;
                 Enemy enemy = kvp.Value;
-                if (!isEnemyValid(profileId, enemy))
-                    continue;
-
-                if (isEnemyAlly(profileId, enemy))
-                    continue;
-
-                enemy.Update();
-                //Logger.LogDebug("update");
-                //enemy.Vision.VisionChecker.CheckVision(out _);
+                if (!isEnemyValid(profileId, enemy)) continue;
+                if (isEnemyAlly(profileId, enemy)) continue;
             }
-            removeInvalid();
-            removeAllies();
+            removeEnemies(_invalidIdsToRemove);
+            removeEnemies(_allyIdsToRemove);
         }
 
-        private void LateUpdate()
+        public void UpdateAllEnemies()
         {
-            if (_bot == null || _bot.EnemyController == null || !_bot.BotActive) {
-                return;
+            foreach (Enemy enemy in _enemies.Values) {
+                enemy.Update();
             }
-
-            foreach (var kvp in _enemies) {
-                isEnemyValid(kvp.Key, kvp.Value);
-            }
-            removeInvalid();
         }
 
         private bool isEnemyValid(string id, Enemy enemy)
@@ -62,9 +57,9 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         private bool isEnemyAlly(string id, Enemy enemy)
         {
-            if (_bot.BotOwner.BotsGroup.Allies.Contains(enemy.EnemyPlayer)) {
+            if (BotOwner.BotsGroup?.Allies.Contains(enemy.EnemyPlayer) == true) {
                 if (SAINPlugin.DebugMode)
-                    Logger.LogWarning($"{enemy.EnemyPlayer.name} is an ally of {_bot.Player.name} and will be removed from its enemies collection");
+                    Logger.LogWarning($"{enemy.EnemyPlayer.name} is an ally of {Player.name} and will be removed from its enemies collection");
 
                 _allyIdsToRemove.Add(id);
                 return true;
@@ -73,11 +68,23 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             return false;
         }
 
+        private void removeEnemies(List<string> idList)
+        {
+            if (idList.Count > 0) {
+                foreach (var id in idList) {
+                    Bot.EnemyController.RemoveEnemy(id);
+                }
+                if (SAINPlugin.DebugMode)
+                    Logger.LogWarning($"Removed {idList.Count}");
+                idList.Clear();
+            }
+        }
+
         private void removeInvalid()
         {
             if (_invalidIdsToRemove.Count > 0) {
                 foreach (var id in _invalidIdsToRemove) {
-                    _bot.EnemyController.RemoveEnemy(id);
+                    Bot.EnemyController.RemoveEnemy(id);
                 }
                 Logger.LogWarning($"Removed {_invalidIdsToRemove.Count} Invalid Enemies");
                 _invalidIdsToRemove.Clear();
@@ -88,7 +95,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         {
             if (_allyIdsToRemove.Count > 0) {
                 foreach (var id in _allyIdsToRemove) {
-                    _bot.EnemyController.RemoveEnemy(id);
+                    Bot.EnemyController.RemoveEnemy(id);
                 }
 
                 if (SAINPlugin.DebugMode)

@@ -165,19 +165,18 @@ namespace SAIN.Patches.Generic
         {
             BotsGroup group = enemyInfo.GroupOwner;
             for (int i = 0; i < group.MembersCount; i++) {
-                if (SAINEnableClass.GetSAIN(group.Member(i), out BotComponent sain)
-                    && EnemySenseRecently(sain, enemyInfo)) {
+                if (SAINEnableClass.GetSAIN(group.Member(i), out BotComponent sain) &&
+                    EnemySenseRecently(sain, enemyInfo)) {
                     return true;
                 }
             }
-
             return false;
         }
 
         public static bool EnemySenseRecently(BotComponent sain, EnemyInfo enemyInfo)
         {
             Enemy myEnemy = sain.EnemyController.CheckAddEnemy(enemyInfo.Person);
-            return myEnemy?.CheckValid() == true && myEnemy.EnemyKnown;
+            return myEnemy?.WasValid == true && myEnemy.EnemyKnown;
         }
     }
 

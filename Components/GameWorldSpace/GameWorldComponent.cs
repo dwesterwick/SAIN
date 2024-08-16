@@ -1,10 +1,8 @@
-﻿using Comfort.Common;
-using EFT;
+﻿using EFT;
 using EFT.Game.Spawning;
 using SAIN.Components.PlayerComponentSpace;
 using SAIN.Helpers;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -14,7 +12,6 @@ namespace SAIN.Components
     public class GameWorldComponent : MonoBehaviour
     {
         public static GameWorldComponent Instance { get; private set; }
-
         public GameWorld GameWorld { get; private set; }
         public PlayerSpawnTracker PlayerTracker { get; private set; }
         public SAINBotController SAINBotController { get; private set; }
@@ -25,8 +22,8 @@ namespace SAIN.Components
 
         private void Update()
         {
-            Doors?.Update();
-            Location?.Update();
+            Doors.Update();
+            Location.Update();
             findSpawnPointMarkers();
             //BotLightTracker.LogDictionaryInfo();
         }
@@ -57,7 +54,6 @@ namespace SAIN.Components
                     spawnPointPositions.Add(spawnPointPosition.Value);
                 }
             }
-
             return spawnPointPositions;
         }
 
@@ -66,65 +62,21 @@ namespace SAIN.Components
             Instance = this;
             GameWorld = this.GetComponent<GameWorld>();
             if (GameWorld == null) {
-                Logger.LogWarning($"GameWorld is null from GetComponent");
-            }
-            StartCoroutine(Init());
-        }
-
-        private IEnumerator Init()
-        {
-            yield return getGameWorld();
-
-            if (GameWorld == null) {
                 Logger.LogWarning("GameWorld Null, cannot Init SAIN Gameworld! Check 2. Disposing Component...");
                 Dispose();
-                yield break;
+                return;
             }
 
+            GameWorld.OnDispose += Dispose;
             PlayerTracker = new PlayerSpawnTracker(this);
-            SAINBotController = this.GetOrAddComponent<SAINBotController>();
+            SAINBotController = this.GetComponent<SAINBotController>();
+            ExtractFinder = this.GetOrAddComponent<Extract.ExtractFinderComponent>();
+
             Doors = new DoorHandler(this);
             Location = new LocationClass(this);
-            ExtractFinder = this.GetOrAddComponent<Extract.ExtractFinderComponent>();
-            GameWorld.OnDispose += Dispose;
-
-            //Logger.LogDebug("SAIN GameWorld Created.");
 
             Doors.Init();
             Location.Init();
-        }
-
-        private IEnumerator getGameWorld()
-        {
-            if (GameWorld != null) {
-                yield break;
-            }
-            if (GameWorld == null) {
-                yield return new WaitForEndOfFrame();
-                GameWorld = findGameWorld();
-                if (GameWorld != null) {
-                    Logger.LogWarning("Found GameWorld at EndOfFrame");
-                    yield break;
-                }
-            }
-            for (int i = 0; i < 30; i++) {
-                if (GameWorld == null) {
-                    yield return null;
-                    GameWorld = findGameWorld();
-                }
-                if (GameWorld != null) {
-                    break;
-                }
-            }
-        }
-
-        private GameWorld findGameWorld()
-        {
-            GameWorld gameWorld = this.GetComponent<GameWorld>();
-            if (gameWorld == null) {
-                gameWorld = Singleton<GameWorld>.Instance;
-            }
-            return gameWorld;
         }
 
         public void Dispose()

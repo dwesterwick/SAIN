@@ -11,15 +11,13 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
 
         public void Execute(int index)
         {
-            Vector3 direction = Directions[index];
-            Distances[index] = direction.magnitude;
+            Distances[index] = Directions[index].magnitude;
         }
 
         public void Create(NativeArray<Vector3> directions)
         {
-            int total = directions.Length;
-            this.Directions = directions;
-            Distances = new NativeArray<float>(total, Allocator.TempJob);
+            Directions = directions;
+            Distances = new NativeArray<float>(directions.Length, Allocator.TempJob);
         }
 
         public void Create(List<Vector3> directions, int count)

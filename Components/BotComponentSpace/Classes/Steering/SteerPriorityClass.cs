@@ -177,7 +177,7 @@ namespace SAIN.SAINComponent.Classes.Mover
 
             Enemy enemy = Bot.Medical.HitByEnemy.EnemyWhoLastShotMe;
             if (enemy != null &&
-                enemy.CheckValid() &&
+                enemy.WasValid &&
                 enemy.EnemyPerson.Active &&
                 !enemy.IsCurrentEnemy) {
                 EnemyWhoLastShotMe = enemy;

@@ -46,6 +46,9 @@ namespace SAIN.Components
             foreach (var data in Datas) {
                 Add(data);
             }
+            if (Datas.Count != count) {
+                Logger.LogError($"Datas.Count [{Datas.Count}] != count [{count}]");
+            }
             //foreach (var data in cache.Removed) {
             //    Remove(data);
             //}

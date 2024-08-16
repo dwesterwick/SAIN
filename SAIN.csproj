@@ -261,6 +261,8 @@
     <Compile Include="Components\BotComponentSpace\Classes\Decision\BotDecisionManager.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Doors\DoorData.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Doors\DoorFinder.cs" />
+    <Compile Include="Components\BotEnemyUpdater.cs" />
+    <Compile Include="Components\PersonUpdater.cs" />
     <Compile Include="Components\Jobs\JobStructs\BiDirData.cs" />
     <Compile Include="Components\Jobs\JobStructs\CalcBiDirectionalJob.cs" />
     <Compile Include="Components\Jobs\JobStructs\CalcDirectionalJob.cs" />
@@ -305,11 +307,7 @@
     <Compile Include="Components\BotComponentSpace\Classes\Steering\SteeringController.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\BiDirectionalTypeManager.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\Batch\AbstractBatchJob.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\Batch\BiDirectionalBatchJob.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\Batch\DirectionalBatchJob.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\BiDirectionObject.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\DirectionObject.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\DistanceObject.cs" />
+    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\DistanceData.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\EJobStatus.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\AbstractJobObject.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DirectionTypeManager.cs" />
@@ -318,8 +316,7 @@
     <Compile Include="Components\Jobs\GenericJobManagers\JobManager.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\RaycastObject.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\JobTypeManager.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\Batch\DistanceBatchJob.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\Batch\RaycastBatchData.cs" />
+    <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\Batch\RaycastBatchJob.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\RaycastTypeManager.cs" />
     <Compile Include="Components\Jobs\ISAINJob.cs" />
     <Compile Include="Components\Jobs\SAINCustomJob.cs" />
@@ -384,7 +381,7 @@
     <Compile Include="Components\BotComponentSpace\Classes\EnemyControllers\EEnemyListType.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyControllers\EnemyList.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyControllers\EnemyListsClass.cs" />
-    <Compile Include="Components\BotComponentSpace\Classes\EnemyControllers\EnemyUpdaterComponent.cs" />
+    <Compile Include="Components\BotComponentSpace\Classes\EnemyControllers\EnemyUpdater.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Medical\BodyPartHitEffectClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Medical\BodyPartStatus.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Medical\BotMedicalBase.cs" />
@@ -767,7 +764,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Components\PlayerComponentSpace\SubComponents\" />
-    <Folder Include="Preset\BotLevelSettings\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

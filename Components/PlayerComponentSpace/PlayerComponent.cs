@@ -6,7 +6,6 @@ using SAIN.Components.PlayerComponentSpace.Classes.Equipment;
 using SAIN.Components.PlayerComponentSpace.PersonClasses;
 using SAIN.Helpers;
 using SAIN.SAINComponent;
-using SAIN.SAINComponent.Classes.Mover;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,10 +23,13 @@ namespace SAIN.Components.PlayerComponentSpace
         public BodyPartsClass BodyParts { get; private set; }
         public PlayerIlluminationClass Illumination { get; private set; }
 
+        private RaycastBatchJob _raycasts = new RaycastBatchJob(LayerMaskClass.HighPolyWithTerrainMask, new ListCache<RaycastObject>("playerTest"));
+        private float _nextCalcTrajTime;
+        private GUIObject _trajectoryLabel;
+        private GUIObject _hitLabel;
+
         private void Update()
         {
-            Person.Update();
-
             if (!Person.ActivationClass.PlayerActive) {
                 return;
             }
@@ -66,7 +68,6 @@ namespace SAIN.Components.PlayerComponentSpace
                         }
                     }
                     Logger.LogDebug(hitCount);
-
                     break;
 
                 case EJobStatus.Ready:
@@ -82,8 +83,6 @@ namespace SAIN.Components.PlayerComponentSpace
             }
             _raycasts.ScheduleRaycastToPoints(list.ToArray(), origin);
         }
-
-        private RaycastBatchData _raycasts = new RaycastBatchData(LayerMaskClass.HighPolyWithTerrainMask, new ListCache<RaycastObject>("playerTest"));
 
         private void testCalcTrajectory()
         {
@@ -132,9 +131,6 @@ namespace SAIN.Components.PlayerComponentSpace
                 }
             }
         }
-
-        private float _nextCalcTrajTime;
-        private GUIObject _trajectoryLabel;
 
         private void testObjectInFront()
         {
@@ -215,8 +211,6 @@ namespace SAIN.Components.PlayerComponentSpace
                 }
             }
         }
-
-        private GUIObject _hitLabel;
 
         private void testNavMeshNodes()
         {
@@ -311,11 +305,6 @@ namespace SAIN.Components.PlayerComponentSpace
                     }
                 }
             }
-        }
-
-        private void LateUpdate()
-        {
-            Person.LateUpdate();
         }
 
         private void drawTransformGizmos()
