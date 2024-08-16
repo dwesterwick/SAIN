@@ -25,7 +25,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 if (!checkValid(profileId, enemy))
                     continue;
 
-                if (!checkIfAlly(profileId, enemy))
+                if (checkIfAlly(profileId, enemy))
                     continue;
 
                 enemy.Update();
