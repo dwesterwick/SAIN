@@ -13,6 +13,9 @@ namespace SAIN.Components
 
         public PlayerDistancesJob PlayerDistancesJob { get; }
 
+        private static int maxBotsPerFrame = 5;
+        private readonly List<BotComponent> _localBotList = new List<BotComponent>();
+
         public BotJobsClass(SAINBotController botController) : base(botController)
         {
             RaycastJobs = new BotRaycastJobs(BotController);
@@ -59,9 +62,6 @@ namespace SAIN.Components
             }
             _localBotList.Clear();
         }
-
-        private static int maxBotsPerFrame = 5;
-        private readonly List<BotComponent> _localBotList = new List<BotComponent>();
 
         static BotJobsClass()
         {

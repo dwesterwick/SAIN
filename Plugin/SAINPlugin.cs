@@ -213,13 +213,11 @@ namespace SAIN
         {
             ModDetection.Update();
             SAINEditor.Update();
-            JobManager.Update();
         }
 
         private void LateUpdate()
         {
             SAINEditor.LateUpdate();
-            JobManager.LateUpdate();
         }
 
         private void Start() => SAINEditor.Init();

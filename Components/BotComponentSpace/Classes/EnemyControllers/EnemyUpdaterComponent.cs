@@ -6,30 +6,34 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
     public class EnemyUpdaterComponent : MonoBehaviour
     {
+        private BotComponent _bot;
+        private Dictionary<string, Enemy> Enemies => _bot.EnemyController.Enemies;
+        private readonly List<string> _allyIdsToRemove = new List<string>();
+        private readonly List<string> _invalidIdsToRemove = new List<string>();
+
         public void Init(BotComponent bot)
         {
-            Bot = bot;
+            _bot = bot;
         }
-
-        private BotComponent Bot;
 
         private void Update()
         {
-            if (Bot == null || Bot.EnemyController == null || !Bot.BotActive) {
+            if (_bot == null || _bot.EnemyController == null || !_bot.BotActive) {
                 return;
             }
 
             foreach (var kvp in Enemies) {
                 string profileId = kvp.Key;
                 Enemy enemy = kvp.Value;
-                if (!checkValid(profileId, enemy))
+                if (!isEnemyValid(profileId, enemy))
                     continue;
 
-                if (!checkIfAlly(profileId, enemy))
+                if (isEnemyAlly(profileId, enemy))
                     continue;
 
                 enemy.Update();
-                enemy.Vision.VisionChecker.CheckVision(out _);
+                //Logger.LogDebug("update");
+                //enemy.Vision.VisionChecker.CheckVision(out _);
             }
             removeInvalid();
             removeAllies();
@@ -37,17 +41,17 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         private void LateUpdate()
         {
-            if (Bot == null || Bot.EnemyController == null || !Bot.BotActive) {
+            if (_bot == null || _bot.EnemyController == null || !_bot.BotActive) {
                 return;
             }
 
             foreach (var kvp in Enemies) {
-                checkValid(kvp.Key, kvp.Value);
+                isEnemyValid(kvp.Key, kvp.Value);
             }
             removeInvalid();
         }
 
-        private bool checkValid(string id, Enemy enemy)
+        private bool isEnemyValid(string id, Enemy enemy)
         {
             if (enemy == null || enemy.CheckValid() == false) {
                 _invalidIdsToRemove.Add(id);
@@ -56,12 +60,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             return true;
         }
 
-        private bool checkIfAlly(string id, Enemy enemy)
+        private bool isEnemyAlly(string id, Enemy enemy)
         {
-            if (Bot.BotOwner.BotsGroup.Allies.Contains(enemy.EnemyPlayer))
-            {
+            if (_bot.BotOwner.BotsGroup.Allies.Contains(enemy.EnemyPlayer)) {
                 if (SAINPlugin.DebugMode)
-                    Logger.LogWarning($"{enemy.EnemyPlayer.name} is an ally of {Bot.Player.name} and will be removed from its enemies collection");
+                    Logger.LogWarning($"{enemy.EnemyPlayer.name} is an ally of {_bot.Player.name} and will be removed from its enemies collection");
 
                 _allyIdsToRemove.Add(id);
                 return true;
@@ -74,7 +77,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         {
             if (_invalidIdsToRemove.Count > 0) {
                 foreach (var id in _invalidIdsToRemove) {
-                    Bot.EnemyController.RemoveEnemy(id);
+                    _bot.EnemyController.RemoveEnemy(id);
                 }
                 Logger.LogWarning($"Removed {_invalidIdsToRemove.Count} Invalid Enemies");
                 _invalidIdsToRemove.Clear();
@@ -85,7 +88,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         {
             if (_allyIdsToRemove.Count > 0) {
                 foreach (var id in _allyIdsToRemove) {
-                    Bot.EnemyController.RemoveEnemy(id);
+                    _bot.EnemyController.RemoveEnemy(id);
                 }
 
                 if (SAINPlugin.DebugMode)
@@ -94,9 +97,5 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 _allyIdsToRemove.Clear();
             }
         }
-
-        private Dictionary<string, Enemy> Enemies => Bot.EnemyController.Enemies;
-        private readonly List<string> _allyIdsToRemove = new List<string>();
-        private readonly List<string> _invalidIdsToRemove = new List<string>();
     }
 }

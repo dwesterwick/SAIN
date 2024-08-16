@@ -10,16 +10,10 @@ namespace SAIN
     {
         public static void Create(GameObject gameWorldObject)
         {
-            if (SAINGameWorld != null)
-            {
-                Logger.LogWarning($"Old SAIN Gameworld is not null! Destroying...");
-                SAINGameWorld.Dispose();
-                GameObject.Destroy(SAINGameWorld);
-            }
-            SAINGameWorld = gameWorldObject.AddComponent<GameWorldComponent>();
+            gameWorldObject.AddComponent<GameWorldComponent>();
+            gameWorldObject.AddComponent<JobManager>();
         }
 
         public static GameWorldComponent SAINGameWorld { get; private set; }
-        public static SAINBotController SAINBotController => SAINGameWorld?.SAINBotController;
     }
 }

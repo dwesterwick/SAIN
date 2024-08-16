@@ -77,7 +77,8 @@ namespace SAIN.Patches.Components
         public static void PatchPostfix(GameObject gameObject)
         {
             try {
-                GameWorldHandler.Create(gameObject);
+                gameObject.AddComponent<GameWorldComponent>();
+                gameObject.AddComponent<JobManager>();
             }
             catch (Exception ex) {
                 Logger.LogError($" SAIN Init Gameworld Error: {ex}");

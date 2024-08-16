@@ -10,6 +10,9 @@ namespace SAIN
 {
     public static class Logger
     {
+        private static float _nextNotification;
+        private static readonly ManualLogSource SAINLogger = BepInEx.Logging.Logger.CreateLogSource("SAIN");
+
         public static void LogDebug(object data, string methodName = null)
             => createLogMessage(LogLevel.Debug, data, methodName);
 
@@ -89,11 +92,6 @@ namespace SAIN
         private static void createLogMessage(LogLevel level, object data, string methodName = null)
         {
             string result = createLogString(level, data, methodName);
-            if (level == LogLevel.Error || level == LogLevel.Fatal) {
-                if (MonoBehaviourSingleton<PreloaderUI>.Instance?.Console != null) {
-                    ConsoleScreen.LogError(data.ToString());
-                }
-            }
             sendLog(level, result);
         }
 
@@ -146,20 +144,18 @@ namespace SAIN
             switch (level) {
                 case LogLevel.Debug:
                 case LogLevel.Fatal:
-                    UnityEngine.Debug.LogError(result);
+                    //UnityEngine.Debug.LogError(result);
                     if (MonoBehaviourSingleton<PreloaderUI>.Instance?.Console != null) {
-                        ConsoleScreen.LogError(result);
+                        //ConsoleScreen.LogError(result);
                     }
                     break;
 
                 default:
-                    UnityEngine.Debug.Log(result);
+                    //UnityEngine.Debug.Log(result);
                     break;
             }
             SAINLogger.Log(level, result);
         }
-
-        private static float _nextNotification;
 
         private static int GetMaxFrames(LogLevel level)
         {
@@ -183,7 +179,5 @@ namespace SAIN
                     return 1;
             }
         }
-
-        private static readonly ManualLogSource SAINLogger = BepInEx.Logging.Logger.CreateLogSource("SAIN");
     }
 }

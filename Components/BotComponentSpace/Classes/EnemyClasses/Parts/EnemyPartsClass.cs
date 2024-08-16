@@ -24,8 +24,8 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         private int _index;
         private readonly int _indexMax;
 
-        private const float LINEOFSIGHT_TIME = 0.1f;
-        private const float CANSHOOT_TIME = 0.1f;
+        private const float LINEOFSIGHT_TIME = 0.25f;
+        private const float CANSHOOT_TIME = 0.25f;
 
         public EnemyPartsClass(Enemy enemy) : base(enemy)
         {
@@ -41,21 +41,16 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         private void updateParts()
         {
-            bool inSight = false;
-            bool canShoot = false;
-            float time = Time.time;
-
             foreach (var part in Parts.Values) {
                 part.Update(Enemy);
-
-                if (!canShoot && part.CanShoot) {
-                    canShoot = true;
-                    _timeLastCanShoot = time;
+                float lastCanShootTime = part.RaycastResults[ERaycastCheck.Shoot].LastSuccessTime;
+                if (lastCanShootTime > _timeLastCanShoot) {
+                    _timeLastCanShoot = lastCanShootTime;
                 }
 
-                if (!inSight && part.LineOfSight) {
-                    inSight = true;
-                    _timeLastInSight = time;
+                float lastCanSeeTime = part.RaycastResults[ERaycastCheck.LineofSight].LastSuccessTime;
+                if (lastCanSeeTime > _timeLastInSight) {
+                    _timeLastInSight = lastCanSeeTime;
                 }
             }
         }

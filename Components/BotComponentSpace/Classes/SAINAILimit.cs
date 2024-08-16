@@ -1,6 +1,4 @@
 ﻿using SAIN.Components;
-using SAIN.Helpers;
-using SAIN.Plugin;
 using SAIN.Preset;
 using SAIN.Preset.GlobalSettings;
 using System;
@@ -11,8 +9,15 @@ namespace SAIN.SAINComponent.Classes
     public class SAINAILimit : BotBase, IBotClass
     {
         public event Action<AILimitSetting> OnAILimitChanged;
+
         public AILimitSetting CurrentAILimit { get; private set; }
-        public float ClosestPlayerDistanceSqr { get; private set; }
+        public float ClosestPlayerDistance { get; private set; }
+
+        private float _checkDistanceTime;
+        private float _frequency = 3f;
+        private float _farDistance = 200f;
+        private float _veryFarDistance = 300f;
+        private float _narniaDistance = 400f;
 
         public SAINAILimit(BotComponent sain) : base(sain)
         {
@@ -35,63 +40,45 @@ namespace SAIN.SAINComponent.Classes
         private void checkAILimit()
         {
             AILimitSetting lastLimit = CurrentAILimit;
-            if (Bot.EnemyController.ActiveHumanEnemy)
-            {
+            if (Bot.EnemyController.ActiveHumanEnemy) {
                 CurrentAILimit = AILimitSetting.None;
-                ClosestPlayerDistanceSqr = -1f;
+                ClosestPlayerDistance = -1f;
             }
-            else if (_checkDistanceTime < Time.time)
-            {
-                _checkDistanceTime = Time.time + _frequency * UnityEngine.Random.Range(0.9f, 1.1f);
+            else if (_checkDistanceTime < Time.time) {
+                _checkDistanceTime = Time.time + _frequency;
                 var gameWorld = GameWorldComponent.Instance;
-                if (gameWorld != null && 
-                    gameWorld.PlayerTracker.FindClosestHumanPlayer(out float closestPlayerSqrMag, Bot.Position) != null)
-                {
-                    CurrentAILimit = checkDistances(closestPlayerSqrMag);
-                    ClosestPlayerDistanceSqr = closestPlayerSqrMag;
+                if (gameWorld != null &&
+                    gameWorld.PlayerTracker.FindClosestHumanPlayer(out float closestMagnitude, PlayerComponent) != null) {
+                    CurrentAILimit = checkDistances(closestMagnitude);
+                    ClosestPlayerDistance = closestMagnitude;
                 }
             }
-            if (lastLimit != CurrentAILimit)
-            {
+            if (lastLimit != CurrentAILimit) {
                 OnAILimitChanged?.Invoke(CurrentAILimit);
             }
         }
 
         private AILimitSetting checkDistances(float closestPlayerSqrMag)
         {
-            if (closestPlayerSqrMag < _farDistance)
-            {
+            if (closestPlayerSqrMag < _farDistance) {
                 return AILimitSetting.None;
             }
-            if (closestPlayerSqrMag < _veryFarDistance)
-            {
+            if (closestPlayerSqrMag < _veryFarDistance) {
                 return AILimitSetting.Far;
             }
-            if (closestPlayerSqrMag < _narniaDistance)
-            {
+            if (closestPlayerSqrMag < _narniaDistance) {
                 return AILimitSetting.VeryFar;
             }
             return AILimitSetting.Narnia;
         }
 
-        private float _checkDistanceTime;
-
         protected void UpdatePresetSettings(SAINPresetClass preset)
         {
             var aiLimit = GlobalSettingsClass.Instance.General.AILimit;
             _frequency = aiLimit.AILimitUpdateFrequency;
-            _farDistance = aiLimit.AILimitRanges[AILimitSetting.Far].Sqr();
-            _veryFarDistance = aiLimit.AILimitRanges[AILimitSetting.VeryFar].Sqr();
-            _narniaDistance = aiLimit.AILimitRanges[AILimitSetting.Narnia].Sqr();
-            if (SAINPlugin.DebugMode)
-            {
-                Logger.LogDebug($"Updated AI Limit Settings: [{_farDistance.Sqrt()}, {_veryFarDistance.Sqrt()}, {_narniaDistance.Sqrt()}]");
-            }
+            _farDistance = aiLimit.AILimitRanges[AILimitSetting.Far];
+            _veryFarDistance = aiLimit.AILimitRanges[AILimitSetting.VeryFar];
+            _narniaDistance = aiLimit.AILimitRanges[AILimitSetting.Narnia];
         }
-
-        private static float _frequency = 3f;
-        private static float _farDistance = 200f * 200f;
-        private static float _veryFarDistance = 300f * 300f;
-        private static float _narniaDistance = 400f * 400f;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Jobs;
 
 namespace SAIN.Components
 {
@@ -18,7 +19,7 @@ namespace SAIN.Components
             JobContainer.Complete();
         }
 
-        public virtual void Schedule()
+        public virtual void Schedule(JobHandle dependency)
         {
         }
 
@@ -68,6 +69,11 @@ namespace SAIN.Components
             }
             //Logger.LogDebug($"Removed data from {typeof(K)} batch");
             Datas.Remove(data);
+        }
+
+        public void Dispose()
+        {
+            JobContainer.Dispose();
         }
     }
 }

@@ -34,7 +34,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public BlindCornerFinder(Enemy enemy) : base(enemy)
         {
             //createDebug();
-            JobManager.BiDirections.Add(_biDirectionData);
+            JobManager.Instance.BiDirections.Add(_biDirectionData);
         }
 
         public void Init()
@@ -52,7 +52,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             //foreach (var debug in _debugObjects) {
             //    GameObject.Destroy(debug);
             //}
-            JobManager.BiDirections.Remove(_biDirectionData);
+            JobManager.Instance.BiDirections.Remove(_biDirectionData);
             _raycasts.Dispose();
         }
 

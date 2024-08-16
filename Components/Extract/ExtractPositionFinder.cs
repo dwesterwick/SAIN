@@ -70,13 +70,11 @@ namespace SAIN.Components.Extract
 
         public IEnumerator SearchForExfilPosition()
         {
-            if (ValidPathFound)
-            {
+            if (ValidPathFound) {
                 yield break;
             }
 
-            if (ex == null)
-            {
+            if (ex == null) {
                 Logger.LogError($"Cannot find a position for a null exfil point");
 
                 yield break;
@@ -84,8 +82,7 @@ namespace SAIN.Components.Extract
 
             // Select points on the NavMesh within the extract collider that will be used to check if a complete path exists
             FindExtractPositionsOnNavMesh();
-            if (!navMeshTestPoints.Any())
-            {
+            if (!navMeshTestPoints.Any()) {
                 if (ExtractFinderComponent.DebugMode)
                     Logger.LogWarning($"Cannot find any NavMesh positions for {ex.Settings.Name}");
 
@@ -99,8 +96,7 @@ namespace SAIN.Components.Extract
 
             // Choose endpoints from which pathing to the extract will be tested
             FindPathEndPoints(ExtractPosition.Value);
-            if (pathEndpoints.Count == 0)
-            {
+            if (pathEndpoints.Count == 0) {
                 if (ExtractFinderComponent.DebugMode)
                     Logger.LogWarning($"Could not find any path endpoints near {ex.Settings.Name}");
 
@@ -108,10 +104,8 @@ namespace SAIN.Components.Extract
             }
 
             // Check if a complete path can be calculated between the extract position and each endpoint selected above
-            foreach (Vector3 pathEndPoint in pathEndpoints)
-            {
-                if (NavMeshHelpers.DoesCompletePathExist(pathEndPoint, ExtractPosition.Value))
-                {
+            foreach (Vector3 pathEndPoint in pathEndpoints) {
+                if (NavMeshHelpers.DoesCompletePathExist(pathEndPoint, ExtractPosition.Value)) {
                     ValidPathFound = true;
 
                     if (ExtractFinderComponent.DebugMode)
@@ -120,8 +114,7 @@ namespace SAIN.Components.Extract
                     yield break;
                 }
 
-                if (ExtractFinderComponent.DebugMode)
-                {
+                if (ExtractFinderComponent.DebugMode) {
                     float distanceBetweenPoints = Vector3.Distance(ExtractPosition.Value, pathEndPoint);
                     Logger.LogWarning($"Could not find a complete path to {ex.Settings.Name} from {pathEndPoint} ({distanceBetweenPoints}m away).");
                 }
@@ -141,8 +134,7 @@ namespace SAIN.Components.Extract
             searchRadius = Math.Min(searchRadius, maxExtractNavMeshSearchRadius);
 
             // Failsafe for a junk extract collider
-            if (searchRadius == 0)
-            {
+            if (searchRadius == 0) {
                 searchRadius = defaultExtractNavMeshSearchRadius;
 
                 if (ExtractFinderComponent.DebugMode)
@@ -155,21 +147,18 @@ namespace SAIN.Components.Extract
         private void FindExtractPositionsOnNavMesh()
         {
             // If there are still remaining points to test, use them first
-            if (navMeshTestPoints.Any())
-            {
+            if (navMeshTestPoints.Any()) {
                 return;
             }
 
             // If NavMesh points have already been seelected in the extract collider, use them
-            if (sortedNavMeshPoints.Any())
-            {
+            if (sortedNavMeshPoints.Any()) {
                 CreateNavMeshTestPointStack();
                 return;
             }
 
             BoxCollider collider = (BoxCollider)colliderField.GetValue(ex);
-            if (collider == null)
-            {
+            if (collider == null) {
                 if (ExtractFinderComponent.DebugMode)
                     Logger.LogWarning($"Could not find collider for {ex.Settings.Name}");
 
@@ -184,8 +173,7 @@ namespace SAIN.Components.Extract
             // Sort the filtered points to first test the one closest to the center of the collider and then its extremities
             Vector3 referencePoint = ex.transform.position;
             bool chooseFirst = true;
-            while (navMeshPoints.Count > 0)
-            {
+            while (navMeshPoints.Count > 0) {
                 IEnumerable<Vector3> tmpSortedNavMeshPoints = navMeshPoints.OrderBy(x => Vector3.Distance(x, referencePoint));
 
                 referencePoint = chooseFirst ? tmpSortedNavMeshPoints.First() : tmpSortedNavMeshPoints.Last();
@@ -201,8 +189,7 @@ namespace SAIN.Components.Extract
 
         private void CreateNavMeshTestPointStack()
         {
-            foreach (Vector3 testPoint in sortedNavMeshPoints)
-            {
+            foreach (Vector3 testPoint in sortedNavMeshPoints) {
                 navMeshTestPoints.Push(testPoint);
             }
 
@@ -216,13 +203,11 @@ namespace SAIN.Components.Extract
             float navNeshTestPointDensityFactor = initialColliderTestPointDensityFactor;
             IEnumerable<Vector3> colliderTestPoints = Enumerable.Repeat(Vector3.positiveInfinity, maxColliderTestPoints + 1);
             int lastPointCount = colliderTestPoints.Count();
-            while ((lastPointCount > maxColliderTestPoints) && (navNeshTestPointDensityFactor >= minColliderTestPointDensityFactor))
-            {
+            while ((lastPointCount > maxColliderTestPoints) && (navNeshTestPointDensityFactor >= minColliderTestPointDensityFactor)) {
                 colliderTestPoints = collider.GetNavMeshTestPoints(searchRadius, navNeshTestPointDensityFactor);
 
                 // If the number of points is the same as the previous iteration, give up
-                if (colliderTestPoints.Count() == lastPointCount)
-                {
+                if (colliderTestPoints.Count() == lastPointCount) {
                     if (ExtractFinderComponent.DebugMode)
                         Logger.LogWarning($"Could not minimize collider test point count for {ex.Settings.Name}");
 
@@ -234,17 +219,14 @@ namespace SAIN.Components.Extract
             }
             navNeshTestPointDensityFactor *= 2;
 
-            if (!colliderTestPoints.Any())
-            {
+            if (!colliderTestPoints.Any()) {
                 colliderTestPoints = Enumerable.Repeat(collider.transform.position, 1);
 
                 if (ExtractFinderComponent.DebugMode)
                     Logger.LogWarning($"Could not create test points. Using collider position instead");
             }
-            else
-            {
-                if (ExtractFinderComponent.DebugMode)
-                {
+            else {
+                if (ExtractFinderComponent.DebugMode) {
                     Logger.LogInfo($"Generated {colliderTestPoints.Count()} collider test points using a density factor of {Math.Round(navNeshTestPointDensityFactor, 3)} and a search radius of {searchRadius}m");
                     Logger.LogInfo($"Extract collider: center={collider.transform.position}, size={collider.size}.");
                 }
@@ -257,25 +239,21 @@ namespace SAIN.Components.Extract
         {
             // For each point in the 3D mesh, try to find a point on the NavMesh within a certain radius
             List<Vector3> navMeshPoints = new List<Vector3>();
-            foreach (Vector3 testPoint in colliderTestPoints)
-            {
+            foreach (Vector3 testPoint in colliderTestPoints) {
                 Vector3? navMeshPoint = NavMeshHelpers.GetNearbyNavMeshPoint(testPoint, searchRadius);
-                if (navMeshPoint == null)
-                {
+                if (navMeshPoint == null) {
                     continue;
                 }
 
                 // Do not allow duplicate point to be added, which is possible depending on the mesh density
-                if (navMeshPoints.Any(x => x == navMeshPoint))
-                {
+                if (navMeshPoints.Any(x => x == navMeshPoint)) {
                     continue;
                 }
 
                 navMeshPoints.Add(navMeshPoint.Value);
             }
 
-            if (ExtractFinderComponent.DebugMode && !navMeshPoints.Any())
-            {
+            if (ExtractFinderComponent.DebugMode && !navMeshPoints.Any()) {
                 Logger.LogWarning($"Could not find any NavMesh points for {ex.Settings.Name} from {colliderTestPoints.Count()} test points using radius {searchRadius}m");
                 Logger.LogWarning($"Test points: {string.Join(",", colliderTestPoints)}");
             }
@@ -286,14 +264,12 @@ namespace SAIN.Components.Extract
         private void FindPathEndPoints(Vector3 testPoint)
         {
             // If endpoints have already been selected for the extract, use them
-            if (pathEndpoints.Count > 0)
-            {
+            if (pathEndpoints.Count > 0) {
                 return;
             }
 
-            IEnumerable<Vector3> navMeshPoints = GameWorldHandler.SAINGameWorld.GetAllSpawnPointPositionsOnNavMesh();
-            if (!navMeshPoints.Any())
-            {
+            IEnumerable<Vector3> navMeshPoints = GameWorldComponent.Instance.GetAllSpawnPointPositionsOnNavMesh();
+            if (!navMeshPoints.Any()) {
                 return;
             }
 
@@ -303,14 +279,12 @@ namespace SAIN.Components.Extract
                 .ToDictionary(x => x, x => Vector3.Distance(x, testPoint) + (Math.Abs(x.y - testPoint.y) * pathEndpointHeightDeprioritizationFactor));
 
             // Select the desired number of endpoints ensuring they are not too close together
-            for (int i = 0; i < maxPathEndpoints; i++)
-            {
+            for (int i = 0; i < maxPathEndpoints; i++) {
                 IEnumerable<Vector3> sortedNavMeshPoints = navMeshPoints
                     .Where(x => pathEndpoints.All(y => Vector3.Distance(x, y) > minDistanceBetweenPathEndpoints))
                     .OrderBy(x => navMeshPointDistances[x]);
 
-                if (!sortedNavMeshPoints.Any())
-                {
+                if (!sortedNavMeshPoints.Any()) {
                     break;
                 }
 

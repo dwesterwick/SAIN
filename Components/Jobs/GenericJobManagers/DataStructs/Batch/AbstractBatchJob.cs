@@ -25,7 +25,7 @@ namespace SAIN.Components
         {
             data.OnCompleted += checkComplete;
             data.SetAsReady();
-            JobManager.Add(data, JobType);
+            JobManager.Instance.Add(data, JobType);
             OnItemAdded?.Invoke(data, Datas.Count - 1);
         }
 
@@ -33,7 +33,7 @@ namespace SAIN.Components
         {
             data.OnCompleted -= checkComplete;
             data.SetAsCached();
-            JobManager.Remove(data, JobType);
+            JobManager.Instance.Remove(data, JobType);
         }
 
         protected void SetupJob(int count)

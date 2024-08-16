@@ -106,9 +106,9 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         private void initJobs()
         {
-            JobManager.Add(_raycast, EJobType.Raycast);
-            JobManager.Add(_enemyDistance, EJobType.Distance);
-            JobManager.Add(_botDistance, EJobType.Distance);
+            JobManager.Instance.Add(_raycast, EJobType.Raycast);
+            JobManager.Instance.Add(_enemyDistance, EJobType.Distance);
+            JobManager.Instance.Add(_botDistance, EJobType.Distance);
             _raycast.DistanceData = _botDistance;
             _raycast.OnCompleted += raycastComplete;
         }
@@ -121,9 +121,9 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public void Dispose()
         {
             OnDispose?.Invoke(this);
-            JobManager.Remove(_raycast, EJobType.Raycast);
-            JobManager.Remove(_enemyDistance, EJobType.Distance);
-            JobManager.Remove(_botDistance, EJobType.Distance);
+            JobManager.Instance.Remove(_raycast, EJobType.Raycast);
+            JobManager.Instance.Remove(_enemyDistance, EJobType.Distance);
+            JobManager.Instance.Remove(_botDistance, EJobType.Distance);
         }
 
         public Vector3 GroundedPosition(float range = 2f)

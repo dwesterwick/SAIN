@@ -3,11 +3,14 @@
     public class OtherPlayerData
     {
         public readonly string ProfileId;
+        public PlayerComponent PlayerComponent;
+        public bool IsAI => PlayerComponent.IsAI;
         public OtherPlayerDistanceData DistanceData { get; } = new OtherPlayerDistanceData();
 
-        public OtherPlayerData(string id)
+        public OtherPlayerData(PlayerComponent playerComponent)
         {
-            ProfileId = id;
+            ProfileId = playerComponent.ProfileId;
+            PlayerComponent = playerComponent;
         }
     }
 }

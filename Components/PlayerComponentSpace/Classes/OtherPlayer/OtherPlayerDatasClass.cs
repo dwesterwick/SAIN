@@ -48,7 +48,7 @@ namespace SAIN.Components.PlayerComponentSpace
             if (Datas.ContainsKey(profileId)) {
                 return;
             }
-            Datas.Add(profileId, new OtherPlayerData(profileId));
+            Datas.Add(profileId, new OtherPlayerData(playerComp));
         }
 
         private void playerRemoved(string profileId, PlayerComponent playerComp)

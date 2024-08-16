@@ -14,6 +14,7 @@ namespace SAIN.Components
     public class GameWorldComponent : MonoBehaviour
     {
         public static GameWorldComponent Instance { get; private set; }
+
         public GameWorld GameWorld { get; private set; }
         public PlayerSpawnTracker PlayerTracker { get; private set; }
         public SAINBotController SAINBotController { get; private set; }
@@ -44,8 +45,7 @@ namespace SAIN.Components
 
         public IEnumerable<Vector3> GetAllSpawnPointPositionsOnNavMesh()
         {
-            if (SpawnPointMarkers == null)
-            {
+            if (SpawnPointMarkers == null) {
                 return Enumerable.Empty<Vector3>();
             }
 

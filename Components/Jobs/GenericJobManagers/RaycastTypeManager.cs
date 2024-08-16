@@ -40,7 +40,7 @@ namespace SAIN.Components
             JobContainer.DisposeArrays();
         }
 
-        public override void Schedule()
+        public override void Schedule(JobHandle dependency)
         {
             if (!HasJobsToSchedule()) {
                 return;

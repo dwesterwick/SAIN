@@ -8,27 +8,20 @@ using UnityEngine;
 
 namespace SAIN.Components
 {
-    public class BotRaycastJobs : SAINControllerBase
-    {
-        public VisionRaycastJob VisionJob { get; }
-
-        public BotRaycastJobs(SAINBotController botController) : base(botController)
-        {
-            VisionJob = new VisionRaycastJob(botController);
-        }
-
-        public void Update()
-        {
-        }
-
-        public void Dispose()
-        {
-            VisionJob.Dispose();
-        }
-    }
-
     public class VisionRaycastJob : SAINControllerBase
     {
+        private NativeArray<RaycastHit> _hits;
+        private NativeArray<RaycastCommand> _commands;
+        private JobHandle _handle;
+        private const int RAYCAST_CHECKS = 3;
+        private readonly LayerMask _LOSMask = LayerMaskClass.HighPolyWithTerrainMask;
+        private readonly LayerMask _VisionMask = LayerMaskClass.AI;
+        private readonly LayerMask _ShootMask = LayerMaskClass.HighPolyWithTerrainMask;
+        private int _partCount = -1;
+        private readonly List<EBodyPartColliderType> _colliderTypes = new List<EBodyPartColliderType>();
+        private readonly List<Vector3> _castPoints = new List<Vector3>();
+        private readonly List<Enemy> _enemies = new List<Enemy>();
+
         public VisionRaycastJob(SAINBotController botcontroller) : base(botcontroller)
         {
             botcontroller.StartCoroutine(checkVisionLoop());
@@ -90,10 +83,6 @@ namespace SAIN.Components
             if (_commands.IsCreated) _commands.Dispose();
             if (_hits.IsCreated) _hits.Dispose();
         }
-
-        private NativeArray<RaycastHit> _hits;
-        private NativeArray<RaycastCommand> _commands;
-        private JobHandle _handle;
 
         private void createCommands(List<Enemy> enemies, NativeArray<RaycastCommand> raycastCommands, int enemyCount, int partCount)
         {
@@ -165,14 +154,6 @@ namespace SAIN.Components
             }
         }
 
-        private const int RAYCAST_CHECKS = 3;
-        private readonly LayerMask _LOSMask = LayerMaskClass.HighPolyWithTerrainMask;
-        private readonly LayerMask _VisionMask = LayerMaskClass.AI;
-        private readonly LayerMask _ShootMask = LayerMaskClass.HighPolyWithTerrainMask;
-        private int _partCount = -1;
-        private readonly List<EBodyPartColliderType> _colliderTypes = new List<EBodyPartColliderType>();
-        private readonly List<Vector3> _castPoints = new List<Vector3>();
-
         private static void findEnemies(BotDictionary bots, List<Enemy> result)
         {
             result.Clear();
@@ -190,7 +171,5 @@ namespace SAIN.Components
                 }
             }
         }
-
-        private readonly List<Enemy> _enemies = new List<Enemy>();
     }
 }

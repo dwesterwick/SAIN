@@ -42,10 +42,35 @@ namespace SAIN.Components.PlayerComponentSpace
             return closestPlayer;
         }
 
+        public PlayerComponent FindClosestHumanPlayer(out float magnitude, PlayerComponent checkingPlayer, out PlayerComponent closestPlayer)
+        {
+            closestPlayer = null;
+            magnitude = float.MaxValue;
+            closestPlayer = null;
+
+            foreach (OtherPlayerData otherPlayerData in checkingPlayer.OtherPlayersData.Datas.Values) {
+                if (otherPlayerData?.PlayerComponent != null &&
+                    otherPlayerData.IsAI == false) {
+                    float distance = otherPlayerData.DistanceData.Distance;
+                    if (distance < magnitude) {
+                        closestPlayer = otherPlayerData.PlayerComponent;
+                        magnitude = distance;
+                    }
+                }
+            }
+            return closestPlayer;
+        }
+
         public Player FindClosestHumanPlayer(out float closestPlayerSqrMag, Vector3 targetPosition)
         {
             FindClosestHumanPlayer(out closestPlayerSqrMag, targetPosition, out Player player);
             return player;
+        }
+
+        public Player FindClosestHumanPlayer(out float magnitude, PlayerComponent checkingPlayer)
+        {
+            FindClosestHumanPlayer(out magnitude, checkingPlayer, out PlayerComponent player);
+            return player?.Player;
         }
 
         public PlayerComponent AddPlayerManual(IPlayer player)

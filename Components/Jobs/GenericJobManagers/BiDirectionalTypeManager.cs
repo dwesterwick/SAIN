@@ -35,7 +35,7 @@ namespace SAIN.Components
             JobContainer.Job.Dispose();
         }
 
-        public override void Schedule()
+        public override void Schedule(JobHandle dependency)
         {
             if (!HasJobsToSchedule()) {
                 return;
@@ -58,7 +58,7 @@ namespace SAIN.Components
             if (scheduledCount > 0) {
                 var job = new CalcBiDirectionalJob();
                 job.Create(_directions, scheduledCount);
-                var handle = job.ScheduleParallel(scheduledCount, 5, new JobHandle());
+                var handle = job.ScheduleParallel(scheduledCount, 5, dependency);
                 JobContainer.Init(handle, job);
             }
         }

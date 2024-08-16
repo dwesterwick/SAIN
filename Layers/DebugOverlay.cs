@@ -33,7 +33,7 @@ namespace SAIN.Layers
                     stringBuilder.AppendLine($"Name: [{bot.Person.Name}] Nickname: [{bot.Player.Profile.Nickname}] Personality: [{info.Personality}] Type: [{info.Profile.WildSpawnType}] PowerLevel: [{info.Profile.PowerLevel}]");
                     stringBuilder.AppendLine(decisionInfo(bot));
                     stringBuilder.AppendLabeledValue("Steering", $"{bot.Steering.CurrentSteerPriority} : {bot.Steering.EnemySteerDir}", Color.white, Color.yellow);
-                    stringBuilder.AppendLine($"AILimit [{bot.CurrentAILimit}] : HumanDist: [{bot.AILimit.ClosestPlayerDistanceSqr.Sqrt().Round10()}]");
+                    stringBuilder.AppendLine($"AILimit [{bot.CurrentAILimit}] : HumanDist: [{bot.AILimit.ClosestPlayerDistance.Round10()}]");
                     stringBuilder.AppendLine();
                     if (debug.Overlay_Info_Expanded) {
                         stringBuilder.AppendLine($"CoverPoints: [{bot.Cover.CoverPoints.Count}] : StartSearchDelay [{info.TimeBeforeSearch}] : Hold Ground Time [{info.HoldGroundDelay}]");
