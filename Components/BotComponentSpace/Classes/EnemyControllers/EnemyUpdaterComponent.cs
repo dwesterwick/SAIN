@@ -7,7 +7,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
     public class EnemyUpdaterComponent : MonoBehaviour
     {
         private BotComponent _bot;
-        private Dictionary<string, Enemy> Enemies => _bot.EnemyController.Enemies;
+        private Dictionary<string, Enemy> _enemies => _bot.EnemyController.Enemies;
         private readonly List<string> _allyIdsToRemove = new List<string>();
         private readonly List<string> _invalidIdsToRemove = new List<string>();
 
@@ -22,7 +22,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 return;
             }
 
-            foreach (var kvp in Enemies) {
+            foreach (var kvp in _enemies) {
                 string profileId = kvp.Key;
                 Enemy enemy = kvp.Value;
                 if (!isEnemyValid(profileId, enemy))
@@ -45,7 +45,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 return;
             }
 
-            foreach (var kvp in Enemies) {
+            foreach (var kvp in _enemies) {
                 isEnemyValid(kvp.Key, kvp.Value);
             }
             removeInvalid();
