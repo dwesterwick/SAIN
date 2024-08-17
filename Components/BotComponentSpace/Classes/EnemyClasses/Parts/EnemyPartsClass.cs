@@ -10,71 +10,41 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
     public class EnemyPartsClass : EnemyBase
     {
-        public bool LineOfSight => TimeSinceInLineOfSight < LINEOFSIGHT_TIME;
-        public float TimeSinceInLineOfSight => Time.time - _timeLastInSight;
-        public Vector3 LastSuccessLookPosition { get; private set; }
-        public bool CanShoot => TimeSinceCanShoot < CANSHOOT_TIME;
-        public float TimeSinceCanShoot => Time.time - _timeLastCanShoot;
-        public Vector3 LastSuccessShootPosition { get; private set; }
+        public bool LineOfSight { get; private set; }
+        public bool CanShoot { get; private set; }
+        public bool IsVisible { get; private set; }
         public Dictionary<EBodyPart, EnemyBodyPart> Parts { get; } = new Dictionary<EBodyPart, EnemyBodyPart>();
-        public EnemyBodyPart[] PartsArray { get; private set; }
-
-        private float _timeLastInSight;
-        private float _timeLastCanShoot;
-        private int _index;
-        private readonly int _indexMax;
-
-        private const float LINEOFSIGHT_TIME = 0.25f;
-        private const float CANSHOOT_TIME = 0.25f;
+        public EnemyBodyPart[] PartsArray { get; }
 
         public EnemyPartsClass(Enemy enemy) : base(enemy)
         {
             createPartDatas(enemy.Player.PlayerBones);
             PartsArray = Parts.Values.ToArray();
-            _indexMax = Parts.Count;
         }
 
         public void Update()
         {
-            updateParts();
+            updateStatus();
         }
 
-        private void updateParts()
+        private void updateStatus()
         {
+            LineOfSight = false;
+            CanShoot = false;
+            IsVisible = false;
             bool canBeSeen = Enemy.Vision.Angles.CanBeSeen;
             foreach (var part in Parts.Values) {
-                part.UpdateProperties(canBeSeen);
-
-                float lastCanShootTime = part.RaycastResults[ERaycastCheck.Shoot].LastSuccessTime;
-                if (lastCanShootTime > _timeLastCanShoot) {
-                    _timeLastCanShoot = lastCanShootTime;
+                PartRaycastResultData results = part.UpdateProperties(canBeSeen);
+                if (!LineOfSight) {
+                    LineOfSight = results.LineOfSight.InSight;
                 }
-
-                float lastCanSeeTime = part.RaycastResults[ERaycastCheck.LineofSight].LastSuccessTime;
-                if (lastCanSeeTime > _timeLastInSight) {
-                    _timeLastInSight = lastCanSeeTime;
+                if (!CanShoot) {
+                    CanShoot = results.CanShoot.InSight;
+                }
+                if (!IsVisible) {
+                    IsVisible = results.IsVisible.InSight;
                 }
             }
-        }
-
-        public EnemyBodyPart GetNextPart()
-        {
-            EnemyBodyPart result = null;
-            EBodyPart epart = (EBodyPart)_index;
-            if (!Parts.TryGetValue(epart, out result)) {
-                _index = 0;
-                result = Parts[EBodyPart.Chest];
-            }
-
-            _index++;
-            if (_index > _indexMax) {
-                _index = 0;
-            }
-
-            if (result == null) {
-                result = Parts.PickRandom().Value;
-            }
-            return result;
         }
 
         private void createPartDatas(PlayerBones bones)

@@ -81,7 +81,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 EBodyPart randomPart = _normalSelector.GetRandomOption();
                 if (enemyParts.TryGetValue(randomPart, out EnemyBodyPart enemyPartData) &&
                     enemyPartData?.CanShoot == true &&
-                    enemyPartData.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint != null) {
+                    enemyPartData.RaycastResults[ERaycastCheck.Shoot].PointData.LastSuccessPoint != null) {
                     if (SelectedPart != null &&
                         SelectedPart.BodyPart != randomPart) {
                         LastPart = SelectedPart;
@@ -110,7 +110,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 Vector3? point = null;
                 foreach (var part in Enemy.Vision.VisionChecker.EnemyParts.Parts.Values) {
                     if (part?.CanShoot == true) {
-                        point = part.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint;
+                        point = part.RaycastResults[ERaycastCheck.Shoot].PointData.LastSuccessPoint;
                         if (point != null) {
                             break;
                         }
@@ -119,7 +119,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 return point;
             }
             else {
-                return partToShoot.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint;
+                return partToShoot.RaycastResults[ERaycastCheck.Shoot].PointData.LastSuccessPoint;
             }
         }
 
@@ -129,7 +129,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             Dictionary<EBodyPart, EnemyBodyPart> parts = Enemy.Vision.VisionChecker.EnemyParts.Parts;
             if (parts.TryGetValue(EBodyPart.Chest, out EnemyBodyPart chest)) {
                 if (chest?.CanShoot == true) {
-                    point = chest.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint;
+                    point = chest.RaycastResults[ERaycastCheck.Shoot].PointData.LastSuccessPoint;
                     if (point != null) {
                         return point;
                     }
@@ -137,7 +137,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
             if (parts.TryGetValue(EBodyPart.Stomach, out EnemyBodyPart stomach)) {
                 if (stomach?.CanShoot == true) {
-                    point = stomach.RaycastResults[ERaycastCheck.Shoot].LastSuccessPoint;
+                    point = stomach.RaycastResults[ERaycastCheck.Shoot].PointData.LastSuccessPoint;
                     if (point != null) {
                         return point;
                     }

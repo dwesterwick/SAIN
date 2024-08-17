@@ -220,16 +220,11 @@ namespace SAIN.Layers
                 var parts = enemy.Vision.VisionChecker.EnemyParts.Parts.Values;
                 int visCount = 0;
                 int partCount = 0;
-                int notChecked = 0;
                 foreach (var part in parts) {
-                    if (part.TimeSinceLastVisionCheck > 2f) {
-                        notChecked++;
-                        continue;
-                    }
                     partCount++;
                     if (part.LineOfSight) visCount++;
                 }
-                stringBuilder.AppendLabeledValue("Body Parts", $"In LOS: {visCount} : Checked: {partCount} : Not Checked: {notChecked}", Color.white, Color.yellow, true);
+                stringBuilder.AppendLabeledValue("Body Parts", $"In LOS: {visCount} : Checked: {partCount}", Color.white, Color.yellow, true);
             }
             stringBuilder.AppendLine();
 

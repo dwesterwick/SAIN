@@ -101,24 +101,28 @@ namespace SAIN.Components
 
                 for (int j = 0; j < partCount; j++) {
                     EnemyBodyPart part = parts[j];
-                    BodyPartRaycast raycastData = part.GetRaycast(eyePosition, float.MaxValue);
-                    raycastCommands[commands] = createCommand(part, partDistances[raycastData.PartType], eyePosition, _LOSMask);
+
+                    BodyPartRaycast raycastData = part.GetRaycast(eyePosition, float.MaxValue, ERaycastCheck.LineofSight);
+                    raycastCommands[commands] = createCommand(raycastData, partDistances[raycastData.PartType], eyePosition, _LOSMask);
                     commands++;
-                    raycastCommands[commands] = createCommand(part, partDistances[raycastData.PartType], eyePosition, _VisionMask);
+
+                    raycastData = part.GetRaycast(eyePosition, float.MaxValue, ERaycastCheck.Shoot);
+                    raycastCommands[commands] = createCommand(raycastData, partDistances[raycastData.PartType], eyePosition, _VisionMask);
                     commands++;
-                    raycastCommands[commands] = createCommand(part, partDistances[raycastData.PartType], weaponFirePort, _ShootMask);
+
+                    raycastData = part.GetRaycast(eyePosition, float.MaxValue, ERaycastCheck.Vision);
+                    raycastCommands[commands] = createCommand(raycastData, partDistances[raycastData.PartType], weaponFirePort, _ShootMask);
                     commands++;
                 }
             }
         }
 
-        private RaycastCommand createCommand(EnemyBodyPart part, float partDistance, Vector3 origin, LayerMask mask)
+        private RaycastCommand createCommand(BodyPartRaycast bodyPartRaycast, float partDistance, Vector3 origin, LayerMask mask)
         {
-            BodyPartRaycast raycastData = part.GetRaycast(origin, float.MaxValue);
-            Vector3 castPoint = raycastData.CastPoint;
+            Vector3 castPoint = bodyPartRaycast.CastPoint;
             _castPoints.Add(castPoint);
             Vector3 eyeDir = castPoint - origin;
-            _colliderTypes.Add(raycastData.ColliderType);
+            _colliderTypes.Add(bodyPartRaycast.ColliderType);
             return new RaycastCommand(origin, castPoint - origin, partDistance, mask);
         }
 
