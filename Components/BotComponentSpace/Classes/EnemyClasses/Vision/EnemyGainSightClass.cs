@@ -378,7 +378,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             int partCount = 0;
             visibleCount = 0;
             var parts = Enemy.Vision.VisionChecker.EnemyParts.Parts.Values;
-            foreach (EnemyPartDataClass part in parts) {
+            foreach (EnemyBodyPart part in parts) {
                 if (part.TimeSinceLastVisionCheck > PARTS_VISIBLE_MAX_TIME_SINCE_CHECKED)
                     continue;
                 partCount++;

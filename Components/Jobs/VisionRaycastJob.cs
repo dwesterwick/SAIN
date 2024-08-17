@@ -1,4 +1,5 @@
 ﻿using SAIN.Components.BotController;
+using SAIN.Components.PlayerComponentSpace.PersonClasses;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using System.Collections;
 using System.Collections.Generic;
@@ -91,35 +92,34 @@ namespace SAIN.Components
 
             int commands = 0;
             for (int i = 0; i < enemyCount; i++) {
-                var enemy = _enemies[i];
-                var transform = enemy.Bot.Transform;
+                Enemy enemy = _enemies[i];
+                PersonTransformClass transform = enemy.Bot.Transform;
                 Vector3 eyePosition = transform.EyePosition;
                 Vector3 weaponFirePort = transform.WeaponFirePort;
-                var parts = enemy.Vision.VisionChecker.EnemyParts.PartsArray;
-                var partDistances = enemy.EnemyPlayerData.DistanceData.BodyPartDistances;
+                EnemyBodyPart[] parts = enemy.Vision.VisionChecker.EnemyParts.PartsArray;
+                Dictionary<EBodyPart, float> partDistances = enemy.EnemyPlayerData.DistanceData.BodyPartDistances;
 
                 for (int j = 0; j < partCount; j++) {
-                    var part = parts[j];
+                    EnemyBodyPart part = parts[j];
                     BodyPartRaycast raycastData = part.GetRaycast(eyePosition, float.MaxValue);
-                    Vector3 castPoint = raycastData.CastPoint;
-
-                    _colliderTypes.Add(raycastData.ColliderType);
-                    _castPoints.Add(castPoint);
-
-                    Vector3 weaponDir = castPoint - weaponFirePort;
-                    Vector3 eyeDir = castPoint - eyePosition;
-                    float eyeDirMag = partDistances[raycastData.PartType];
-
-                    raycastCommands[commands] = new RaycastCommand(eyePosition, eyeDir, eyeDirMag, _LOSMask);
+                    raycastCommands[commands] = createCommand(part, partDistances[raycastData.PartType], eyePosition, _LOSMask);
                     commands++;
-
-                    raycastCommands[commands] = new RaycastCommand(eyePosition, eyeDir, eyeDirMag, _VisionMask);
+                    raycastCommands[commands] = createCommand(part, partDistances[raycastData.PartType], eyePosition, _VisionMask);
                     commands++;
-
-                    raycastCommands[commands] = new RaycastCommand(weaponFirePort, weaponDir, weaponDir.magnitude, _ShootMask);
+                    raycastCommands[commands] = createCommand(part, partDistances[raycastData.PartType], weaponFirePort, _ShootMask);
                     commands++;
                 }
             }
+        }
+
+        private RaycastCommand createCommand(EnemyBodyPart part, float partDistance, Vector3 origin, LayerMask mask)
+        {
+            BodyPartRaycast raycastData = part.GetRaycast(origin, float.MaxValue);
+            Vector3 castPoint = raycastData.CastPoint;
+            _castPoints.Add(castPoint);
+            Vector3 eyeDir = castPoint - origin;
+            _colliderTypes.Add(raycastData.ColliderType);
+            return new RaycastCommand(origin, castPoint - origin, partDistance, mask);
         }
 
         private void analyzeHits(List<Enemy> enemies, NativeArray<RaycastHit> raycastHits, int enemyCount, int partCount)

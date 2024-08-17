@@ -286,7 +286,7 @@
     <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Shoot\EnemyShootTargets.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Vision\EnemyAnglesClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Vision\EnemyVisionChecker.cs" />
-    <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Parts\EnemyPartDataClass.cs" />
+    <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Parts\EnemyBodyPart.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Parts\EnemyPartsClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Vision\ERaycastCheck.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\EnemyClasses\Vision\ERaycastPart.cs" />
