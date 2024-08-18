@@ -305,13 +305,10 @@
     <Compile Include="Components\BotComponentSpace\Classes\Sense\Hearing\HearingDispersionClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Sense\Hearing\HearingInputClass.cs" />
     <Compile Include="Components\BotComponentSpace\Classes\Steering\SteeringController.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\BiDirectionalTypeManager.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\Batch\AbstractBatchJob.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\DistanceData.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\EJobStatus.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\AbstractJobObject.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DirectionTypeManager.cs" />
-    <Compile Include="Components\Jobs\GenericJobManagers\DistanceTypeManager.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\EJobType.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\JobManager.cs" />
     <Compile Include="Components\Jobs\GenericJobManagers\DataStructs\DataObjects\RaycastObject.cs" />

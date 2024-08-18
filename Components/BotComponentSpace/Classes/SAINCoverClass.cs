@@ -265,7 +265,6 @@ namespace SAIN.SAINComponent.Classes
         private bool _coverEntered;
         private GUIObject debugCoverObject;
         private GameObject debugCoverLine;
-        private float _checkLimbsTime = 0f;
         private CoverPoint _coverInUse;
     }
 }

@@ -10,7 +10,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
     public class EnemyVisionChecker : EnemyBase, IBotClass
     {
         public float LastCheckLookTime { get; set; }
-        public float LastCheckLOSTime { get; set; }
+        public float NextCheckLOSTime { get; set; }
         public bool LineOfSight => EnemyParts.LineOfSight;
         public EnemyPartsClass EnemyParts { get; }
 

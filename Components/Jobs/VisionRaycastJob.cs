@@ -22,67 +22,67 @@ namespace SAIN.Components
         private readonly List<EBodyPartColliderType> _colliderTypes = new List<EBodyPartColliderType>();
         private readonly List<Vector3> _castPoints = new List<Vector3>();
         private readonly List<Enemy> _enemies = new List<Enemy>();
+        private BotDictionary _bots;
+        private bool _hasJobToComplete = false;
 
         public VisionRaycastJob(SAINBotController botcontroller) : base(botcontroller)
         {
-            botcontroller.StartCoroutine(checkVisionLoop());
         }
 
-        private IEnumerator checkVisionLoop()
+        public void Init()
         {
-            yield return null;
+            _bots = BotController.BotSpawnController.BotDictionary;
+        }
 
-            while (true) {
-                if (BotController == null) {
-                    yield return null;
-                    continue;
-                }
-
-                var bots = BotController.BotSpawnController?.BotDictionary;
-                if (bots == null || bots.Count == 0) {
-                    yield return null;
-                    continue;
-                }
-
-                if (BotController.BotGame?.Status == EFT.GameStatus.Stopping) {
-                    yield return null;
-                    continue;
-                }
-
-                findEnemies(bots, _enemies);
-                int enemyCount = _enemies.Count;
-                if (enemyCount == 0) {
-                    yield return null;
-                    continue;
-                }
-
-                if (_partCount < 0) {
-                    _partCount = _enemies[0].Vision.VisionChecker.EnemyParts.PartsArray.Length;
-                }
-                int partCount = _partCount;
-
-                int totalRaycasts = enemyCount * partCount * RAYCAST_CHECKS;
-
-                _hits = new NativeArray<RaycastHit>(totalRaycasts, Allocator.TempJob);
-                _commands = new NativeArray<RaycastCommand>(totalRaycasts, Allocator.TempJob);
-
-                createCommands(_enemies, _commands, enemyCount, partCount);
-                _handle = RaycastCommand.ScheduleBatch(_commands, _hits, 24);
-
-                yield return null;
-
-                _handle.Complete();
-                analyzeHits(_enemies, _hits, enemyCount, partCount);
-                _commands.Dispose();
-                _hits.Dispose();
+        public void Update()
+        {
+            completeJob();
+            if (BotController.BotGame?.Status == EFT.GameStatus.Stopping) {
+                return;
             }
+            setupJob();
+        }
+
+        private void setupJob()
+        {
+            if (_hasJobToComplete) {
+                return;
+            }
+
+            findEnemies(_bots, _enemies);
+            int enemyCount = _enemies.Count;
+            if (enemyCount == 0) {
+                return;
+            }
+
+            if (_partCount < 0) {
+                _partCount = _enemies[0].Vision.VisionChecker.EnemyParts.PartsArray.Length;
+            }
+            int partCount = _partCount;
+
+            int totalRaycasts = enemyCount * partCount * RAYCAST_CHECKS;
+            _hits = new NativeArray<RaycastHit>(totalRaycasts, Allocator.TempJob);
+            _commands = new NativeArray<RaycastCommand>(totalRaycasts, Allocator.TempJob);
+            createCommands(_enemies, _commands, enemyCount, partCount);
+            _handle = RaycastCommand.ScheduleBatch(_commands, _hits, 3);
+            _hasJobToComplete = true;
+        }
+
+        private void completeJob()
+        {
+            if (!_hasJobToComplete) {
+                return;
+            }
+            _handle.Complete();
+            analyzeHits(_enemies, _hits, _enemies.Count, _partCount);
+            _commands.Dispose();
+            _hits.Dispose();
+            _hasJobToComplete = false;
         }
 
         public void Dispose()
         {
-            if (!_handle.IsCompleted) _handle.Complete();
-            if (_commands.IsCreated) _commands.Dispose();
-            if (_hits.IsCreated) _hits.Dispose();
+            completeJob();
         }
 
         private void createCommands(List<Enemy> enemies, NativeArray<RaycastCommand> raycastCommands, int enemyCount, int partCount)
@@ -115,14 +115,15 @@ namespace SAIN.Components
                     commands++;
                 }
             }
+            Logger.LogDebug($"Scheduled [{enemyCount * partCount * 3}] raycasts");
         }
 
         private RaycastCommand createCommand(BodyPartRaycast bodyPartRaycast, float partDistance, Vector3 origin, LayerMask mask)
         {
+            _colliderTypes.Add(bodyPartRaycast.ColliderType);
             Vector3 castPoint = bodyPartRaycast.CastPoint;
             _castPoints.Add(castPoint);
             Vector3 eyeDir = castPoint - origin;
-            _colliderTypes.Add(bodyPartRaycast.ColliderType);
             return new RaycastCommand(origin, castPoint - origin, partDistance, mask);
         }
 
@@ -130,29 +131,20 @@ namespace SAIN.Components
         {
             float time = Time.time;
             int hits = 0;
-            int colliderTypeCount = 0;
-
             for (int i = 0; i < enemyCount; i++) {
-                var enemy = _enemies[i];
-                var transform = enemy.Bot.Transform;
-                Vector3 origin = transform.EyePosition;
-                Vector3 weaponFirePort = transform.WeaponFirePort;
-                var visionChecker = enemy.Vision.VisionChecker;
-                var parts = visionChecker.EnemyParts.PartsArray;
-                visionChecker.LastCheckLOSTime = time + (enemy.IsAI ? 0.1f : 0.05f);
+                Enemy enemy = _enemies[i];
+                EnemyVisionChecker visionChecker = enemy.Vision.VisionChecker;
+                EnemyBodyPart[] parts = visionChecker.EnemyParts.PartsArray;
+                visionChecker.NextCheckLOSTime = time + (enemy.IsAI ? 0.1f : 0.05f);
                 enemy.Bot.Vision.TimeLastCheckedLOS = time;
 
                 for (int j = 0; j < partCount; j++) {
-                    var part = parts[j];
-                    EBodyPartColliderType colliderType = _colliderTypes[colliderTypeCount];
-                    Vector3 castPoint = _castPoints[colliderTypeCount];
-                    colliderTypeCount++;
-
-                    part.SetLineOfSight(castPoint, colliderType, raycastHits[hits], ERaycastCheck.LineofSight, time);
+                    EnemyBodyPart part = parts[j];
+                    part.SetLineOfSight(_castPoints[hits], _colliderTypes[hits], raycastHits[hits], ERaycastCheck.LineofSight, time);
                     hits++;
-                    part.SetLineOfSight(castPoint, colliderType, raycastHits[hits], ERaycastCheck.Vision, time);
+                    part.SetLineOfSight(_castPoints[hits], _colliderTypes[hits], raycastHits[hits], ERaycastCheck.Vision, time);
                     hits++;
-                    part.SetLineOfSight(castPoint, colliderType, raycastHits[hits], ERaycastCheck.Shoot, time);
+                    part.SetLineOfSight(_castPoints[hits], _colliderTypes[hits], raycastHits[hits], ERaycastCheck.Shoot, time);
                     hits++;
                 }
             }
@@ -169,7 +161,7 @@ namespace SAIN.Components
                     if (!enemy.WasValid) continue;
                     var visionChecker = enemy.Vision.VisionChecker;
                     if (enemy.RealDistance > visionChecker.AIVisionRangeLimit()) continue;
-                    if (visionChecker.LastCheckLOSTime < time) {
+                    if (visionChecker.NextCheckLOSTime < time) {
                         result.Add(enemy);
                     }
                 }

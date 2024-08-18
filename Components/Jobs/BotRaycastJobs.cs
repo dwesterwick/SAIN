@@ -9,8 +9,14 @@
             VisionJob = new VisionRaycastJob(botController);
         }
 
+        public void Init()
+        {
+            VisionJob.Init();
+        }
+
         public void Update()
         {
+            VisionJob.Update();
         }
 
         public void Dispose()

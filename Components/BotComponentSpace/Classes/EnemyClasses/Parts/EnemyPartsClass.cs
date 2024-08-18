@@ -1,18 +1,49 @@
-﻿using EFT;
-using SAIN.Components;
-using SAIN.Components.PlayerComponentSpace;
-using SAIN.Helpers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
     public class EnemyPartsClass : EnemyBase
     {
-        public bool LineOfSight { get; private set; }
-        public bool CanShoot { get; private set; }
-        public bool IsVisible { get; private set; }
+        public bool LineOfSight {
+            get
+            {
+                foreach (var part in PartsArray) {
+                    if (part.LineOfSight) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        public bool CanShoot {
+            get
+            {
+                foreach (var part in PartsArray) {
+                    if (part.CanShoot) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        public bool IsVisible {
+            get
+            {
+                if (!Enemy.Vision.Angles.CanBeSeen) {
+                    return false;
+                }
+                foreach (var part in PartsArray) {
+                    if (part.IsVisible) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
         public Dictionary<EBodyPart, EnemyBodyPart> Parts { get; } = new Dictionary<EBodyPart, EnemyBodyPart>();
         public EnemyBodyPart[] PartsArray { get; }
 
@@ -29,21 +60,23 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
         private void updateStatus()
         {
-            LineOfSight = false;
-            CanShoot = false;
-            IsVisible = false;
+            //LineOfSight = false;
+            //CanShoot = false;
+            //IsVisible = false;
             bool canBeSeen = Enemy.Vision.Angles.CanBeSeen;
-            foreach (var part in Parts.Values) {
-                PartRaycastResultData results = part.UpdateProperties(canBeSeen);
-                if (!LineOfSight) {
-                    LineOfSight = results.LineOfSight.InSight;
-                }
-                if (!CanShoot) {
-                    CanShoot = results.CanShoot.InSight;
-                }
-                if (!IsVisible) {
-                    IsVisible = results.IsVisible.InSight;
-                }
+            foreach (var part in PartsArray) {
+                part.UpdateProperties(canBeSeen);
+                //if (!Enemy.IsAI && part.LineOfSight)
+                //    Logger.LogDebug($"{part.LineOfSight} : {canBeSeen}");
+                //if (!LineOfSight && part.LineOfSight) {
+                //    //LineOfSight = true;
+                //}
+                //if (!CanShoot && part.CanShoot) {
+                //    CanShoot = true;
+                //}
+                //if (!IsVisible && part.IsVisible) {
+                //    IsVisible = true;
+                //}
             }
         }
 

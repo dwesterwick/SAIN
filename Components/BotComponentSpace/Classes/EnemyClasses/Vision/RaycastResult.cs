@@ -22,21 +22,14 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
     {
         public float LastCheckTime;
         public float LastSuccessTime;
-        public bool InSight { get; private set; }
-        public bool CheckedRecently { get; private set; }
-        public float TimeSinceCheck { get; private set; }
-        public float TimeSinceSuccess { get; private set; }
 
-        private readonly float SIGHT_PERIOD_SEC = 0.25f;
+        public bool InSight => TimeSinceSuccess <= SIGHT_PERIOD_SEC;
+        public bool CheckedRecently => TimeSinceCheck <= CHECKED_PERIOD_SEC;
+        public float TimeSinceCheck => Time.time - LastCheckTime;
+        public float TimeSinceSuccess => Time.time - LastSuccessTime;
+
+        private readonly float SIGHT_PERIOD_SEC = 0.5f;
         private readonly float CHECKED_PERIOD_SEC = 2f;
-
-        public void UpdateTimeSince()
-        {
-            TimeSinceCheck = Time.time - LastCheckTime;
-            TimeSinceSuccess = Time.time - LastSuccessTime;
-            InSight = TimeSinceSuccess <= SIGHT_PERIOD_SEC;
-            CheckedRecently = TimeSinceCheck <= CHECKED_PERIOD_SEC;
-        }
 
         public RaycastResultData(float sightPeriodSec)
         {
@@ -46,8 +39,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
     public class RaycastResult
     {
-        public RaycastResultData ResultData { get; private set; }
-        public RaycastResultPointData PointData { get; private set; }
+        public RaycastResultData ResultData { get; }
+        public RaycastResultPointData PointData { get; }
+
+        public int BodyPartIndex;
+        private float _nextLogTime;
 
         public RaycastResult(float sightPeriodSec)
         {
@@ -55,23 +51,13 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             PointData = new RaycastResultPointData();
         }
 
-        public RaycastResultData Update()
-        {
-            return updateProperties();
-        }
-
-        private RaycastResultData updateProperties()
-        {
-            ResultData.UpdateTimeSince();
-            return ResultData;
-        }
-
         public void UpdateRaycastHit(Vector3 castPoint, BodyPartCollider bodyPartCollider, RaycastHit raycastHit, float time)
         {
             var pointData = PointData;
             ResultData.LastCheckTime = time;
             pointData.LastRaycastHit = raycastHit;
-            if (raycastHit.collider == null) {
+            bool lineOfSight = raycastHit.collider == null;
+            if (lineOfSight) {
                 pointData.LastSuccessBodyPart = bodyPartCollider;
                 pointData.LastSuccessPoint = castPoint;
                 pointData.LastSuccessOffset = castPoint - bodyPartCollider.transform.position;
@@ -79,9 +65,11 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             }
             else {
                 pointData.LastSuccessBodyPart = null;
-                pointData.LastSuccessPoint = null;
             }
-            updateProperties();
+            if (_nextLogTime < time) {
+                _nextLogTime = time + 1f;
+                Logger.LogDebug($"LOS? [{lineOfSight}] : Last Success [{ResultData.LastSuccessTime}] TimeSince: [{Time.time - ResultData.LastSuccessTime}]");
+            }
         }
     }
 }

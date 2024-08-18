@@ -22,6 +22,11 @@ namespace SAIN.Components
             PlayerDistancesJob = new PlayerDistancesJob(BotController);
         }
 
+        public void Init()
+        {
+            RaycastJobs.Init();
+        }
+
         public void Update()
         {
             var bots = Bots;

@@ -49,7 +49,7 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
                 _distanceJob.Create(directions);
 
                 // schedule job and wait for next frame to read data
-                _distanceJobHandle = _distanceJob.Schedule(total, new JobHandle());
+                _distanceJobHandle = _distanceJob.ScheduleParallel(total, 8, new JobHandle());
                 yield return null;
                 _distanceJobHandle.Complete();
                 readData(_players, _distanceJob);
@@ -67,7 +67,7 @@ namespace SAIN.Components.BotControllerSpace.Classes.Raycasts
                 _partDistanceJob.Create(partDirections);
 
                 // schedule job and wait for next frame to read data
-                _partDistanceJobHandle = _partDistanceJob.Schedule(partDirTotal, new JobHandle());
+                _partDistanceJobHandle = _partDistanceJob.ScheduleParallel(partDirTotal, 24, new JobHandle());
                 yield return null;
                 _partDistanceJobHandle.Complete();
                 readData(_players, _partDistanceJob);

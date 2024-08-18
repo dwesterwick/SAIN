@@ -105,6 +105,7 @@ namespace SAIN.Components
         private void Start()
         {
             PeacefulActions.Init();
+            BotJobs.Init();
         }
 
         private void Update()

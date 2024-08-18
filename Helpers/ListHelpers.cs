@@ -1,9 +1,6 @@
-﻿using Audio.Data;
-using EFT;
+﻿using EFT;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using static UnityEngine.UI.Image;
 
 namespace SAIN.Helpers
 {
@@ -47,7 +44,7 @@ namespace SAIN.Helpers
                 else {
                     trim(list, addOrSubtract);
                 }
-                Logger.LogDebug($"[{Cache.Count}] items in cache [{Name}]");
+                //Logger.LogDebug($"[{Cache.Count}] items in cache [{Name}]");
             }
         }
 
@@ -59,7 +56,7 @@ namespace SAIN.Helpers
             }
             Cache.AddRange(list);
             list.Clear();
-            Logger.LogDebug($"returned [{count}] items in cache [{Name}] cacheCount: [{Cache.Count}]");
+            //Logger.LogDebug($"returned [{count}] items in cache [{Name}] cacheCount: [{Cache.Count}]");
         }
 
         private void trim(List<T> list, int trimAmount)
@@ -81,8 +78,8 @@ namespace SAIN.Helpers
                     break;
                 }
             }
-            Logger.LogDebug($"trimmed list of [{trimAmount}] items. old total: [{listCount}] new total: [{list.Count}]",
-                "trim(List<T> list, int countToRemove)");
+            //Logger.LogDebug($"trimmed list of [{trimAmount}] items. old total: [{listCount}] new total: [{list.Count}]",
+            //    "trim(List<T> list, int countToRemove)");
         }
 
         private void fill(List<T> list, int countToAdd)
@@ -116,8 +113,8 @@ namespace SAIN.Helpers
             for (int i = 0; i < countToAdd; i++) {
                 Cache.Add((T)Activator.CreateInstance(typeof(T)));
             }
-            Logger.LogDebug($"filled cache with [{countToAdd}] items. old total: [{cacheCount}] new total: [{Cache.Count}]",
-                "fillCache(int countToAdd)");
+            //Logger.LogDebug($"filled cache with [{countToAdd}] items. old total: [{cacheCount}] new total: [{Cache.Count}]",
+            //    "fillCache(int countToAdd)");
         }
     }
 

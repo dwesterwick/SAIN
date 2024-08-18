@@ -79,30 +79,5 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 idList.Clear();
             }
         }
-
-        private void removeInvalid()
-        {
-            if (_invalidIdsToRemove.Count > 0) {
-                foreach (var id in _invalidIdsToRemove) {
-                    Bot.EnemyController.RemoveEnemy(id);
-                }
-                Logger.LogWarning($"Removed {_invalidIdsToRemove.Count} Invalid Enemies");
-                _invalidIdsToRemove.Clear();
-            }
-        }
-
-        private void removeAllies()
-        {
-            if (_allyIdsToRemove.Count > 0) {
-                foreach (var id in _allyIdsToRemove) {
-                    Bot.EnemyController.RemoveEnemy(id);
-                }
-
-                if (SAINPlugin.DebugMode)
-                    Logger.LogWarning($"Removed {_allyIdsToRemove.Count} allies");
-
-                _allyIdsToRemove.Clear();
-            }
-        }
     }
 }
