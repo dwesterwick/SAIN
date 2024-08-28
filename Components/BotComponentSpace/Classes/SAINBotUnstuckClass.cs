@@ -273,7 +273,9 @@ namespace SAIN.SAINComponent.Classes.Debug
 
         public void Update()
         {
-            if (!DontUnstuckMe && !Bot.BotActivation.BotInStandBy) {
+            if (Bot.BotActive &&
+                !DontUnstuckMe &&
+                !Bot.BotActivation.BotInStandBy) {
                 startCoroutine();
             }
             else if (botUnstuckCoroutine != null) {

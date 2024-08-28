@@ -524,20 +524,27 @@ namespace SAIN.SAINComponent.Classes.Mover
         private float steer(Vector3 target, float turnSpeed)
         {
             Vector3 playerPosition = Bot.Position;
-            Vector3 currentLookDirNormal = Bot.Person.Transform.LookDirection.normalized;
+            Vector3 currentLookDirNormal = Bot.LookDirection;
             target += Vector3.up;
-            Vector3 targetLookDir = (target - playerPosition);
-            Vector3 targetLookDirNormal = targetLookDir.normalized;
+            Vector3 targetLookDirNormal = (target - playerPosition).normalized;
+            float dotProduct = Vector3.Dot(targetLookDirNormal, currentLookDirNormal);
 
-            if (!Bot.DoorOpener.Interacting) {
-                if (shallLookAtEnemy()) {
-                    Bot.Steering.LookToEnemy(Bot.Enemy);
+            if (Bot.DoorOpener.Interacting) {
+                return dotProduct;
+            }
+            if (shallLookAtEnemy()) {
+                Bot.Steering.LookToEnemy(Bot.Enemy);
+                return dotProduct;
+            }
+            if (shallSteerbyPriority()) {
+                if (Bot.Steering.SteerByPriority(null, false, true)) {
+                    return dotProduct;
                 }
-                else if (!shallSteerbyPriority() || !Bot.Steering.SteerByPriority(null, false, true)) {
-                    Bot.Steering.LookToDirection(targetLookDirNormal, true, turnSpeed);
+                else if (Bot.Steering.LookToLastKnownEnemyPosition(Bot.Enemy)) {
+                    return dotProduct;
                 }
             }
-            float dotProduct = Vector3.Dot(targetLookDirNormal, currentLookDirNormal);
+            Bot.Steering.LookToDirection(targetLookDirNormal, true, turnSpeed);
             return dotProduct;
         }
 

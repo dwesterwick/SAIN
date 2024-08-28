@@ -43,9 +43,9 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 }
             }
 
-            RaycastResults.Add(ERaycastCheck.LineofSight, new RaycastResult(0.5f));
-            RaycastResults.Add(ERaycastCheck.Shoot, new RaycastResult(0.5f));
-            RaycastResults.Add(ERaycastCheck.Vision, new RaycastResult(0.5f));
+            RaycastResults.Add(ERaycastCheck.LineofSight, new RaycastResult(0.25f));
+            RaycastResults.Add(ERaycastCheck.Shoot, new RaycastResult(0.25f));
+            RaycastResults.Add(ERaycastCheck.Vision, new RaycastResult(0.25f));
         }
 
         public void SetLineOfSight(Vector3 castPoint, EBodyPartColliderType colliderType, RaycastHit raycastHit, ERaycastCheck type, float time)
@@ -57,9 +57,6 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             if (!RaycastResults.TryGetValue(type, out RaycastResult raycastResult)) {
                 Logger.LogError($"[{type}] not in Raycast Results Dictionary!");
                 return;
-            }
-            if (type == ERaycastCheck.LineofSight && raycastHit.collider == null) {
-                Logger.LogDebug($"SetLineOfSight hit collider null");
             }
             raycastResult.UpdateRaycastHit(castPoint, bodyPartCollider, raycastHit, time);
         }

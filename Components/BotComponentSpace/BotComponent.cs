@@ -15,6 +15,7 @@ using SAIN.SAINComponent.Classes.Search;
 using SAIN.SAINComponent.Classes.Talk;
 using SAIN.SAINComponent.Classes.WeaponFunction;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -145,6 +146,14 @@ namespace SAIN.SAINComponent
             Shoot.Update();
 
             handleDumbShit();
+        }
+
+        public Coroutine StartCoroutineIfActive(IEnumerator enumerator)
+        {
+            if (!BotActive || GameEnding) {
+                return null;
+            }
+            return StartCoroutine(enumerator);
         }
 
         public bool InitializeBot(PersonClass person)

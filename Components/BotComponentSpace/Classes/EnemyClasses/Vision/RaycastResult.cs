@@ -3,13 +3,6 @@ using UnityEngine.UI;
 
 namespace SAIN.SAINComponent.Classes.EnemyClasses
 {
-    public struct PartRaycastResultData
-    {
-        public RaycastResultData LineOfSight;
-        public RaycastResultData CanShoot;
-        public RaycastResultData IsVisible;
-    }
-
     public class RaycastResultPointData
     {
         public RaycastHit LastRaycastHit;
@@ -43,7 +36,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public RaycastResultPointData PointData { get; }
 
         public int BodyPartIndex;
-        private float _nextLogTime;
+        //private float _nextLogTime;
 
         public RaycastResult(float sightPeriodSec)
         {
@@ -66,10 +59,10 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             else {
                 pointData.LastSuccessBodyPart = null;
             }
-            if (_nextLogTime < time) {
-                _nextLogTime = time + 1f;
-                Logger.LogDebug($"LOS? [{lineOfSight}] : Last Success [{ResultData.LastSuccessTime}] TimeSince: [{Time.time - ResultData.LastSuccessTime}]");
-            }
+            //if (_nextLogTime < time) {
+            //    _nextLogTime = time + 1f;
+            //    Logger.LogDebug($"LOS? [{lineOfSight}] : Last Success [{ResultData.LastSuccessTime}] TimeSince: [{Time.time - ResultData.LastSuccessTime}]");
+            //}
         }
     }
 }

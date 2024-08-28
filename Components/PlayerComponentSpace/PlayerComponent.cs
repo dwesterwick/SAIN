@@ -414,19 +414,25 @@ namespace SAIN.Components.PlayerComponentSpace
                 Illumination = new PlayerIlluminationClass(this);
                 DoorFinder = new DoorFinder2(this);
 
-                DoorFinder.Init();
-                Illumination.Init();
-                OtherPlayersData.Init();
-
                 Person.ActivationClass.OnPlayerActiveChanged += handleCoroutines;
                 handleCoroutines(true);
             }
             catch (Exception ex) {
-                Logger.LogError(ex);
+                Logger.LogError($"Error Creating Player Comp Classes: {ex}");
+                return false;
+            }
+
+            try {
+                DoorFinder.Init();
+                Illumination.Init();
+                OtherPlayersData.Init();
+                Equipment.Init();
+            }
+            catch (Exception ex) {
+                Logger.LogError($"Error Initializing Player Comp Classes: {ex}");
                 return false;
             }
             //Logger.LogDebug($"{Person.Nickname} Player Component Created");
-            StartCoroutine(delayInit());
             return true;
         }
 

@@ -115,7 +115,7 @@ namespace SAIN.Components
                     commands++;
                 }
             }
-            Logger.LogDebug($"Scheduled [{enemyCount * partCount * 3}] raycasts");
+            //Logger.LogDebug($"Scheduled [{enemyCount * partCount * 3}] raycasts");
         }
 
         private RaycastCommand createCommand(BodyPartRaycast bodyPartRaycast, float partDistance, Vector3 origin, LayerMask mask)
