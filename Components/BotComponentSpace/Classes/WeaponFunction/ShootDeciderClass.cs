@@ -1,6 +1,5 @@
 ﻿using EFT;
 using EFT.InventoryLogic;
-using SAIN.Layers;
 using SAIN.Preset.GlobalSettings;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using SAIN.SAINComponent.Classes.Info;
@@ -318,18 +317,10 @@ namespace SAIN.SAINComponent.Classes
             if (enemy != null &&
                 enemy.IsVisible &&
                 enemy.CanShoot) {
-                Vector3? finalTarget;
-                //if (GlobalSettingsClass.Instance.Aiming.AimCenterMassGlobal) {
-                if (false) {
-                    Vector3? centerMass = findCenterMassPoint(enemy);
-                    Vector3? partToShoot = getSAINEnemyPartToShoot(enemy) ?? getEFTEnemyPartToShoot(enemy.EnemyInfo);
-                    Vector3? modifiedTarget = checkYValue(centerMass, partToShoot);
-                    finalTarget = modifiedTarget ?? partToShoot ?? centerMass;
-                }
-                else {
-                    finalTarget = getSAINEnemyPartToShoot(enemy) ?? getEFTEnemyPartToShoot(enemy.EnemyInfo);
-                }
-                return finalTarget;
+                Vector3? centerMass = findCenterMassPoint(enemy);
+                Vector3? partToShoot = getSAINEnemyPartToShoot(enemy) ?? getEFTEnemyPartToShoot(enemy.EnemyInfo);
+                Vector3? modifiedTarget = checkYValue(centerMass, partToShoot);
+                return modifiedTarget ?? partToShoot ?? centerMass;
             }
             return null;
         }

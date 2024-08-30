@@ -21,7 +21,6 @@ namespace SAIN.Components.PlayerComponentSpace.Classes.Equipment
         {
             getAllWeapons();
             updateAllWeapons();
-            ReCalcPowerOfEquipment();
         }
 
         public void Dispose()
@@ -40,8 +39,13 @@ namespace SAIN.Components.PlayerComponentSpace.Classes.Equipment
             if (SAINPlugin.LoadedPreset.GlobalSettings.PowerCalc.CalcPower(PlayerComponent, out float power) &&
                 oldPower != power) {
                 OnPowerRecalced?.Invoke(power);
+                if (!_powerRecalcd) {
+                    _powerRecalcd = true;
+                }
             }
         }
+
+        private bool _powerRecalcd;
 
         public Action<float> OnPowerRecalced { get; set; }
 
@@ -67,6 +71,9 @@ namespace SAIN.Components.PlayerComponentSpace.Classes.Equipment
             CurrentWeapon = getCurrentWeapon();
             GearInfo.Update();
             updateAllWeapons();
+            if (!_powerRecalcd && Player != null && Player.AIData != null) {
+                ReCalcPowerOfEquipment();
+            }
         }
 
         private void getAllWeapons()

@@ -159,7 +159,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
             activeEnemy = BaseClass.CheckAddEnemy(goalEnemy?.Person);
 
             if (activeEnemy == null) {
-                Logger.LogError($"{goalEnemy?.Person?.ProfileId} not SAIN enemy!");
+                //Logger.LogError($"{goalEnemy?.Person?.ProfileId} not SAIN enemy!");
                 return;
             }
 

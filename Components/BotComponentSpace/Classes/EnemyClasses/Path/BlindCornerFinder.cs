@@ -222,7 +222,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
 
                 _raycasts.ScheduleRaycastToPoints(_raycastPoints, Bot.Transform.EyePosition);
 
-                yield return new WaitForEndOfFrame();
+                yield return null;
                 while (_raycasts.Status != EJobStatus.Complete) {
                     if (startTime < Time.time) {
                         Logger.LogError($"Raycast Job is taking too long!");
@@ -261,7 +261,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
                 BiDirData dirData = new BiDirData(blindCornerDir, enemyPosDir);
                 _blindCorner.UpdateData(blindCorner.Value, dirData.SignedAngle, blindCornerIndex);
                 Enemy.Path.EnemyCorners.AddOrReplace(ECornerType.Blind, _blindCorner);
-                DebugGizmos.Line(blindCorner.Value, eyePos, Color.cyan, 0.1f, true, 1f);
+                //DebugGizmos.Line(blindCorner.Value, eyePos, Color.cyan, 0.1f, true, 1f);
             }
         }
 

@@ -84,7 +84,7 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         {
             switch (value) {
                 case true:
-                    if (_calcPathCoroutine == null) {
+                    if (_calcPathCoroutine == null && Bot.BotActive) {
                         _calcPathCoroutine = Bot.StartCoroutine(calcPathLoop());
                     }
                     break;
@@ -113,7 +113,8 @@ namespace SAIN.SAINComponent.Classes.EnemyClasses
         public void Update()
         {
             if (_calcPathCoroutine == null &&
-                Enemy.EnemyKnown) {
+                Enemy.EnemyKnown &&
+                Bot.BotActive) {
                 Logger.LogWarning($"Enemy Known but coroutine was not started!");
                 toggleCoroutine(true);
             }

@@ -1,6 +1,5 @@
 ﻿using SAIN.SAINComponent.Classes.EnemyClasses;
 using System;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace SAIN.SAINComponent.Classes.Search
 {
