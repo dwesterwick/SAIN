@@ -150,6 +150,8 @@ namespace SAIN.Plugin
             LoadedPreset?.GlobalSettings.Update();
             LoadedPreset?.PersonalityManager.Update();
             LoadedPreset?.BotSettings.Update();
+
+            BigBrainHandler.BrainAssignment.ToggleVanillaLayersForAllBotBrains();
         }
 
         private static bool CheckIfPresetLoaded(string presetName, out SAINPresetDefinition definition)

@@ -27,7 +27,7 @@
         public const string WaypointsVersion = "1.5.0";
 
         public const string BigBrainGUID = "xyz.drakia.bigbrain";
-        public const string BigBrainVersion = "1.0.0";
+        public const string BigBrainVersion = "1.1.0";
 
         public const string LootingBotsKey = "me.skwizzy.lootingbots";
         public const string RealismModKey = "RealismMod";

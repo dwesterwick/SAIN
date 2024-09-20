@@ -29,29 +29,35 @@ namespace SAIN
         {
             public static void Init()
             {
-                handlePMCandRaiders();
-                handleScavs();
-                handleRogues();
-                handleBloodHounds();
-                handleBosses();
-                handleFollowers();
-                handleGoons();
-                handleOthers();
+                addCustomLayersToPMCsAndRaiders();
+                addCustomLayersToScavs();
+                addCustomLayersToRogues();
+                addCustomLayersToBloodHounds();
+                addCustomLayersToBosses();
+                addCustomLayersToFollowers();
+                addCustomLayersToGoons();
+                addCustomLayersToOthers();
+
+                ToggleVanillaLayersForPMCsAndRaiders(false);
+                ToggleVanillaLayersForOthers(false);
+                ToggleVanillaLayersForAllBotBrains();
             }
 
-            private static void handlePMCandRaiders()
+            public static void ToggleVanillaLayersForAllBotBrains()
             {
-                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
-                List<string> pmcBrain = new List<string>();
-                pmcBrain.Add(Brain.PMC.ToString());
+                ToggleVanillaLayersForScavs(SAINEnabled.VanillaScavs);
+                ToggleVanillaLayersForRogues(SAINEnabled.VanillaRogues);
+                ToggleVanillaLayersForBloodHounds(SAINEnabled.VanillaBloodHounds);
+                ToggleVanillaLayersForBosses(SAINEnabled.VanillaBosses);
+                ToggleVanillaLayersForFollowers(SAINEnabled.VanillaFollowers);
+                ToggleVanillaLayersForGoons(SAINEnabled.VanillaGoons);
+            }
 
-                BrainManager.AddCustomLayer(typeof(DebugLayer), pmcBrain, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), pmcBrain, 80);
-                BrainManager.AddCustomLayer(typeof(ExtractLayer), pmcBrain, settings.SAINExtractLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), pmcBrain, settings.SAINCombatSquadLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), pmcBrain, settings.SAINCombatSoloLayerPriority); 
+            public static void ToggleVanillaLayersForPMCsAndRaiders(bool enabled)
+            {
+                List<string> brainList = new List<string>() { Brain.PMC.ToString() };
 
-                List<string> LayersToRemove = new List<string>
+                List<string> LayersToToggle = new List<string>
                 {
                     "Help",
                     "AdvAssaultTarget",
@@ -67,27 +73,22 @@ namespace SAIN
                     "KnightFight",
                     "PtrlBirdEye"
                 };
-                BrainManager.RemoveLayers(LayersToRemove, pmcBrain);
+
+                if (enabled)
+                {
+                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                }
+                else
+                {
+                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                }
             }
 
-            private static void handleScavs()
+            public static void ToggleVanillaLayersForScavs(bool enabled)
             {
-                if (SAINEnabled.VanillaScavs)
-                {
-                    return;
-                }
-
                 List<string> brainList = getBrainList(AIBrains.Scavs);
-                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
 
-                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
-                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
-                BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
-
-                List<string> LayersToRemove = new List<string>
+                List<string> LayersToToggle = new List<string>
                 {
                     "Help",
                     "AdvAssaultTarget",
@@ -100,22 +101,22 @@ namespace SAIN
                     "Assault Building",
                     "Enemy Building",
                 };
-                BrainManager.RemoveLayers(LayersToRemove, brainList);
+
+                if (enabled)
+                {
+                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                }
+                else
+                {
+                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                }
             }
 
-            private static void handleOthers()
+            public static void ToggleVanillaLayersForOthers(bool enabled)
             {
                 List<string> brainList = getBrainList(AIBrains.Others);
 
-                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
-                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
-                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
-                BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
-
-                List<string> LayersToRemove = new List<string>
+                List<string> LayersToToggle = new List<string>
                 {
                     "Help",
                     "AdvAssaultTarget",
@@ -131,28 +132,22 @@ namespace SAIN
                     "KnightFight",
                     "PtrlBirdEye"
                 };
-                BrainManager.RemoveLayers(LayersToRemove, brainList);
+
+                if (enabled)
+                {
+                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                }
+                else
+                {
+                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                }
             }
 
-            private static void handleRogues()
+            public static void ToggleVanillaLayersForRogues(bool enabled)
             {
-                if (SAINEnabled.VanillaRogues)
-                {
-                    return;
-                }
+                List<string> brainList = new List<string>() { Brain.ExUsec.ToString() };
 
-                List<string> brainList = new List<string>();
-                brainList.Add(Brain.ExUsec.ToString());
-
-                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
-                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
-                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
-                BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
-
-                List<string> LayersToRemove = new List<string>
+                List<string> LayersToToggle = new List<string>
                 {
                     "Help",
                     "AdvAssaultTarget",
@@ -168,28 +163,22 @@ namespace SAIN
                     "KnightFight",
                     "PtrlBirdEye"
                 };
-                BrainManager.RemoveLayers(LayersToRemove, brainList);
+
+                if (enabled)
+                {
+                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                }
+                else
+                {
+                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                }
             }
 
-            private static void handleBloodHounds()
+            public static void ToggleVanillaLayersForBloodHounds(bool enabled)
             {
-                if (SAINEnabled.VanillaBloodHounds)
-                {
-                    return;
-                }
+                List<string> brainList = new List<string>() { Brain.ArenaFighter.ToString() };
 
-                List<string> brainList = new List<string>();
-                brainList.Add(Brain.ArenaFighter.ToString());
-
-                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
-                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
-                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
-                BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
-
-                List<string> LayersToRemove = new List<string>
+                List<string> LayersToToggle = new List<string>
                 {
                     "Help",
                     "AdvAssaultTarget",
@@ -204,26 +193,22 @@ namespace SAIN
                     "Enemy Building",
                     "KnightFight",
                 };
-                BrainManager.RemoveLayers(LayersToRemove, brainList);
+
+                if (enabled)
+                {
+                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                }
+                else
+                {
+                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                }
             }
 
-            private static void handleBosses()
+            public static void ToggleVanillaLayersForBosses(bool enabled)
             {
-                if (SAINEnabled.VanillaBosses)
-                {
-                    return;
-                }
-
                 List<string> brainList = getBrainList(AIBrains.Bosses);
 
-                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General;
-                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
-                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, 70);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, 69);
-
-                List<string> LayersToRemove = new List<string>
+                List<string> LayersToToggle = new List<string>
                 {
                     "Help",
                     "AdvAssaultTarget",
@@ -237,26 +222,22 @@ namespace SAIN
                     "BirdEyeFight",
                     "BossBoarFight"
                 };
-                BrainManager.RemoveLayers(LayersToRemove, brainList);
+
+                if (enabled)
+                {
+                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                }
+                else
+                {
+                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                }
             }
 
-            private static void handleFollowers()
+            public static void ToggleVanillaLayersForFollowers(bool enabled)
             {
-                if (SAINEnabled.VanillaFollowers)
-                {
-                    return;
-                }
-
                 List<string> brainList = getBrainList(AIBrains.Followers);
 
-                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General;
-                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
-                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, 70);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, 69);
-
-                List<string> LayersToRemove = new List<string>
+                List<string> LayersToToggle = new List<string>
                 {
                     "Help",
                     "AdvAssaultTarget",
@@ -269,24 +250,22 @@ namespace SAIN
                     "KnightFight",
                     "BoarGrenadeDanger"
                 };
-                BrainManager.RemoveLayers(LayersToRemove, brainList);
+
+                if (enabled)
+                {
+                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                }
+                else
+                {
+                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                }
             }
 
-            private static void handleGoons()
+            public static void ToggleVanillaLayersForGoons(bool enabled)
             {
-                if (SAINEnabled.VanillaGoons)
-                {
-                    return;
-                }
-
                 List<string> brainList = getBrainList(AIBrains.Goons);
 
-                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, 64);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, 62); 
-
-                List<string> LayersToRemove = new List<string>
+                List<string> LayersToToggle = new List<string>
                 {
                     "Help",
                     "AdvAssaultTarget",
@@ -302,7 +281,131 @@ namespace SAIN
                     "BirdEyeFight",
                     "Kill logic"
                 };
-                BrainManager.RemoveLayers(LayersToRemove, brainList);
+
+                if (enabled)
+                {
+                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                }
+                else
+                {
+                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                }
+            }
+
+            private static void addCustomLayersToPMCsAndRaiders()
+            {
+                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
+                List<string> pmcBrain = new List<string>();
+                pmcBrain.Add(Brain.PMC.ToString());
+
+                BrainManager.AddCustomLayer(typeof(DebugLayer), pmcBrain, 99);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), pmcBrain, 80);
+                BrainManager.AddCustomLayer(typeof(ExtractLayer), pmcBrain, settings.SAINExtractLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), pmcBrain, settings.SAINCombatSquadLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), pmcBrain, settings.SAINCombatSoloLayerPriority);
+            }
+
+            private static void addCustomLayersToScavs()
+            {
+                List<string> brainList = getBrainList(AIBrains.Scavs);
+                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
+
+                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
+                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
+                BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
+            }
+
+            private static void addCustomLayersToOthers()
+            {
+                List<string> brainList = getBrainList(AIBrains.Others);
+
+                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
+                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
+                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
+                BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
+            }
+
+            private static void addCustomLayersToRogues()
+            {
+                List<string> brainList = new List<string>();
+                brainList.Add(Brain.ExUsec.ToString());
+
+                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
+                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
+                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
+                BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
+            }
+
+            private static void addCustomLayersToBloodHounds()
+            {
+                List<string> brainList = new List<string>();
+                brainList.Add(Brain.ArenaFighter.ToString());
+
+                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
+                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
+                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
+                BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
+            }
+
+            private static void addCustomLayersToBosses()
+            {
+                if (SAINEnabled.VanillaBosses)
+                {
+                    return;
+                }
+
+                List<string> brainList = getBrainList(AIBrains.Bosses);
+
+                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General;
+                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
+                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, 70);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, 69);
+            }
+
+            private static void addCustomLayersToFollowers()
+            {
+                if (SAINEnabled.VanillaFollowers)
+                {
+                    return;
+                }
+
+                List<string> brainList = getBrainList(AIBrains.Followers);
+
+                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General;
+                //BrainManager.AddCustomLayer(typeof(BotUnstuckLayer), stringList, 98);
+                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, 70);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, 69);
+            }
+
+            private static void addCustomLayersToGoons()
+            {
+                if (SAINEnabled.VanillaGoons)
+                {
+                    return;
+                }
+
+                List<string> brainList = getBrainList(AIBrains.Goons);
+
+                BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), brainList, 80);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, 64);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, 62);
             }
 
             private static List<string> getBrainList(List<Brain> brains)
