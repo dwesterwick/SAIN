@@ -38,7 +38,8 @@ namespace SAIN
                 addCustomLayersToGoons();
                 addCustomLayersToOthers();
 
-                ToggleVanillaLayersForPMCsAndRaiders(false);
+                ToggleVanillaLayersForPMCBrains(new List<WildSpawnType>() { WildSpawnType.pmcBot }, false);
+                ToggleVanillaLayersForPMCBrains(new List<WildSpawnType>() { WildSpawnType.pmcBEAR, WildSpawnType.pmcUSEC }, false);
                 ToggleVanillaLayersForOthers(false);
                 ToggleVanillaLayersForAllBotBrains();
             }
@@ -53,7 +54,7 @@ namespace SAIN
                 ToggleVanillaLayersForGoons(SAINEnabled.VanillaGoons);
             }
 
-            public static void ToggleVanillaLayersForPMCsAndRaiders(bool enabled)
+            public static void ToggleVanillaLayersForPMCBrains(List<WildSpawnType> roles, bool enabled)
             {
                 List<string> brainList = new List<string>() { Brain.PMC.ToString() };
 
@@ -76,11 +77,11 @@ namespace SAIN
 
                 if (enabled)
                 {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                    BrainManager.RestoreLayers(LayersToToggle, brainList, roles);
                 }
                 else
                 {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                    BrainManager.RemoveLayers(LayersToToggle, brainList, roles);
                 }
             }
 
@@ -110,6 +111,8 @@ namespace SAIN
                 {
                     BrainManager.RemoveLayers(LayersToToggle, brainList);
                 }
+
+                ToggleVanillaLayersForPMCBrains(new List<WildSpawnType>() { WildSpawnType.assaultGroup }, enabled);
             }
 
             public static void ToggleVanillaLayersForOthers(bool enabled)
@@ -294,15 +297,20 @@ namespace SAIN
 
             private static void addCustomLayersToPMCsAndRaiders()
             {
-                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
-                List<string> pmcBrain = new List<string>();
-                pmcBrain.Add(Brain.PMC.ToString());
+                addCustomLayersToPMCBrains(new List<WildSpawnType>() { WildSpawnType.pmcBot });
+                addCustomLayersToPMCBrains(new List<WildSpawnType>() { WildSpawnType.pmcBEAR, WildSpawnType.pmcUSEC });
+            }
 
-                BrainManager.AddCustomLayer(typeof(DebugLayer), pmcBrain, 99);
-                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), pmcBrain, 80);
-                BrainManager.AddCustomLayer(typeof(ExtractLayer), pmcBrain, settings.SAINExtractLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), pmcBrain, settings.SAINCombatSquadLayerPriority);
-                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), pmcBrain, settings.SAINCombatSoloLayerPriority);
+            private static void addCustomLayersToPMCBrains(List<WildSpawnType> roles)
+            {
+                var settings = SAINPlugin.LoadedPreset.GlobalSettings.General.Layers;
+                List<string> pmcBrain = new List<string>() { Brain.PMC.ToString() };
+
+                BrainManager.AddCustomLayer(typeof(DebugLayer), pmcBrain, 99, roles);
+                BrainManager.AddCustomLayer(typeof(SAINAvoidThreatLayer), pmcBrain, 80, roles);
+                BrainManager.AddCustomLayer(typeof(ExtractLayer), pmcBrain, settings.SAINExtractLayerPriority, roles);
+                BrainManager.AddCustomLayer(typeof(CombatSquadLayer), pmcBrain, settings.SAINCombatSquadLayerPriority, roles);
+                BrainManager.AddCustomLayer(typeof(CombatSoloLayer), pmcBrain, settings.SAINCombatSoloLayerPriority, roles);
             }
 
             private static void addCustomLayersToScavs()
@@ -316,6 +324,8 @@ namespace SAIN
                 BrainManager.AddCustomLayer(typeof(ExtractLayer), brainList, settings.SAINExtractLayerPriority);
                 BrainManager.AddCustomLayer(typeof(CombatSquadLayer), brainList, settings.SAINCombatSquadLayerPriority);
                 BrainManager.AddCustomLayer(typeof(CombatSoloLayer), brainList, settings.SAINCombatSoloLayerPriority);
+
+                addCustomLayersToPMCBrains(new List<WildSpawnType>() { WildSpawnType.assaultGroup });
             }
 
             private static void addCustomLayersToOthers()
