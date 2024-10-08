@@ -21,7 +21,12 @@ namespace SAIN.Layers
 
         public override bool IsActive()
         {
-            bool active = Bot != null && allowedToExtract() && hasExtractReason() && hasExtractLocation();
+            bool active = Bot != null
+                && !SAINEnableClass.IsSAINDisabledForBot(Bot.BotOwner)
+                && allowedToExtract()
+                && hasExtractReason()
+                && hasExtractLocation();
+            
             setLayer(active);
             return active;
         }

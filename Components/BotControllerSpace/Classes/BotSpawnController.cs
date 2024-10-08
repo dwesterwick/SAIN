@@ -79,7 +79,9 @@ namespace SAIN.Components.BotController
                 checkExisting(botOwner);
 
                 //Logger.LogDebug($"Checking if {botOwner.name} excluded...");
-                if (SAINPlugin.IsBotExluded(botOwner)) {
+                //if (SAINPlugin.IsBotExluded(botOwner)) {
+                if (!SAINEnableClass.ShouldAddSAINComponent(botOwner))
+                {
                     //Logger.LogDebug($"{botOwner.name} is excluded");
                     botOwner.gameObject.AddComponent<SAINNoBushESP>().Init(botOwner);
                     yield break;

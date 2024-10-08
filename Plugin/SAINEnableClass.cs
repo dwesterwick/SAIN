@@ -34,6 +34,17 @@ namespace SAIN
             return shallExclude(botOwner);
         }
 
+        public static bool? RefreshSAINDisabledForBot(BotOwner botOwner)
+        {
+            if (!_excludedBots.Contains(botOwner.name) && !_enabledBots.Contains(botOwner.name))
+            {
+                return null;
+            }
+
+            clearBot(botOwner);
+            return IsSAINDisabledForBot(botOwner);
+        }
+
         private static bool shallExclude(BotOwner botOwner)
         {
             bool exluded = isBotExcluded(botOwner);
@@ -85,7 +96,7 @@ namespace SAIN
                 return true;
             }
             WildSpawnType wildSpawnType = settings.Role;
-            if (BotSpawnController.StrictExclusionList.Contains(wildSpawnType))
+            if (!ShouldAddSAINComponent(wildSpawnType))
             {
                 return true;
             }
@@ -95,6 +106,18 @@ namespace SAIN
             }
 
             return ShallExludeByWildSpawnType(wildSpawnType, botOwner);
+        }
+
+        public static bool ShouldAddSAINComponent(BotOwner botOwner) => botOwner != null && ShouldAddSAINComponent(botOwner.Profile.Info.Settings.Role);
+
+        public static bool ShouldAddSAINComponent(WildSpawnType wildSpawnType)
+        {
+            if (BotSpawnController.StrictExclusionList.Contains(wildSpawnType))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public static bool ShallExludeByWildSpawnType(WildSpawnType wildSpawnType, BotOwner botOwner)

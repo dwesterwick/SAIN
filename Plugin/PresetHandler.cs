@@ -1,5 +1,10 @@
-﻿using SAIN.Editor;
+﻿using Comfort.Common;
+using EFT;
+using SAIN.Components;
+using SAIN.Components.BotController;
+using SAIN.Editor;
 using SAIN.Preset;
+using SAIN.SAINComponent;
 using System;
 using System.Collections.Generic;
 using static SAIN.Helpers.JsonUtility;
@@ -110,7 +115,7 @@ namespace SAIN.Plugin
             }
             catch (Exception ex)
             {
-                Sounds.PlaySound(EFT.UI.EUISoundType.ErrorMessage);
+                SAIN.Editor.Sounds.PlaySound(EFT.UI.EUISoundType.ErrorMessage);
                 Logger.LogError(ex);
                 loadDefault();
             }
@@ -150,6 +155,22 @@ namespace SAIN.Plugin
             LoadedPreset?.GlobalSettings.Update();
             LoadedPreset?.PersonalityManager.Update();
             LoadedPreset?.BotSettings.Update();
+
+            if ((SAINBotController.Instance != null) && Singleton<IBotGame>.Instantiated)
+            {
+                foreach (BotOwner botOwner in SAINBotController.Instance.BotGame.BotsController.Bots.BotOwners)
+                {
+                    bool? newState = SAINEnableClass.RefreshSAINDisabledForBot(botOwner);
+                    if (newState != null)
+                    {
+                        Logger.LogInfo($"SAIN disabled for {botOwner.name}: {newState.Value}");
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"Could not refresh SAIN for {botOwner.name}");
+                    }
+                }
+            }
 
             BigBrainHandler.BrainAssignment.ToggleVanillaLayersForAllBotBrains();
         }

@@ -53,7 +53,8 @@ namespace SAIN.Layers
             bool active = 
                 Bot?.BotActive == true &&
                 (CurrentDecision == ECombatDecision.DogFight ||
-                CurrentDecision == ECombatDecision.AvoidGrenade);
+                CurrentDecision == ECombatDecision.AvoidGrenade) &&
+                !SAINEnableClass.IsSAINDisabledForBot(Bot.BotOwner);
 
             setLayer(active);
             return active;

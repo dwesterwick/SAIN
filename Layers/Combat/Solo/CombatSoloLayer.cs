@@ -79,7 +79,7 @@ namespace SAIN.Layers.Combat.Solo
             if (Bot == null) {
                 return false;
             }
-            bool active = _currentDecision != ECombatDecision.None;
+            bool active = _currentDecision != ECombatDecision.None && !SAINEnableClass.IsSAINDisabledForBot(Bot.BotOwner);
             setLayer(active);
             return active;
         }

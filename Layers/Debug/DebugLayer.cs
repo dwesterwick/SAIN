@@ -31,6 +31,8 @@ namespace SAIN.Layers.Combat.Run
         public override bool IsActive()
         {
             bool active = SAINPlugin.DebugSettings.Logs.ForceBotsToRunAround || SAINPlugin.DebugSettings.Logs.ForceBotsToTryCrawl;
+            //active &= !SAINEnableClass.IsSAINDisabledForBot(Bot.BotOwner);
+
             setLayer(active);
             return active;
         }

@@ -24,8 +24,10 @@ namespace SAIN.Layers.Combat.Run
 
         public override bool IsActive()
         {
-            setLayer(false);
-            return false;
+            bool active = false && !SAINEnableClass.IsSAINDisabledForBot(Bot.BotOwner);
+
+            setLayer(active);
+            return active;
         }
 
         public override bool IsCurrentActionEnding()

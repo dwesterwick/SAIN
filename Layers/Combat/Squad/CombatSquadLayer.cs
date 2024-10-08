@@ -50,7 +50,8 @@ namespace SAIN.Layers.Combat.Squad
             bool active =
                 Bot?.BotActive == true &&
                 SquadDecision != ESquadDecision.None &&
-                Bot.Decision.CurrentSelfDecision == ESelfDecision.None;
+                Bot.Decision.CurrentSelfDecision == ESelfDecision.None &&
+                !SAINEnableClass.IsSAINDisabledForBot(Bot.BotOwner);
 
             if (active && Bot.Cover.CoverInUse != null)
             {
