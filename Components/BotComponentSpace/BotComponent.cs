@@ -18,6 +18,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace SAIN.SAINComponent
 {
@@ -103,6 +104,11 @@ namespace SAIN.SAINComponent
 
         private void Update()
         {
+            if (SAINEnableClass.IsSAINDisabledForBot(Person.AIInfo.BotOwner))
+            {
+                return;
+            }
+
             BotActivation.Update();
             if (!BotActive) {
                 return;

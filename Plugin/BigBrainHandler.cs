@@ -13,11 +13,56 @@ using SAIN.Preset.GlobalSettings;
 using SAIN.Preset.GlobalSettings.Categories;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
+using System;
 
 namespace SAIN
 {
     public class BigBrainHandler
     {
+        private static List<Type> _SAINLayers = new List<Type>();
+        private static List<string> _SAINLayerNames = new List<string>();
+
+        public static List<Type> SAINLayers
+        {
+            get
+            {
+                if (_SAINLayers.Count == 0)
+                {
+                    _SAINLayers.AddRange(typeof(SAINPlugin).Assembly.GetTypes()
+                        .Where(type => type.IsSubclassOf(typeof(SAINLayer))));
+                }
+
+                return _SAINLayers;
+            }
+        }
+
+        public static List<string> SAINLayerNames
+        {
+            get
+            {
+                if (_SAINLayerNames.Count == 0)
+                {
+                    foreach (Type layerType in SAINLayers)
+                    {
+                        FieldInfo nameFieldInfo = layerType.GetField("Name", BindingFlags.Public | BindingFlags.Static);
+                        if (nameFieldInfo == null)
+                        {
+                            Logger.LogError($"{layerType.Name} does not have a public static Name field. This is required for enabling vanilla layers!");
+                        }
+                        else
+                        {
+                            _SAINLayerNames.Add((string)nameFieldInfo.GetValue(null));
+                        }
+                    }
+
+                    Logger.LogWarning("SAIN Layer Names: " + string.Join(", ", _SAINLayerNames));
+                }
+
+                return _SAINLayerNames;
+            }
+        }
+
         public static void Init()
         {
             BrainAssignment.Init();
@@ -75,14 +120,7 @@ namespace SAIN
                     "PtrlBirdEye"
                 };
 
-                if (enabled)
-                {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList, roles);
-                }
-                else
-                {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList, roles);
-                }
+                toggleVanillaLayers(brainList, LayersToToggle, roles, enabled);
             }
 
             public static void ToggleVanillaLayersForScavs(bool enabled)
@@ -103,14 +141,7 @@ namespace SAIN
                     "Enemy Building",
                 };
 
-                if (enabled)
-                {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList);
-                }
-                else
-                {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList);
-                }
+                toggleVanillaLayers(brainList, LayersToToggle, enabled);
 
                 ToggleVanillaLayersForPMCBrains(new List<WildSpawnType>() { WildSpawnType.assaultGroup }, enabled);
             }
@@ -136,14 +167,7 @@ namespace SAIN
                     "PtrlBirdEye"
                 };
 
-                if (enabled)
-                {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList);
-                }
-                else
-                {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList);
-                }
+                toggleVanillaLayers(brainList, LayersToToggle, enabled);
             }
 
             public static void ToggleVanillaLayersForRogues(bool enabled)
@@ -167,14 +191,7 @@ namespace SAIN
                     "PtrlBirdEye"
                 };
 
-                if (enabled)
-                {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList);
-                }
-                else
-                {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList);
-                }
+                toggleVanillaLayers(brainList, LayersToToggle, enabled);
             }
 
             public static void ToggleVanillaLayersForBloodHounds(bool enabled)
@@ -197,14 +214,7 @@ namespace SAIN
                     "KnightFight",
                 };
 
-                if (enabled)
-                {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList);
-                }
-                else
-                {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList);
-                }
+                toggleVanillaLayers(brainList, LayersToToggle, enabled);
             }
 
             public static void ToggleVanillaLayersForBosses(bool enabled)
@@ -226,14 +236,7 @@ namespace SAIN
                     "BossBoarFight"
                 };
 
-                if (enabled)
-                {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList);
-                }
-                else
-                {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList);
-                }
+                toggleVanillaLayers(brainList, LayersToToggle, enabled);
             }
 
             public static void ToggleVanillaLayersForFollowers(bool enabled)
@@ -254,14 +257,7 @@ namespace SAIN
                     "BoarGrenadeDanger"
                 };
 
-                if (enabled)
-                {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList);
-                }
-                else
-                {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList);
-                }
+                toggleVanillaLayers(brainList, LayersToToggle, enabled);
             }
 
             public static void ToggleVanillaLayersForGoons(bool enabled)
@@ -285,13 +281,34 @@ namespace SAIN
                     "Kill logic"
                 };
 
+                toggleVanillaLayers(brainList, LayersToToggle, enabled);
+            }
+
+            private static void toggleVanillaLayers(List<string> brainNames, List<string> layerNames, bool enabled)
+            {
                 if (enabled)
                 {
-                    BrainManager.RestoreLayers(LayersToToggle, brainList);
+                    BrainManager.RemoveLayers(SAINLayerNames, brainNames);
+                    BrainManager.RestoreLayers(layerNames, brainNames);
                 }
                 else
                 {
-                    BrainManager.RemoveLayers(LayersToToggle, brainList);
+                    BrainManager.RestoreLayers(SAINLayerNames, brainNames);
+                    BrainManager.RemoveLayers(layerNames, brainNames);
+                }
+            }
+
+            private static void toggleVanillaLayers(List<string> brainNames, List<string> layerNames, List<WildSpawnType> roles, bool enabled)
+            {
+                if (enabled)
+                {
+                    BrainManager.RemoveLayers(SAINLayerNames, brainNames, roles);
+                    BrainManager.RestoreLayers(layerNames, brainNames, roles);
+                }
+                else
+                {
+                    BrainManager.RestoreLayers(SAINLayerNames, brainNames, roles);
+                    BrainManager.RemoveLayers(layerNames, brainNames, roles);
                 }
             }
 

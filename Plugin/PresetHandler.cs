@@ -161,11 +161,7 @@ namespace SAIN.Plugin
                 foreach (BotOwner botOwner in SAINBotController.Instance.BotGame.BotsController.Bots.BotOwners)
                 {
                     bool? newState = SAINEnableClass.RefreshSAINDisabledForBot(botOwner);
-                    if (newState != null)
-                    {
-                        Logger.LogInfo($"SAIN disabled for {botOwner.name}: {newState.Value}");
-                    }
-                    else
+                    if (newState == null)
                     {
                         Logger.LogWarning($"Could not refresh SAIN for {botOwner.name}");
                     }
