@@ -55,8 +55,6 @@ namespace SAIN
                             _SAINLayerNames.Add((string)nameFieldInfo.GetValue(null));
                         }
                     }
-
-                    Logger.LogWarning("SAIN Layer Names: " + string.Join(", ", _SAINLayerNames));
                 }
 
                 return _SAINLayerNames;
@@ -83,7 +81,6 @@ namespace SAIN
                 addCustomLayersToGoons();
                 addCustomLayersToOthers();
 
-                ToggleVanillaLayersForPMCBrains(new List<WildSpawnType>() { WildSpawnType.pmcBot }, false);
                 ToggleVanillaLayersForPMCBrains(new List<WildSpawnType>() { WildSpawnType.pmcBEAR, WildSpawnType.pmcUSEC }, false);
                 ToggleVanillaLayersForOthers(false);
                 ToggleVanillaLayersForAllBotBrains();
@@ -93,6 +90,7 @@ namespace SAIN
             {
                 ToggleVanillaLayersForScavs(SAINEnabled.VanillaScavs);
                 ToggleVanillaLayersForRogues(SAINEnabled.VanillaRogues);
+                ToggleVanillaLayersForRaiders(SAINEnabled.VanillaRaiders);
                 ToggleVanillaLayersForBloodHounds(SAINEnabled.VanillaBloodHounds);
                 ToggleVanillaLayersForBosses(SAINEnabled.VanillaBosses);
                 ToggleVanillaLayersForFollowers(SAINEnabled.VanillaFollowers);
@@ -121,6 +119,11 @@ namespace SAIN
                 };
 
                 toggleVanillaLayers(brainList, LayersToToggle, roles, enabled);
+            }
+
+            public static void ToggleVanillaLayersForRaiders(bool enabled)
+            {
+                ToggleVanillaLayersForPMCBrains(new List<WildSpawnType>() { WildSpawnType.pmcBot }, enabled);
             }
 
             public static void ToggleVanillaLayersForScavs(bool enabled)
