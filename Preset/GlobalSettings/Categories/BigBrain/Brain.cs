@@ -73,7 +73,6 @@ namespace SAIN.Preset.GlobalSettings.Categories
 
         public static readonly List<Brain> Followers = new List<Brain>
         {
-            Brain.BossBully,
             Brain.FollowerBully,
             Brain.FollowerGluharAssault,
             Brain.FollowerGluharProtect,

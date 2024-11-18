@@ -391,11 +391,6 @@ namespace SAIN
 
             private static void addCustomLayersToBosses()
             {
-                if (SAINEnabled.VanillaBosses)
-                {
-                    return;
-                }
-
                 List<string> brainList = getBrainList(AIBrains.Bosses);
 
                 var settings = SAINPlugin.LoadedPreset.GlobalSettings.General;
@@ -408,11 +403,6 @@ namespace SAIN
 
             private static void addCustomLayersToFollowers()
             {
-                if (SAINEnabled.VanillaFollowers)
-                {
-                    return;
-                }
-
                 List<string> brainList = getBrainList(AIBrains.Followers);
 
                 var settings = SAINPlugin.LoadedPreset.GlobalSettings.General;
@@ -425,11 +415,6 @@ namespace SAIN
 
             private static void addCustomLayersToGoons()
             {
-                if (SAINEnabled.VanillaGoons)
-                {
-                    return;
-                }
-
                 List<string> brainList = getBrainList(AIBrains.Goons);
 
                 BrainManager.AddCustomLayer(typeof(DebugLayer), brainList, 99);
