@@ -27,7 +27,7 @@ namespace SAIN.Components
             Doors?.Update();
             Location?.Update();
             findSpawnPointMarkers();
-            //BotLightTracker.LogDictionaryInfo();
+            BotLightTracker.LogDictionaryInfo();
         }
 
         private void findSpawnPointMarkers()
@@ -44,12 +44,12 @@ namespace SAIN.Components
 
         public IEnumerable<Vector3> GetAllSpawnPointPositionsOnNavMesh()
         {
-            if (SpawnPointMarkers == null)
-            {
-                return Enumerable.Empty<Vector3>();
-            }
+			if (SpawnPointMarkers == null)
+			{
+				return Enumerable.Empty<Vector3>();
+			}
 
-            List<Vector3> spawnPointPositions = new List<Vector3>();
+			List<Vector3> spawnPointPositions = new List<Vector3>();
             foreach (SpawnPointMarker spawnPointMarker in SpawnPointMarkers) {
                 // Try to find a point on the NavMesh nearby the spawn point
                 Vector3? spawnPointPosition = NavMeshHelpers.GetNearbyNavMeshPoint(spawnPointMarker.Position, 2);

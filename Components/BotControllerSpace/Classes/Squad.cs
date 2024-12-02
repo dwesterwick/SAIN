@@ -21,9 +21,9 @@ namespace SAIN.BotController.Classes
 
         public event Action<Squad> OnSquadEmpty;
 
-        public event Action<IPlayer, DamageInfo, float> LeaderKilled;
+        public event Action<IPlayer, DamageInfoStruct, float> LeaderKilled;
 
-        public event Action<IPlayer, DamageInfo, float> OnMemberKilled;
+        public event Action<IPlayer, DamageInfoStruct, float> OnMemberKilled;
 
         public event Action<BotComponent, float> NewLeaderFound;
 
@@ -466,7 +466,7 @@ namespace SAIN.BotController.Classes
             }
         }
 
-        private void memberWasKilled(Player player, IPlayer lastAggressor, DamageInfo lastDamageInfo, EBodyPart lastBodyPart)
+        private void memberWasKilled(Player player, IPlayer lastAggressor, DamageInfoStruct lastDamageInfoStruct, EBodyPart lastBodyPart)
         {
             if (SAINPlugin.DebugMode) {
                 Logger.LogInfo(
@@ -474,12 +474,12 @@ namespace SAIN.BotController.Classes
                     $"was killed for Squad: [{Id}] " +
                     $"by [{lastAggressor?.Profile.Nickname}] " +
                     $"at Time: [{Time.time}] " +
-                    $"by damage type: [{lastDamageInfo.DamageType}] " +
+                    $"by damage type: [{lastDamageInfoStruct.DamageType}] " +
                     $"to Body part: [{lastBodyPart}]"
                     );
             }
 
-            OnMemberKilled?.Invoke(lastAggressor, lastDamageInfo, Time.time);
+            OnMemberKilled?.Invoke(lastAggressor, lastDamageInfoStruct, Time.time);
 
             if (MemberInfos.TryGetValue(player?.ProfileId, out var member)
                 && member != null) {
@@ -488,7 +488,7 @@ namespace SAIN.BotController.Classes
                     if (SAINPlugin.DebugMode)
                         Logger.LogInfo($"Leader [{player?.Profile.Nickname}] was killed for Squad: [{Id}]");
 
-                    LeaderKilled?.Invoke(lastAggressor, lastDamageInfo, Time.time);
+                    LeaderKilled?.Invoke(lastAggressor, lastDamageInfoStruct, Time.time);
                     TimeThatLeaderDied = Time.time;
                     LeaderComponent = null;
                 }

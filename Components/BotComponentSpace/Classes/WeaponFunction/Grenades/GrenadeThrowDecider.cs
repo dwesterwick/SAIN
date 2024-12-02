@@ -2,13 +2,13 @@
 using SAIN.Preset;
 using SAIN.SAINComponent.Classes.EnemyClasses;
 using UnityEngine;
-using GrenadeThrowChecker = GClass493;
+using GrenadeThrowChecker = GClass541;
 
 namespace SAIN.SAINComponent.Classes.WeaponFunction
 {
     public class GrenadeThrowDecider : BotSubClass<BotGrenadeManager>, IBotDecisionClass
     {
-        public GrenadeThrowDecider(BotGrenadeManager grenadeClass) : base(grenadeClass)
+        public GrenadeThrowDecider(BotGrenadeManager ThrowWeapItemClass) : base(ThrowWeapItemClass)
         {
         }
 
@@ -61,12 +61,10 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
         private float _checkThrowPos_HeightOffset = 0.25f;
         private float _maxEnemyDistToCheckThrow = 75f;
         private float _friendlyCloseRecheckTime = 3f;
-
-        //private float _announceThrowingNadeChance = 75f;
+        private float _announceThrowingNadeChance = 75f;
         private float _sayNeedGrenadeFreq = 10f;
-
         private float _sayNeedGrenadeChance = 5f;
-        //private const float THROW_FREQUENCY_RANDOMIZATION_FACTOR = 2f;
+        private const float THROW_FREQUENCY_RANDOMIZATION_FACTOR = 2f;
 
         public bool GetDecision(Enemy enemy, out string reason)
         {
@@ -97,7 +95,7 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
             return false;
         }
 
-        //private GrenadeClass _currentGrenade;
+        private ThrowWeapItemClass _currentGrenade;
 
         private bool checkCanThrow(out string reason)
         {
@@ -344,6 +342,7 @@ namespace SAIN.SAINComponent.Classes.WeaponFunction
         private float _minThrowDistPercent;
         private float _maxPower => BotOwner.WeaponManager.Grenades.MaxPower;
         private float _nextPosibleAttempt;
+        private float _nextGrenadeCheckTime;
 
         private static AIGreandeAng[] _indoorAngles =
         {
