@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using static CC_Vintage;
-using static EFT.UI.CharacterSelectionStartScreen;
 
 namespace SAIN.Preset.GlobalSettings.Categories
 {
@@ -15,6 +13,8 @@ namespace SAIN.Preset.GlobalSettings.Categories
         Tagilla,
         BossTest,
         //BossZryachiy,
+        //PeaceZryachiy,
+        //RavangeZryachiy,
         Obdolbs,
         ExUsec,
         BigPipe,
@@ -35,6 +35,18 @@ namespace SAIN.Preset.GlobalSettings.Categories
         SectantWarrior,
         CursAssault,
         Assault,
+        BossBoar,
+        FlBoarSt,
+        FlBoarCl,
+        BoarSniper,
+        BossKolontay,
+        FlKlnAslt,
+        KolonSec,
+        BossPartisan,
+        //SctPredvst,
+        //PrizrakSt,
+        //Oni,
+        //InfectedFast,
     }
 
     public static class AIBrains
@@ -69,11 +81,13 @@ namespace SAIN.Preset.GlobalSettings.Categories
             Brain.Gifter,
             Brain.Killa,
             Brain.SectantPriest,
+            Brain.BossBoar,
+            Brain.BossKolontay,
+            Brain.BossPartisan,
         };
 
         public static readonly List<Brain> Followers = new List<Brain>
         {
-            Brain.BossBully,
             Brain.FollowerBully,
             Brain.FollowerGluharAssault,
             Brain.FollowerGluharProtect,
@@ -82,6 +96,11 @@ namespace SAIN.Preset.GlobalSettings.Categories
             Brain.FollowerSanitar,
             Brain.TagillaFollower,
             //Brain.Fl_Zraychiy,
+            Brain.FlBoarSt,
+            Brain.FlBoarCl,
+            Brain.BoarSniper,
+            Brain.FlKlnAslt,
+            Brain.KolonSec,
         };
     }
 }

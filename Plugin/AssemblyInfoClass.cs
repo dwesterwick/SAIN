@@ -7,7 +7,7 @@
         public const string Configuration = SPTVersion;
         public const string Company = "";
         public const string Product = SAINName;
-        public const string Copyright = "Copyright © 2024 Solarint";
+        public const string Copyright = "Copyright © 2025 Solarint";
         public const string Trademark = "";
         public const string Culture = "";
 
@@ -17,14 +17,14 @@
 
         public const string SAINGUID = "me.sol.sain";
         public const string SAINName = "SAIN";
-        public const string SAINVersion = "3.2.1";
+        public const string SAINVersion = "3.2.2";
         public const string SAINPresetVersion = "3.2.1";
 
         public const string SPTGUID = "com.SPT.core";
         public const string SPTVersion = "3.10.0";
 
         public const string BigBrainGUID = "xyz.drakia.bigbrain";
-        public const string BigBrainVersion = "1.0.0";
+        public const string BigBrainVersion = "1.2.0";
 
         public const string LootingBotsKey = "me.skwizzy.lootingbots";
         public const string RealismModKey = "RealismMod";
