@@ -31,6 +31,8 @@ namespace SAIN.Preset.GlobalSettings.Categories
         Killa,
         Marksman,
         PMC,
+        PmcBear,
+        PmcUsec,
         SectantPriest,
         SectantWarrior,
         CursAssault,
@@ -51,6 +53,34 @@ namespace SAIN.Preset.GlobalSettings.Categories
 
     public static class AIBrains
     {
+        public static List<Brain> GetAllowedScavBrains()
+        {
+            return Scavs;
+        }
+
+        public static List<Brain> GetAllowedPlayerScavBrains()
+        {
+            return GetAllowedPMCBrains();
+        }
+
+        public static List<Brain> GetAllowedPMCBrains()
+        {
+            List<Brain> PMCBrains = PMCs;
+
+            if (BigBrainHandler.INCLUDE_RAIDER_BRAIN_FOR_PMCS)
+            {
+                PMCBrains.Add(Brain.PMC);
+            }
+
+            return PMCBrains;
+        }
+
+        public static readonly List<Brain> PMCs = new List<Brain>
+        {
+            Brain.PmcBear,
+            Brain.PmcUsec,
+        };
+
         public static readonly List<Brain> Scavs = new List<Brain>
         {
             Brain.CursAssault,
